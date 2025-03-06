@@ -1,13 +1,14 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { Search, Plus, Calendar, ChartBar as BarChart2 } from 'lucide-react-native';
 import { useLanguage } from '../../context/LanguageContext';
+import { IMAGES } from '../../constants/assets';
 
 export default function HomeScreen() {
   const { translations } = useLanguage();
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>{translations.hello}</Text>
@@ -70,7 +71,7 @@ export default function HomeScreen() {
           {[1, 2, 3].map((item) => (
             <TouchableOpacity key={item} style={styles.projectCard}>
               <Image
-                source={{ uri: `https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D` }}
+                source={{ uri: IMAGES.PROJECT_THUMBNAIL }}
                 style={styles.projectImage}
               />
               <Text style={styles.projectTitle}>{translations.projectTitle}</Text>
@@ -81,7 +82,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-      </ScrollView> */}
+      </ScrollView>
     </SafeAreaView>
   );
 }

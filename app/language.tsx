@@ -9,8 +9,7 @@ import {
 import { router } from 'expo-router';
 import { ChevronDown } from 'lucide-react-native';
 import { useLanguage, Language } from '../context/LanguageContext';
-import LogoSvg from '../assets/images/logo.svg';
-import RadarWavesSvg from '../assets/images/radar-waves.svg';
+import { SVG } from '../constants/assets';
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();
@@ -60,9 +59,9 @@ export default function LanguageSelection() {
       <View style={styles.contentContainer}>
         <View style={styles.wrapForm}>
           <View style={styles.logoContainer}>
-            <LogoSvg width={300} height={90} />
-            <LogoSvg width={300} height={90} />
-            <LogoSvg width={300} height={90} />
+            <SVG.LOGO width={300} height={90} />
+            <SVG.LOGO width={300} height={90} />
+            <SVG.LOGO width={300} height={90} />
           </View>
 
           <Text style={styles.label}>{translations.languageSelection}</Text>
@@ -113,7 +112,7 @@ export default function LanguageSelection() {
         </View>
 
         <View style={styles.radarWavesContainer}>
-          <RadarWavesSvg width="100%" height={200} />
+          <SVG.RADAR_WAVES width="100%" height={200} />
         </View>
       </View>
     </SafeAreaView>

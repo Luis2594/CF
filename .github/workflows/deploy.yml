@@ -1,0 +1,35 @@
+name: Deploy to Firebase
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Install root dependencies
+      - name: Install Root Dependencies
+        run: npm ci
+
+      # Create service account file
+      - name: Create Service Account File
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > ${{ github.workspace }}/service-account.json
+
+      # Install and deploy functions
+      - name: Deploy Functions
+        working-directory: backend/functions
+        run: npm i && npx firebase-tools deploy --only functions
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/service-account.json

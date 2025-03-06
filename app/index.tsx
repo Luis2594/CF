@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import { useLanguage } from '../context/LanguageContext';
-import LogoSvg from '../assets/images/logo.svg';
+import { ANIMATIONS, SVG } from '../constants/assets';
 
 export default function SplashScreen() {
   const { translations } = useLanguage();
@@ -28,13 +28,13 @@ export default function SplashScreen() {
       <View style={styles.logoContainer}>
         {/* <LottieView
           ref={animationRef}
-          source={require('../assets/animations/logo-animation.json')}
+          source={ANIMATIONS.LOGO}
           style={styles.logo}
           autoPlay
           loop={false}
         />
         <Text style={styles.appName}>{translations.appName}</Text> */}
-        <LogoSvg width={300} height={90} />
+        <SVG.LOGO width={300} height={90} />
       </View>
     </View>
   );

@@ -10,6 +10,7 @@ import {
 import { router } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { IMAGES } from '../constants/assets';
 
 export default function TermsIntroScreen() {
   const { translations, language } = useLanguage();
@@ -36,7 +37,7 @@ export default function TermsIntroScreen() {
       <View style={styles.contentContainer}>
         {/* Illustration */}
         <Image
-          source={require('../assets/images/terms-illustration.png')}
+          source={IMAGES.TERMS_ILLUSTRATION}
           style={styles.illustration}
         />
 

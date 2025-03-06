@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { CreditCard as Edit2, Settings, Award, Calendar, Clock } from 'lucide-react-native';
 import { useLanguage } from '../../context/LanguageContext';
+import { IMAGES } from '../../constants/assets';
 
 export default function ProfileScreen() {
   const { translations } = useLanguage();
@@ -11,7 +12,7 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop' }}
+              source={{ uri: IMAGES.PROFILE_DEFAULT }}
               style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editButton}>
