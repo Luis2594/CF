@@ -9,15 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Scan } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useTerms } from '../context/TermsContext';
-import LogoSvg from '../assets/images/logo.svg';
-import RadarWavesSvg from '../assets/images/radar-waves.svg';
+import { SVG } from '../constants/assets';
 import Dropdown from '../components/Dropdown';
 import { costaRicanBanks } from '../data/banks';
+import { auth } from '../config/firebase';
+import { signInWithCustomToken } from 'firebase/auth';
+import axios from 'axios';
 
 export default function Login() {
   const { language } = useLanguage();
@@ -29,7 +32,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Reset error state
     setError(null);
 
@@ -61,33 +64,47 @@ export default function Login() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Call your Firebase Function to get custom token
+      const response = await axios.post('/api/createCustomToken', {
+        username,
+        password,
+        deviceId: 'device-id', // You should generate or get this from the device
+        companyName: institution,
+        biometric: false,
+      });
 
-      // // Check if user has accepted terms
-      // if (hasAcceptedTerms) {
-      //   // User has accepted terms, navigate to home
-      //   router.replace('/(tabs)');
-      // } else {
-      //   // User has not accepted terms, navigate to terms acceptance screen
-      //   router.replace('/terms-acceptance');
-      // }
-      router.replace('/terms-acceptance');
-    }, 1500);
+      const { token } = response.data;
+
+      // Sign in with custom token
+      const userCredential = await signInWithCustomToken(auth, token);
+      const user = userCredential.user;
+
+      // Get the user's claims
+      const idTokenResult = await user.getIdTokenResult();
+      const claims = idTokenResult.claims;
+
+      // Check if user has accepted terms based on claims
+      if (claims.acceptedTerms) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/terms-acceptance');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(
+        language === 'es'
+          ? 'Error al iniciar sesión. Por favor intente de nuevo.'
+          : 'Login failed. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFaceIdLogin = () => {
-    // Handle Face ID login - would also need to check terms acceptance
+    // Handle Face ID login
     console.log('Face ID login');
-
-    // For demo purposes, we'll use the same logic as regular login
-    // if (hasAcceptedTerms) {
-    //   router.replace('/(tabs)');
-    // } else {
-    //   router.replace('/terms-acceptance');
-    // }
-
     router.replace('/terms-acceptance');
   };
 
@@ -108,7 +125,7 @@ export default function Login() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.logoContainer}>
-            <LogoSvg width={300} height={90} />
+            <SVG.LOGO width={300} height={90} />
           </View>
 
           <Text style={styles.welcomeText}>
@@ -232,7 +249,7 @@ export default function Login() {
           </View>
         </ScrollView>
         <View style={styles.radarWavesContainer}>
-          <RadarWavesSvg width="100%" height={200} fill="#F34A2D" />
+          <SVG.RADAR_WAVES width="100%" height={200} fill="#F34A2D" />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -351,7 +368,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recoverText: {
-    fontFamily: 'Quicksand_400Medium',
+    fontFamily: 'Quicksand_400Regular',
     fontSize: 16,
     color: '#F04E23',
     marginBottom: 10,

@@ -1,76 +1,82 @@
-/**
- * Creates a custom authentication token with optional claims
- * @param {string} uid - The user ID to create a token for
- * @param {Object} [additionalClaims] - Optional additional claims to include in the token
- * @returns {string} The generated custom token
- * @throws {Error} If the token creation fails
- */
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const axios = require('axios');
 
-const crypto = require('crypto');
-
-// Constants for token generation
-const TOKEN_EXPIRY = 3600; // 1 hour in seconds
-const ALGORITHM = 'HS256';
-const SECRET_KEY = process.env.JWT_SECRET_KEY || 'your-secret-key-min-32-chars-long!!';
-
-function base64UrlEncode(str) {
-  return Buffer.from(str)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
-
-function createCustomToken(uid, additionalClaims = {}) {
+exports.createCustomToken = functions.https.onCall(async (data, context) => {
   try {
-    // Validate inputs
-    if (!uid || typeof uid !== 'string') {
-      throw new Error('User ID must be a non-empty string');
+    // Validate required parameters
+    const requiredParams = ['username', 'password', 'deviceId', 'companyName'];
+    for (const param of requiredParams) {
+      if (!data[param]) {
+        throw new functions.https.HttpsError(
+          'invalid-argument',
+          `Missing required parameter: ${param}`
+        );
+      }
     }
 
-    if (typeof additionalClaims !== 'object') {
-      throw new Error('Additional claims must be an object');
+    // Call the authentication endpoint
+    const response = await axios.post(
+      'https://api-mobile-proxy-test.credit-force.com/api/v1/auth/login',
+      {
+        username: data.username,
+        password: data.password,
+        deviceId: data.deviceId,
+        companyName: data.companyName,
+        biometric: data.biometric || false
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Forwarded-For': '192.4.168.212' // This should be dynamic in production
+        }
+      }
+    );
+
+    const responseData = response.data;
+
+    // Validate the response
+    if (!responseData.success || responseData.code !== '000') {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        responseData.message || 'Authentication failed'
+      );
     }
 
-    // Create JWT header
-    const header = {
-      alg: ALGORITHM,
-      typ: 'JWT'
+    // Extract claims from the response
+    const claims = {
+      userId: responseData.userId,
+      name: responseData.name,
+      acceptedTerms: responseData.acceptedTerms,
+      apiKey: responseData.apiKey,
+      parameters: responseData.parameters.reduce((acc, param) => {
+        acc[param.key] = param.value;
+        return acc;
+      }, {}),
+      companyName: data.companyName,
+      deviceId: data.deviceId
     };
 
-    // Create JWT payload
-    const now = Math.floor(Date.now() / 1000);
-    const payload = {
-      iss: 'findforce-auth',
-      sub: uid,
-      aud: 'findforce-app',
-      iat: now,
-      exp: now + TOKEN_EXPIRY,
-      ...additionalClaims
+    // Create Firebase custom token with claims
+    const customToken = await admin.auth().createCustomToken(responseData.userId, claims);
+
+    return {
+      token: customToken,
+      claims
     };
-
-    // Encode header and payload
-    const encodedHeader = base64UrlEncode(JSON.stringify(header));
-    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-
-    // Create signature
-    const signatureInput = `${encodedHeader}.${encodedPayload}`;
-    const signature = crypto
-      .createHmac('sha256', SECRET_KEY)
-      .update(signatureInput)
-      .digest('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-
-    // Combine to create final token
-    return `${encodedHeader}.${encodedPayload}.${signature}`;
   } catch (error) {
-    throw new Error(`Failed to create custom token: ${error.message}`);
+    console.error('Authentication error:', error);
+
+    if (error.response) {
+      throw new functions.https.HttpsError(
+        'unknown',
+        `Authentication failed: ${error.response.data.message || 'Unknown error'}`
+      );
+    }
+
+    throw new functions.https.HttpsError(
+      'internal',
+      `Failed to create custom token: ${error.message || 'Unknown error'}`
+    );
   }
-}
-
-// Example usage:
-// const token = createCustomToken('user123', { role: 'admin' });
-
-module.exports = createCustomToken;
+});
