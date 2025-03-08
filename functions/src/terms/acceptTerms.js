@@ -61,14 +61,6 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       "success": true,
       "message": "Terms accepted successfully."
     };
-
-    // Update user custom claims to reflect terms acceptance
-    await admin.auth().setCustomUserClaims(context.auth.uid, {
-      ...context.auth.token,
-      acceptedTerms: true,
-      acceptedOn: data.acceptedOn,
-    });
-
     
     return {
       success: true,

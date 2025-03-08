@@ -4,6 +4,7 @@ import { LogOut } from 'lucide-react-native';
 import { getAuth, signOut } from "firebase/auth";
 import { router } from 'expo-router';
 import { useLanguage } from '../../context/LanguageContext';
+import TestList from '../../components/TestList';
 
 export default function HomeScreen() {
   const [name, setName] = useState<string>('');
@@ -55,6 +56,8 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <TestList language={language} />
     </SafeAreaView>
   );
 }
