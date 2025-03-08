@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const axios = require('axios');
+const { encryptText } = require('../utils/encryption');
 
 exports.acceptTerms = functions.https.onCall(async (data, context) => {
   try {
@@ -23,14 +24,28 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       }
     }
 
+    // Get API key from user claims
+    const { apiKey } = context.auth.token;
+    if (!apiKey) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'API key not found in user claims'
+      );
+    }
+
+    // Encrypt device ID using API key
+    const encryptedDeviceId = encryptText(data.deviceId, apiKey);
+
+    console.log("encryptedDeviceId", encryptedDeviceId);
+    
     // Make request to Credit Force API
     const response = await axios.post(
-      'https://api-mobile-proxy-test.credit-force.com/api/v1/terms/accept',
+      'https://cflogin.jamesjara.com/api/v1/terms/accept',
       {
         userId: data.userId,
         accepted: true,
         acceptedOn: data.acceptedOn,
-        deviceId: data.deviceId,
+        deviceId: encryptedDeviceId,
         language: data.language
       },
       {
