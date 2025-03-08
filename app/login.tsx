@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Scan } from 'lucide-react-native';
@@ -20,6 +21,12 @@ import { costaRicanBanks } from '../data/banks';
 import { auth, functions } from '../config/firebase';
 import { signInWithCustomToken } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getDeviceId } from '../utils/deviceId';
+import { getLoginErrorMessage } from '../constants/loginErrors';
+import { useBiometrics } from '../hooks/useBiometrics';
+import BiometricPrompt from '../components/BiometricPrompt';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from '../constants/storage';
 
 export default function Login() {
   const { language } = useLanguage();
@@ -30,8 +37,45 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
+  const [lastLoginCredentials, setLastLoginCredentials] = useState<{
+    institution: string;
+    username: string;
+  } | null>(null);
+  const [previousUsername, setPreviousUsername] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  const {
+    isAvailable: isBiometricAvailable,
+    biometricType,
+    isEnabled: isBiometricEnabled,
+    authenticate,
+    setBiometricEnabled
+  } = useBiometrics();
+
+  useEffect(() => {
+    // Get device ID and last login credentials on component mount
+    const initialize = async () => {
+      const id = await getDeviceId();
+      setDeviceId(id);
+
+      // Load last login credentials
+      const savedCredentials = await AsyncStorage.getItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
+      if (savedCredentials) {
+        const credentials = JSON.parse(savedCredentials);
+        setLastLoginCredentials(credentials);
+        setPreviousUsername(credentials.username);
+        // Pre-fill the form with saved credentials
+        setInstitution(credentials.institution);
+        setUsername(credentials.username);
+        setPassword(credentials.password);
+      }
+    };
+
+    initialize();
+  }, []);
+
+  const handleLogin = async (useBiometric = false) => {
     // Reset error state
     setError(null);
 
@@ -52,7 +96,7 @@ export default function Login() {
       return;
     }
 
-    if (!password) {
+    if (!password && !useBiometric) {
       setError(
         language === 'es'
           ? 'Ingrese su contraseña'
@@ -61,32 +105,58 @@ export default function Login() {
       return;
     }
 
+    if (!deviceId) {
+      setError(
+        language === 'es'
+          ? 'Error al obtener ID del dispositivo'
+          : 'Error getting device ID'
+      );
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Get the functions instance
+      // Check if user is trying to login with different credentials
+      if (!useBiometric && 
+          previousUsername && 
+          username !== previousUsername && 
+          isBiometricEnabled) {
+        // Disable biometric for previous user
+        await setBiometricEnabled(false);
+        await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
+      }
+
       const functionsInstance = getFunctions();
-      
-      // Create the callable function
       const createCustomTokenFn = httpsCallable(functionsInstance, 'createCustomToken');
 
-      // Call the function
       const result = await createCustomTokenFn({
-        // username,
-        // password,
-        // deviceId: 'web-device', // You should generate or get this from the device
-        // companyName: institution,
-        biometric: false,
-
-            "username": "XMI1VonhdNpkRS18c2Dq9g==",
-    "password": "TIFPrlrAy6Gmj593ZkZQmg==",
-    "deviceId": "Nl54EFRDbzNILBAaLOoEUQ==",
-    "companyName": "uHgngn0mj6qsevFPtP6Uvw==",
-
-        
+        username,
+        password,
+        deviceId,
+        companyName: institution,
+        biometric: useBiometric,
       });
 
       const { token, claims } = result.data;
+
+      // Save credentials for future use
+      await AsyncStorage.setItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS, JSON.stringify({
+        institution,
+        username,
+        password,
+      }));
+
+      // Save credentials for biometric login if not using biometric
+      if (!useBiometric) {
+        // Show biometric prompt if available and not already enabled
+        // Only show if this is a new user or first time login
+        if (isBiometricAvailable && 
+            (!isBiometricEnabled || username !== previousUsername)) {
+          setShowBiometricPrompt(true);
+          return;
+        }
+      }
 
       // Sign in with custom token
       const userCredential = await signInWithCustomToken(auth, token);
@@ -95,28 +165,77 @@ export default function Login() {
       // Get the user's claims
       const idTokenResult = await user.getIdTokenResult();
 
-      // Check if user has accepted terms based on claims
-      if (idTokenResult.claims.acceptedTerms) {
+      // Navigate based on terms acceptance
+      if (idTokenResult.claims.acceptedTerms === 1) {
         router.replace('/(tabs)');
       } else {
         router.replace('/terms-acceptance');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      setError(
-        language === 'es'
-          ? 'Error al iniciar sesión. Por favor intente de nuevo.'
-          : 'Login failed. Please try again.'
-      );
+      
+      const errorCode = error.response?.data?.code || '007';
+      const errorMessage = getLoginErrorMessage(errorCode, language);
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFaceIdLogin = () => {
-    // Handle Face ID login
-    console.log('Face ID login');
-    router.replace('/terms-acceptance');
+  const handleBiometricLogin = async () => {
+    if (!lastLoginCredentials) {
+      setError(
+        language === 'es'
+          ? 'No hay credenciales guardadas para inicio de sesión biométrico'
+          : 'No saved credentials for biometric login'
+      );
+      return;
+    }
+
+    const success = await authenticate();
+    if (success) {
+      setInstitution(lastLoginCredentials.institution);
+      setUsername(lastLoginCredentials.username);
+      setPassword(lastLoginCredentials.password);
+      handleLogin(true);
+    } else {
+      setError(
+        language === 'es'
+          ? 'Autenticación biométrica fallida'
+          : 'Biometric authentication failed'
+      );
+    }
+  };
+
+  const handleEnableBiometrics = async () => {
+    try {
+      const success = await authenticate();
+      if (success) {
+        await setBiometricEnabled(true);
+        setShowBiometricPrompt(false);
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert(
+          language === 'es' ? 'Error de autenticación' : 'Authentication Error',
+          language === 'es'
+            ? 'No se pudo verificar su identidad biométrica. Puede intentarlo más tarde desde la configuración.'
+            : 'Could not verify your biometric identity. You can try again later from settings.',
+          [{ text: 'OK' }]
+        );
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      console.error('Biometric setup error:', error);
+      Alert.alert(
+        language === 'es' ? 'Error' : 'Error',
+        language === 'es'
+          ? 'Ocurrió un error al configurar la autenticación biométrica. Por favor intente más tarde.'
+          : 'An error occurred while setting up biometric authentication. Please try again later.',
+        [{ text: 'OK' }]
+      );
+      router.replace('/(tabs)');
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -125,7 +244,7 @@ export default function Login() {
 
   const handleSelectInstitution = (item: { value: string; label: string }) => {
     setInstitution(item.value);
-    setError(null); // Clear error when user makes a selection
+    setError(null);
   };
 
   return (
@@ -187,7 +306,6 @@ export default function Login() {
               <TextInput
                 style={styles.input}
                 placeholder={language === 'es' ? 'Contraseña' : 'Password'}
-                value={password}
                 onChangeText={(text) => {
                   setPassword(text);
                   setError(null);
@@ -209,7 +327,7 @@ export default function Login() {
 
             <TouchableOpacity
               style={styles.faceIdContainer}
-              onPress={handleFaceIdLogin}
+              onPress={() => {}}
             >
               <Text style={styles.recoverText}>
                 {language === 'es'
@@ -224,7 +342,7 @@ export default function Login() {
                 institution && username && password && styles.loginButtonEnable,
                 isLoading && styles.loginButtonDisabled,
               ]}
-              onPress={handleLogin}
+              onPress={() => handleLogin(false)}
               disabled={isLoading}
             >
               <Text
@@ -246,23 +364,40 @@ export default function Login() {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.faceIdContainer}
-              onPress={handleFaceIdLogin}
-            >
-              <Text style={styles.faceIdText}>
-                {language === 'es'
-                  ? 'o ingrese con face ID'
-                  : 'or login with face ID'}
-              </Text>
-              <Scan size={24} color="#0096FF" />
-            </TouchableOpacity>
+            {isBiometricAvailable && isBiometricEnabled && (
+              <TouchableOpacity
+                style={styles.faceIdContainer}
+                onPress={handleBiometricLogin}
+              >
+                <Text style={styles.faceIdText}>
+                  {language === 'es'
+                    ? `o ingrese con ${biometricType === 'facial' ? 'Face ID' : 'huella'}`
+                    : `or login with ${biometricType === 'facial' ? 'Face ID' : 'fingerprint'}`}
+                </Text>
+                <Scan size={24} color="#0096FF" />
+              </TouchableOpacity>
+            )}
           </View>
         </ScrollView>
         <View style={styles.radarWavesContainer}>
           <SVG.RADAR_WAVES width="100%" height={200} fill="#F34A2D" />
         </View>
       </KeyboardAvoidingView>
+
+      <BiometricPrompt
+        visible={showBiometricPrompt}
+        onClose={() => {
+          setShowBiometricPrompt(false);
+          router.replace('/(tabs)');
+        }}
+        onEnable={handleEnableBiometrics}
+        onSkip={() => {
+          setShowBiometricPrompt(false);
+          router.replace('/(tabs)');
+        }}
+        biometricType={biometricType}
+        language={language}
+      />
     </SafeAreaView>
   );
 }

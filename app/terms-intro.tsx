@@ -10,16 +10,20 @@ import {
 import { router } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { useOnboarding } from '../context/OnboardingContext';
 import { IMAGES } from '../constants/assets';
 
 export default function TermsIntroScreen() {
   const { translations, language } = useLanguage();
+  const { setOnboardingComplete } = useOnboarding();
 
   const handleBack = () => {
     router.back();
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Mark onboarding as complete
+    await setOnboardingComplete();
     router.replace('/login');
   };
 

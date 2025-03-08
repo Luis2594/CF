@@ -27,8 +27,9 @@ export default function SettingsScreen() {
 
   const handleLogout = async () => {
     try {
-      await auth.signOut();
+      // First navigate, then sign out to prevent race conditions
       router.replace('/login');
+      await auth.signOut();
     } catch (error) {
       console.error('Logout error:', error);
       Alert.alert(
@@ -138,12 +139,15 @@ export default function SettingsScreen() {
             <ChevronRight size={20} color="#999" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.settingItem} onPress={confirmLogout}>
+          <TouchableOpacity 
+            style={[styles.settingItem, styles.logoutItem]} 
+            onPress={confirmLogout}
+          >
             <View style={styles.settingLeft}>
               <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 59, 48, 0.1)' }]}>
                 <LogOut size={20} color="#ff3b30" />
               </View>
-              <Text style={[styles.settingText, { color: '#ff3b30' }]}>{translations.settingsItems.logout}</Text>
+              <Text style={[styles.settingText, styles.logoutText]}>{translations.settingsItems.logout}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -199,6 +203,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 1,
   },
+  logoutItem: {
+    backgroundColor: 'rgba(255, 59, 48, 0.05)',
+  },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,6 +222,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Quicksand_500Medium',
     color: '#333',
+  },
+  logoutText: {
+    color: '#ff3b30',
   },
   settingRight: {
     flexDirection: 'row',

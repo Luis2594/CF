@@ -9,15 +9,24 @@ import {
 import { router } from 'expo-router';
 import { ChevronDown } from 'lucide-react-native';
 import { useLanguage, Language } from '../context/LanguageContext';
+import { useOnboarding } from '../context/OnboardingContext';
 import { SVG } from '../constants/assets';
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();
+  const { hasCompletedOnboarding, setOnboardingComplete } = useOnboarding();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(
     language || 'es'
   );
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
+
+  // Check if onboarding is completed on mount
+  useEffect(() => {
+    if (hasCompletedOnboarding) {
+      router.replace('/login');
+    }
+  }, [hasCompletedOnboarding]);
 
   // Update selected language when the app language changes
   useEffect(() => {
@@ -45,7 +54,7 @@ export default function LanguageSelection() {
 
     // Navigate after a short delay to ensure translations are applied
     setTimeout(() => {
-      router.replace('/welcome');
+      router.push('/welcome');
     }, 100);
   };
 
@@ -54,14 +63,17 @@ export default function LanguageSelection() {
     // This is just to ensure the component re-renders after language change
   }, [forceUpdate, translations]);
 
+  // If onboarding is completed, don't render this screen
+  if (hasCompletedOnboarding) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contentContainer}>
         <View style={styles.wrapForm}>
           <View style={styles.logoContainer}>
-            <SVG.LOGO width={300} height={90} />
-            <SVG.LOGO width={300} height={90} />
-            <SVG.LOGO width={300} height={90} />
+            <SVG.LOGO width={300} height={90} /> 
           </View>
 
           <Text style={styles.label}>{translations.languageSelection}</Text>

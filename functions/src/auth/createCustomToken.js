@@ -10,7 +10,8 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
       if (!data[param]) {
         throw new functions.https.HttpsError(
           'invalid-argument',
-          `Missing required parameter: ${param}`
+          `Missing required parameter: ${param}`,
+          { code: '001' } // Integration error code
         );
       }
     }
@@ -40,7 +41,8 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
     if (!responseData.success || responseData.code !== '000') {
       throw new functions.https.HttpsError(
         'unauthenticated',
-        responseData.message || 'Authentication failed'
+        responseData.message || 'Authentication failed',
+        { code: responseData.code || '007' } // Pass the error code from the response
       );
     }
 
@@ -68,16 +70,25 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
   } catch (error) {
     console.error('Authentication error:', error);
 
+    if (error instanceof functions.https.HttpsError) {
+      // Pass through HttpsError with its code
+      throw error;
+    }
+
     if (error.response) {
+      // Pass through API error code if available
       throw new functions.https.HttpsError(
         'unknown',
-        `Authentication failed: ${error.response.data.message || 'Unknown error'}`
+        error.response.data.message || 'Authentication failed',
+        { code: error.response.data.code || '007' }
       );
     }
 
+    // Generic error with default code
     throw new functions.https.HttpsError(
       'internal',
-      `Failed to create custom token: ${error.message || 'Unknown error'}`
+      error.message || 'Unknown error',
+      { code: '007' }
     );
   }
 });

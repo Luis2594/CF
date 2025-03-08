@@ -12,7 +12,11 @@ import {
 } from '@expo-google-fonts/quicksand';
 import { LanguageProvider, useLanguage } from '../context/LanguageContext';
 import { TermsProvider } from '../context/TermsContext';
+import { OnboardingProvider } from '../context/OnboardingContext';
 import { View } from 'react-native';
+import { auth } from '../config/firebase';
+import { router, Slot } from 'expo-router';
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -25,6 +29,8 @@ declare global {
 
 function RootLayoutNav() {
   const { isLanguageLoaded } = useLanguage();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
   const [fontsLoaded, fontError] = useFonts({
     Quicksand_300Light,
     Quicksand_400Regular,
@@ -33,24 +39,46 @@ function RootLayoutNav() {
     Quicksand_700Bold,
   });
 
+  useEffect(() => {
+    // Listen for auth state changes
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // User is signed in
+        const idTokenResult = await user.getIdTokenResult();
+        setInitialRoute(idTokenResult.claims.acceptedTerms ? '/(tabs)' : '/terms-acceptance');
+      } else {
+        // No user is signed in, start with language selection
+        setInitialRoute('/language');
+      }
+      setIsAuthChecked(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const onLayoutRootView = useCallback(async () => {
-    if ((fontsLoaded || fontError) && isLanguageLoaded) {
+    if ((fontsLoaded || fontError) && isLanguageLoaded && isAuthChecked && initialRoute) {
       await SplashScreen.hideAsync();
       window.frameworkReady?.();
+      
+      // Navigate only after everything is ready
+      if (initialRoute) {
+        router.replace(initialRoute);
+      }
     }
-  }, [fontsLoaded, fontError, isLanguageLoaded]);
+  }, [fontsLoaded, fontError, isLanguageLoaded, isAuthChecked, initialRoute]);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && isLanguageLoaded) {
+    if ((fontsLoaded || fontError) && isLanguageLoaded && isAuthChecked && initialRoute) {
       onLayoutRootView();
     }
-  }, [fontsLoaded, fontError, isLanguageLoaded, onLayoutRootView]);
+  }, [fontsLoaded, fontError, isLanguageLoaded, isAuthChecked, initialRoute, onLayoutRootView]);
 
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
-  if (!isLanguageLoaded) {
+  if (!isLanguageLoaded || !isAuthChecked || !initialRoute) {
     return <View />;
   }
 
@@ -70,11 +98,14 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  useFrameworkReady();
   return (
     <LanguageProvider>
       <TermsProvider>
-        <RootLayoutNav />
-        <StatusBar style="auto" />
+        <OnboardingProvider>
+          <RootLayoutNav />
+          <StatusBar style="auto" />
+        </OnboardingProvider>
       </TermsProvider>
     </LanguageProvider>
   );
