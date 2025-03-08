@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUserAuthenticated(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasAcceptedTerms() {
+      return isAuthenticated() && request.auth.token.acceptedTerms == true;
+    }
+
+    function hasValidApiKey() {
+      return isAuthenticated() && request.auth.token.apiKey != null;
+    }
+
+    // Tests collection rules
+    match /tests/{testId} {
+      allow read: if isAuthenticated() 
+        && hasAcceptedTerms()
+        && hasValidApiKey();
+      
+      allow create: if isAuthenticated() 
+        && hasAcceptedTerms()
+        && hasValidApiKey()
+        && request.resource.data.keys().hasAll(['name'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0;
+      
+      allow update: if isAuthenticated()
+        && hasAcceptedTerms()
+        && hasValidApiKey()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0;
+      
+      allow delete: if false; // Disable deletion for safety
+    }
+
+    // User profiles rules
+    match /users/{userId} {
+      allow read: if isUserAuthenticated(userId);
+      allow write: if isUserAuthenticated(userId)
+        && hasAcceptedTerms();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
