@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Scan } from 'lucide-react-native';
@@ -18,9 +17,9 @@ import { useTerms } from '../context/TermsContext';
 import { SVG } from '../constants/assets';
 import Dropdown from '../components/Dropdown';
 import { costaRicanBanks } from '../data/banks';
-import { auth } from '../config/firebase';
+import { auth, functions } from '../config/firebase';
 import { signInWithCustomToken } from 'firebase/auth';
-import axios from 'axios';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export default function Login() {
   const { language } = useLanguage();
@@ -65,16 +64,29 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Call your Firebase Function to get custom token
-      const response = await axios.post('/api/createCustomToken', {
-        username,
-        password,
-        deviceId: 'device-id', // You should generate or get this from the device
-        companyName: institution,
+      // Get the functions instance
+      const functionsInstance = getFunctions();
+      
+      // Create the callable function
+      const createCustomTokenFn = httpsCallable(functionsInstance, 'createCustomToken');
+
+      // Call the function
+      const result = await createCustomTokenFn({
+        // username,
+        // password,
+        // deviceId: 'web-device', // You should generate or get this from the device
+        // companyName: institution,
         biometric: false,
+
+            "username": "XMI1VonhdNpkRS18c2Dq9g==",
+    "password": "TIFPrlrAy6Gmj593ZkZQmg==",
+    "deviceId": "Nl54EFRDbzNILBAaLOoEUQ==",
+    "companyName": "uHgngn0mj6qsevFPtP6Uvw==",
+
+        
       });
 
-      const { token } = response.data;
+      const { token, claims } = result.data;
 
       // Sign in with custom token
       const userCredential = await signInWithCustomToken(auth, token);
@@ -82,10 +94,9 @@ export default function Login() {
 
       // Get the user's claims
       const idTokenResult = await user.getIdTokenResult();
-      const claims = idTokenResult.claims;
 
       // Check if user has accepted terms based on claims
-      if (claims.acceptedTerms) {
+      if (idTokenResult.claims.acceptedTerms) {
         router.replace('/(tabs)');
       } else {
         router.replace('/terms-acceptance');

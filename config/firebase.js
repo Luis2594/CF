@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
+import { getFunctions } from 'firebase/functions';
 
 // Firebase configuration object
 export const firebaseConfig = {
@@ -20,6 +21,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Auth
 const auth = getAuth(app);
 
+// Initialize Functions
+const functions = getFunctions(app);
+
 // Initialize Analytics only if supported (web platform)
 let analytics = null;
 isSupported().then(yes => {
@@ -30,4 +34,4 @@ isSupported().then(yes => {
   console.error("Firebase Analytics initialization error:", err);
 });
 
-export { app, auth, analytics };
+export { app, auth, analytics, functions };

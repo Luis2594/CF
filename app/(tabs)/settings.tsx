@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, SafeAreaV
 import { useState } from 'react';
 import { ChevronRight, Bell, Moon, Globe, Lock, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
 import { useLanguage, Language } from '../../context/LanguageContext';
+import { auth } from '../../config/firebase';
+import { router } from 'expo-router';
 
 export default function SettingsScreen() {
   const { translations, language, setLanguage } = useLanguage();
@@ -20,6 +22,42 @@ export default function SettingsScreen() {
         ? 'Idioma cambiado a Español' 
         : 'Language changed to English',
       [{ text: 'OK' }]
+    );
+  };
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert(
+        'Error',
+        language === 'es'
+          ? 'Error al cerrar sesión. Por favor intente de nuevo.'
+          : 'Error logging out. Please try again.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const confirmLogout = () => {
+    Alert.alert(
+      language === 'es' ? 'Cerrar Sesión' : 'Logout',
+      language === 'es'
+        ? '¿Está seguro que desea cerrar sesión?'
+        : 'Are you sure you want to log out?',
+      [
+        {
+          text: language === 'es' ? 'Cancelar' : 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: language === 'es' ? 'Sí, cerrar sesión' : 'Yes, log out',
+          onPress: handleLogout,
+          style: 'destructive',
+        },
+      ]
     );
   };
 
@@ -100,7 +138,7 @@ export default function SettingsScreen() {
             <ChevronRight size={20} color="#999" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity style={styles.settingItem} onPress={confirmLogout}>
             <View style={styles.settingLeft}>
               <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 59, 48, 0.1)' }]}>
                 <LogOut size={20} color="#ff3b30" />
