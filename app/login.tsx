@@ -164,9 +164,9 @@ export default function Login() {
 
       // Get the user's claims
       const idTokenResult = await user.getIdTokenResult();
-
+      
       // Navigate based on terms acceptance
-      if (idTokenResult.claims.acceptedTerms === 1) {
+      if (idTokenResult.claims.acceptedTerms === false) {
         router.replace('/(tabs)');
       } else {
         router.replace('/terms-acceptance');

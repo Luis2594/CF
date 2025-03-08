@@ -12,12 +12,18 @@ import { router } from 'expo-router';
 import { ChevronLeft, Check, Square } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useTerms } from '../context/TermsContext';
+import { auth, functions } from '../config/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { getDeviceId } from '../utils/deviceId';
 
 export default function TermsAcceptanceScreen() {
   const { language } = useLanguage();
   const { setTermsAccepted } = useTerms();
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const canGoBack = router.canGoBack();
 
   const handleBack = () => {
     router.back();
@@ -38,22 +44,67 @@ export default function TermsAcceptanceScreen() {
       return;
     }
 
-    // Save terms acceptance status
-    await setTermsAccepted(true);
+    setIsLoading(true);
+    setError(null);
 
-    // Navigate to home screen
-    router.replace('/+not-found');
+    try {
+      // Get current user
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+
+      // Get device ID
+      const deviceId = await getDeviceId();
+      if (!deviceId) {
+        throw new Error('Could not get device ID');
+      }
+
+      // Get ID token result to get user claims
+      const idTokenResult = await user.getIdTokenResult();
+      const userId = idTokenResult.claims.userId;
+
+      if (!userId) {
+        throw new Error('No user ID in claims');
+      }
+
+      // Call the acceptTerms function
+      const acceptTermsFn = httpsCallable(functions, 'acceptTerms');
+      await acceptTermsFn({
+        userId,
+        deviceId,
+        acceptedOn: new Date().toISOString(),
+        language
+      });
+
+      // Save terms acceptance status locally
+      await setTermsAccepted(true);
+
+      // Navigate to home screen
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Error accepting terms:', error);
+      setError(
+        language === 'es'
+          ? 'Error al aceptar los términos. Por favor intente de nuevo.'
+          : 'Error accepting terms. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Back button */}
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <ChevronLeft size={24} color="#666" />
-        <Text style={styles.backText}>
-          {language === 'es' ? 'Regresar' : 'Back'}
-        </Text>
-      </TouchableOpacity>
+      {/* Back button - only show if we can go back */}
+      {canGoBack && (
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <ChevronLeft size={24} color="#666" />
+          <Text style={styles.backText}>
+            {language === 'es' ? 'Regresar' : 'Back'}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.content}>
         <Text style={styles.title}>
@@ -132,12 +183,22 @@ export default function TermsAcceptanceScreen() {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.continueButton, !isChecked && styles.disabledButton]}
+        style={[
+          styles.continueButton,
+          (!isChecked || isLoading) && styles.disabledButton
+        ]}
         onPress={handleContinue}
+        disabled={!isChecked || isLoading}
         activeOpacity={isChecked ? 0.7 : 1}
       >
         <Text style={styles.continueButtonText}>
-          {language === 'es' ? 'Siguiente' : 'Next'}
+          {isLoading
+            ? language === 'es'
+              ? 'Procesando...'
+              : 'Processing...'
+            : language === 'es'
+            ? 'Siguiente'
+            : 'Next'}
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -206,6 +267,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
+    marginHorizontal: 20,
     borderLeftWidth: 3,
     borderLeftColor: '#FF3B30',
   },
@@ -247,6 +309,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 30,
     marginHorizontal: 30,
+    marginBottom: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },

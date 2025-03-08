@@ -15,7 +15,6 @@ import { TermsProvider } from '../context/TermsContext';
 import { OnboardingProvider } from '../context/OnboardingContext';
 import { View } from 'react-native';
 import { auth } from '../config/firebase';
-import { router, Slot } from 'expo-router';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 
 // Keep the splash screen visible while we fetch resources
@@ -30,7 +29,6 @@ declare global {
 function RootLayoutNav() {
   const { isLanguageLoaded } = useLanguage();
   const [isAuthChecked, setIsAuthChecked] = useState(false);
-  const [initialRoute, setInitialRoute] = useState<string | null>(null);
   const [fontsLoaded, fontError] = useFonts({
     Quicksand_300Light,
     Quicksand_400Regular,
@@ -41,15 +39,8 @@ function RootLayoutNav() {
 
   useEffect(() => {
     // Listen for auth state changes
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        // User is signed in
-        const idTokenResult = await user.getIdTokenResult();
-        setInitialRoute(idTokenResult.claims.acceptedTerms ? '/(tabs)' : '/terms-acceptance');
-      } else {
-        // No user is signed in, start with language selection
-        setInitialRoute('/language');
-      }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      // Only set auth as checked, don't navigate here
       setIsAuthChecked(true);
     });
 
@@ -57,28 +48,23 @@ function RootLayoutNav() {
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if ((fontsLoaded || fontError) && isLanguageLoaded && isAuthChecked && initialRoute) {
+    if ((fontsLoaded || fontError) && isLanguageLoaded && isAuthChecked) {
       await SplashScreen.hideAsync();
       window.frameworkReady?.();
-      
-      // Navigate only after everything is ready
-      if (initialRoute) {
-        router.replace(initialRoute);
-      }
     }
-  }, [fontsLoaded, fontError, isLanguageLoaded, isAuthChecked, initialRoute]);
+  }, [fontsLoaded, fontError, isLanguageLoaded, isAuthChecked]);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && isLanguageLoaded && isAuthChecked && initialRoute) {
+    if ((fontsLoaded || fontError) && isLanguageLoaded && isAuthChecked) {
       onLayoutRootView();
     }
-  }, [fontsLoaded, fontError, isLanguageLoaded, isAuthChecked, initialRoute, onLayoutRootView]);
+  }, [fontsLoaded, fontError, isLanguageLoaded, isAuthChecked, onLayoutRootView]);
 
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
-  if (!isLanguageLoaded || !isAuthChecked || !initialRoute) {
+  if (!isLanguageLoaded || !isAuthChecked) {
     return <View />;
   }
 
