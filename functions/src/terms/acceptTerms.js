@@ -36,9 +36,10 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
     // Encrypt device ID using API key
     const encryptedDeviceId = encryptText(data.deviceId, apiKey);
 
-    console.log("encryptedDeviceId", encryptedDeviceId);
+    console.log("encryptedDeviceId", apiKey,  encryptedDeviceId);
     
     // Make request to Credit Force API
+    /*
     const response = await axios.post(
       'https://cflogin.jamesjara.com/api/v1/terms/accept',
       {
@@ -54,15 +55,21 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
         }
       }
     );
+    */
+    const response = {
+      "hashTerms": "5DA14919-2C6C-4F93-AC8A-C905AC7FEBF0",
+      "success": true,
+      "message": "Terms accepted successfully."
+    };
 
     // Update user custom claims to reflect terms acceptance
     await admin.auth().setCustomUserClaims(context.auth.uid, {
       ...context.auth.token,
       acceptedTerms: true,
       acceptedOn: data.acceptedOn,
-      language: data.language
     });
 
+    
     return {
       success: true,
       data: response.data
