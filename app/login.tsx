@@ -27,6 +27,7 @@ import { useBiometrics } from '../hooks/useBiometrics';
 import BiometricPrompt from '../components/BiometricPrompt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storage';
+import { encryptLoginCredentials } from '../utils/encryption';
 
 export default function Login() {
   const { language } = useLanguage();
@@ -130,11 +131,16 @@ export default function Login() {
       const functionsInstance = getFunctions();
       const createCustomTokenFn = httpsCallable(functionsInstance, 'createCustomToken');
 
-      const result = await createCustomTokenFn({
+      // Encrypt credentials
+      const encryptedCredentials = encryptLoginCredentials({
         username,
         password,
         deviceId,
-        companyName: institution,
+        companyName: institution
+      });
+
+      const result = await createCustomTokenFn({
+        ...encryptedCredentials,
         biometric: useBiometric,
       });
 
