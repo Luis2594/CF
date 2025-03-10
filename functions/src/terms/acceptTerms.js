@@ -24,38 +24,28 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Get API key from user claims
-    const { apiKey } = context.auth.token;
-    if (!apiKey) {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
-        'API key not found in user claims'
-      );
-    }
-
-    // Encrypt device ID using API key
-    const encryptedDeviceId = encryptText(data.deviceId, apiKey);
-
-    console.log("encryptedDeviceId", apiKey,  encryptedDeviceId);
+    const agent = new https.Agent({
+        rejectUnauthorized: false,
+    })
     
     // Make request to Credit Force API
-    /*
     const response = await axios.post(
       'https://cflogin.jamesjara.com/api/v1/terms/accept',
       {
         userId: data.userId,
         accepted: true,
         acceptedOn: data.acceptedOn,
-        deviceId: encryptedDeviceId,
+        deviceId: data.deviceId,
         language: data.language
       },
       {
+        agent,
         headers: {
           'Content-Type': 'application/json'
         }
       }
     );
-    */
+  
     const response = {
       "hashTerms": "5DA14919-2C6C-4F93-AC8A-C905AC7FEBF0",
       "success": true,

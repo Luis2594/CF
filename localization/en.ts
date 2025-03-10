@@ -10,9 +10,6 @@ export const en = {
   languages: {
     en: 'English',
     es: 'Español',
-    fr: 'Français',
-    de: 'Deutsch',
-    zh: '中文',
   },
 
   // Welcome Screen
