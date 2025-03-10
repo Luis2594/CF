@@ -135,8 +135,10 @@ export default function Login() {
       const encryptedCredentials = encryptLoginCredentials({
         username,
         password,
-        deviceId,
-        companyName: institution
+        // deviceId,
+        deviceId: '123456789012345',
+        // companyName: institution
+        companyName: 'Credit Force'
       });
 
       const result = await createCustomTokenFn({
