@@ -2,6 +2,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const axios = require('axios');
 const { encryptText } = require('../utils/encryption');
+const https = require('https');
+
 
 exports.acceptTerms = functions.https.onCall(async (data, context) => {
   try {
