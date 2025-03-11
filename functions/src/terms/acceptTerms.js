@@ -16,7 +16,7 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
     }
 
     // Validate required parameters
-    const requiredParams = ['userId', 'deviceId', 'acceptedOn', 'language'];
+    const requiredParams = ['userId', 'deviceId', 'acceptedOn', 'language', 'token'];
     for (const param of requiredParams) {
       if (!data[param]) {
         throw new functions.https.HttpsError(
@@ -26,30 +26,11 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       }
     }
 
-    // Get API key from user claims
-    const { token } = context.auth.token;
-    if (!token) {
-        console.log(context.auth.token);
-      throw new functions.https.HttpsError(
-        'failed-precondition',
-        'token key not found in user claims'
-      );
-    }
-    
 
     const agent = new https.Agent({
       rejectUnauthorized: false,
     })
 
-console.log({
-        userId: data.userId,
-        accepted: true,
-        acceptedOn: data.acceptedOn,
-        deviceId: data.deviceId,
-        language: data.language
-      });
-
-      
     // Make request to Credit Force API
     const response = await axios.post(
       'https://api-mobile-proxy-test.credit-force.com/api/v1/terms/accept',
@@ -64,7 +45,7 @@ console.log({
         httpsAgent: agent,
         headers: {
           'Content-Type': 'application/json',
-          'token': token
+          'token': data.token
         }
       }
     );
