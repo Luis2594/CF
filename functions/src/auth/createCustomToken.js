@@ -64,6 +64,7 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
 
     // Extract claims from the response
     const claims = {
+      token: responseData.token,
       userId: responseData.userId,
       name: responseData.name,
       acceptedTerms: responseData.acceptedTerms,
