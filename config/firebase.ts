@@ -79,19 +79,4 @@ isSupported().then(yes => {
   console.error("Firebase Analytics initialization error:", err);
 });
 
-// Set up auth state listener
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in
-    if (window.location.pathname === '/login') {
-      router.replace('/(tabs)');
-    }
-  } else {
-    // User is signed out
-    if (window.location.pathname !== '/login') {
-      router.replace('/login');
-    }
-  }
-});
-
 export { app, auth, db, analytics, functions };
