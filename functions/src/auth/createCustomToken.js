@@ -15,13 +15,21 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
           { code: '001' } // Integration error code
         );
       }
-    } 
+    }
 
     const agent = new https.Agent({
-        rejectUnauthorized: false,
+      rejectUnauthorized: false,
     })
- 
-     const responseData = await axios.post(
+
+    console.log({
+      username: data.username,
+      password: data.password,
+      deviceId: data.deviceId,
+      companyName: data.companyName,
+      biometric: data.biometric || false,
+    });
+
+    const response = await axios.post(
       'https://api-mobile-proxy-test.credit-force.com/api/v1/auth/login',
       {
         username: data.username,
@@ -31,18 +39,20 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
         biometric: data.biometric || false,
       },
       {
-        httpsAgent: agent, 
+        httpsAgent: agent,
         headers: {
-        'Content-Type': 'application/json',
-        'X-Forwarded-For': '192.4.168.212', // This should be dynamic in production
+          'Content-Type': 'application/json',
+          'X-Forwarded-For': '192.4.168.212', // This should be dynamic in production
         }
       }
-    ); 
+    );
+
+    const responseData = response.data;
 
     // Handle response
     // const responseData = await response.json();
     // const responseData =  {"userId":"2c477968-8e33-435d-9789-772be5cb2614","name":"James Jara","success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYzQ3Nzk2OC04ZTMzLTQzNWQtOTc4OS03NzJiZTVjYjI2MTQiLCJ1c2VyTmFtZSI6IlhNSTFWb25oZE5wa1JTMThjMkRxOWc9PSIsImNvbXBhbnlOYW1lIjoidUhnbmduMG1qNnFzZXZGUHRQNlV2dz09IiwiZXhwIjoxNzQxMzkzNzU4LCJpc3MiOiJ3d3cuY3JlZGl0LWZvcmNlLmNvbSIsImF1ZCI6Ind3dy5hcGkuY3JlZGl0LWZvcmNlLmNvbSJ9.ecWQJ-pnPbGezlwHXSM6UYVgy1TxnwTJptl0T9y1TMs","message":"The login was successful.","acceptedTerms":true,"code":"000","apiKey":"oASPc#wSNIMcYP9sVSa3OGT#","parameters":[{"key":"RadioProximity","value":"15KM"}] };
- 
+
     // Validate the response
     if (!responseData.success || responseData.code !== '000') {
       throw new functions.https.HttpsError(

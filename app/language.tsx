@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-} from 'react-native';
-import { router } from 'expo-router';
-import { ChevronDown } from 'lucide-react-native';
-import { useLanguage, Language } from '../context/LanguageContext';
-import { useOnboarding } from '../context/OnboardingContext';
-import { SVG } from '../constants/assets';
+} from "react-native";
+import { router } from "expo-router";
+import { ChevronDown } from "lucide-react-native";
+import { useLanguage, Language } from "../context/LanguageContext";
+import { useOnboarding } from "../context/OnboardingContext";
+import { SVG } from "../constants/assets";
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();
   const { hasCompletedOnboarding, setOnboardingComplete } = useOnboarding();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(
-    language || 'es'
+    language || "es"
   );
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -24,7 +24,7 @@ export default function LanguageSelection() {
   // Check if onboarding is completed on mount
   useEffect(() => {
     if (hasCompletedOnboarding) {
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [hasCompletedOnboarding]);
 
@@ -36,8 +36,8 @@ export default function LanguageSelection() {
   }, [selectedLanguage]);
 
   const languages = [
-    { code: 'es', name: translations.languages.es },
-    { code: 'en', name: translations.languages.en },
+    { code: "es", name: translations.languages.es },
+    { code: "en", name: translations.languages.en },
   ];
 
   const handleLanguageSelect = (code: Language) => {
@@ -54,7 +54,7 @@ export default function LanguageSelection() {
 
     // Navigate after a short delay to ensure translations are applied
     setTimeout(() => {
-      router.push('/welcome');
+      router.push("/welcome");
     }, 100);
   };
 
@@ -73,7 +73,7 @@ export default function LanguageSelection() {
       <View style={styles.contentContainer}>
         <View style={styles.wrapForm}>
           <View style={styles.logoContainer}>
-            <SVG.LOGO width={300} height={90} /> 
+            <SVG.LOGO width={300} height={90} />
           </View>
 
           <Text style={styles.label}>{translations.languageSelection}</Text>
@@ -134,62 +134,62 @@ export default function LanguageSelection() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
   },
   contentContainer: {
     flex: 1,
-    alignItems: 'center',
-    width: '90%',
-    backgroundColor: '#f5f5f5',
-    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "90%",
+    backgroundColor: "#F5F5F6",
+    borderRadius: 24,
   },
   wrapForm: {
-    marginTop: 100,
-    width: '90%',
+    width: "90%",
+    marginBottom: 150,
   },
   logoContainer: {
     marginBottom: 20,
   },
   label: {
     fontSize: 14,
-    color: '#717275',
+    color: "#717275",
     marginBottom: 10,
-    fontFamily: 'Quicksand_700Bold',
-    textDecorationLine: 'underline',
+    fontFamily: "Quicksand_700Bold",
   },
   dropdownContainer: {
-    width: '100%',
-    backgroundColor: 'white',
-    borderRadius: 50,
+    width: "100%",
+    backgroundColor: "white",
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#D0D0D1',
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    borderColor: "#D0D0D1",
+    marginBottom: 15,
+    height: 44,
   },
   dropdown: {
-    width: '100%',
-    height: 60,
+    width: "100%",
+    height: 44,
     borderRadius: 30,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   dropdownText: {
     fontSize: 14,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#4F4E50',
+    fontFamily: "Quicksand_500Medium",
+    color: "#4F4E50",
   },
   dropdownMenu: {
-    position: 'absolute',
+    position: "absolute",
     top: 65,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -200,42 +200,42 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: "#F0F0F0",
   },
   selectedItem: {
-    backgroundColor: 'rgba(243, 74, 45, 0.1)',
+    backgroundColor: "rgba(243, 74, 45, 0.1)",
   },
   dropdownItemText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#4F4E50',
+    fontFamily: "Quicksand_500Medium",
+    color: "#4F4E50",
   },
   selectedItemText: {
-    color: '#F34A2D',
-    fontFamily: 'Quicksand_700Bold',
+    color: "#F34A2D",
+    fontFamily: "Quicksand_700Bold",
   },
   button: {
-    width: '100%',
-    height: 60,
-    backgroundColor: '#F04E23',
-    borderRadius: 30,
+    width: "100%",
+    height: 48,
+    borderRadius: 50,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F04E23",
+    borderColor: "#E0E0E0",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 10,
   },
   buttonText: {
-    fontSize: 18,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: 'white',
+    fontSize: 16,
+    fontFamily: "Quicksand_600SemiBold",
+    color: "white",
   },
   radarWavesContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: 180,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
 });

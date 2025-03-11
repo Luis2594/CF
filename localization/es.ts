@@ -1,3 +1,5 @@
+import { BiometricType } from "@/hooks/useBiometrics";
+
 export const es = {
   // Splash Screen
   appName: 'FindForce',
@@ -42,7 +44,8 @@ export const es = {
   // Terms Acceptance
   acceptTermsCheckbox: 'Acepto los términos y condiciones',
   acceptTermsError: 'Debe aceptar los términos y condiciones para continuar',
-
+  acceptTermsNextError: 'Error al aceptar los términos. Por favor intente de nuevo.',
+  processing: 'Procesando...',
   // Login
   welcomeBack: 'Bienvenido',
   signInContinue: 'Inicia sesión para continuar',
@@ -52,19 +55,26 @@ export const es = {
   forgotPassword: '¿Olvidaste tu contraseña?',
   signIn: 'Iniciar sesión',
   signingIn: 'Iniciando sesión...',
-  faceIdLogin: 'o ingrese con face ID',
+  faceIdLogin: (biometricType: BiometricType) => `o ingrese con ${biometricType === "facial" ? "Face ID" : "huella"
+    }`,
   noAccount: '¿No tienes una cuenta?',
   signUp: 'Regístrate',
   loginErrors: {
-    institution: 'Seleccione una institución',
+    institution: 'Ingrese una institución',
     username: 'Ingrese su usuario',
-    password: 'Ingrese su contraseña'
+    password: 'Ingrese su contraseña',
+    deviceId: 'Error al obtener ID del dispositivo',
+    emptyBiometric: 'No hay credenciales guardadas para inicio de sesión biométrico',
+    failBiometric: 'Autenticación biométrica fallida',
+    errorTitleBiometric: 'Error de autenticación',
+    errorDescriptionBiometric: 'No se pudo verificar su identidad biométrica. Puede intentarlo más tarde desde la configuración.',
+    errorConfigTitleBiometric: 'Error',
+    errorConfigDescriptionBiometric: 'Ocurrió un error al configurar la autenticación biométrica. Por favor intente más tarde.',
   },
+  ok: 'OK',
 
   // Terms
   lastUpdated: 'Última actualización: 1 de junio de 2025',
-  back: 'Atrás',
-
   // Home Tab
   hello: 'Hola, Alex',
   todayTasks: 'Tareas de hoy',

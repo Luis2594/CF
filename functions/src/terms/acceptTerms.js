@@ -24,13 +24,14 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       }
     }
 
+
     const agent = new https.Agent({
-        rejectUnauthorized: false,
+      rejectUnauthorized: false,
     })
-    
+
     // Make request to Credit Force API
     const response = await axios.post(
-      'https://cflogin.jamesjara.com/api/v1/terms/accept',
+      'https://api-mobile-proxy-test.credit-force.com/api/v1/terms/accept',
       {
         userId: data.userId,
         accepted: true,
@@ -45,13 +46,13 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
         }
       }
     );
-  
-    const response = {
+
+    /* const response = {
       "hashTerms": "5DA14919-2C6C-4F93-AC8A-C905AC7FEBF0",
       "success": true,
       "message": "Terms accepted successfully."
-    };
-    
+    };*/
+
     return {
       success: true,
       data: response.data

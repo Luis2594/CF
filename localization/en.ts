@@ -1,3 +1,5 @@
+import { BiometricType } from "@/hooks/useBiometrics";
+
 export const en = {
   // Splash Screen
   appName: 'FindForce',
@@ -39,6 +41,8 @@ export const en = {
   // Terms Acceptance
   acceptTermsCheckbox: 'I accept the terms and conditions',
   acceptTermsError: 'You must accept the terms and conditions to continue',
+  acceptTermsNextError: 'Error accepting terms. Please try again.',
+  processing: 'Processing...',
 
   // Login
   welcomeBack: 'Welcome',
@@ -49,18 +53,25 @@ export const en = {
   forgotPassword: 'Forgot Password?',
   signIn: 'Login',
   signingIn: 'Logging in...',
-  faceIdLogin: 'or login with face ID',
+  faceIdLogin: (biometricType: BiometricType) => `or login with ${biometricType === "facial" ? "Face ID" : "fingerprint"}`,
   noAccount: 'Don\'t have an account?',
   signUp: 'Sign Up',
   loginErrors: {
-    institution: 'Please select an institution',
+    institution: 'Please add an institution',
     username: 'Please enter your username',
-    password: 'Please enter your password'
+    password: 'Please enter your password',
+    deviceId: 'Error getting device ID',
+    emptyBiometric: 'No saved credentials for biometric login',
+    failBiometric: 'Biometric authentication failed',
+    errorTitleBiometric: 'Authentication Error',
+    errorDescriptionBiometric: 'Could not verify your biometric identity. You can try again later from settings.',
+    errorConfigTitleBiometric: 'Error',
+    errorConfigDescriptionBiometric: 'An error occurred while setting up biometric authentication. Please try again later.'
   },
+  ok: 'OK',
 
   // Terms
   lastUpdated: 'Last Updated: June 1, 2025',
-  back: 'Back',
 
   // Home Tab
   hello: 'Hello, Alex',

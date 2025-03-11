@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,39 +10,38 @@ import {
   Platform,
   ScrollView,
   Alert,
-} from 'react-native';
-import { router } from 'expo-router';
-import { Eye, EyeOff, Scan } from 'lucide-react-native';
-import { useLanguage } from '../context/LanguageContext';
-import { useTerms } from '../context/TermsContext';
-import { SVG } from '../constants/assets';
-import Dropdown from '../components/Dropdown';
-import { costaRicanBanks } from '../data/banks';
-import { auth, functions } from '../config/firebase';
-import { signInWithCustomToken } from 'firebase/auth';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getDeviceId } from '../utils/deviceId';
-import { getLoginErrorMessage } from '../constants/loginErrors';
-import { useBiometrics } from '../hooks/useBiometrics';
-import BiometricPrompt from '../components/BiometricPrompt';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../constants/storage';
-import { encryptLoginCredentials } from '../utils/encryption';
+} from "react-native";
+import { Eye, EyeOff, X } from "lucide-react-native";
+import { useLanguage } from "../context/LanguageContext";
+import { useTerms } from "../context/TermsContext";
+import { SVG } from "../constants/assets";
+import { auth } from "../config/firebase";
+import { signInWithCustomToken } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { getDeviceId } from "../utils/deviceId";
+import { getLoginErrorMessage } from "../constants/loginErrors";
+import { useBiometrics } from "../hooks/useBiometrics";
+import BiometricPrompt from "../components/BiometricPrompt";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "../constants/storage";
+import { encryptLoginCredentials } from "../utils/encryption";
 
 export default function Login() {
-  const { language } = useLanguage();
+  const { translations, language } = useLanguage();
   const { hasAcceptedTerms } = useTerms();
-  const [institution, setInstitution] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [institution, setInstitution] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
+  const [loginWithBiometrics, setLoginWithBiometrics] = useState(false);
   const [lastLoginCredentials, setLastLoginCredentials] = useState<{
     institution: string;
     username: string;
+    password: string;
   } | null>(null);
   const [previousUsername, setPreviousUsername] = useState<string | null>(null);
 
@@ -51,17 +50,22 @@ export default function Login() {
     biometricType,
     isEnabled: isBiometricEnabled,
     authenticate,
-    setBiometricEnabled
+    setBiometricEnabled,
   } = useBiometrics();
 
   useEffect(() => {
     // Get device ID and last login credentials on component mount
     const initialize = async () => {
+      // await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
+
       const id = await getDeviceId();
       setDeviceId(id);
 
       // Load last login credentials
-      const savedCredentials = await AsyncStorage.getItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
+      const savedCredentials = await AsyncStorage.getItem(
+        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+      );
+
       if (savedCredentials) {
         const credentials = JSON.parse(savedCredentials);
         setLastLoginCredentials(credentials);
@@ -70,11 +74,20 @@ export default function Login() {
         setInstitution(credentials.institution);
         setUsername(credentials.username);
         setPassword(credentials.password);
+        setLoginWithBiometrics(
+          isBiometricAvailable && isBiometricEnabled && credentials
+        );
       }
     };
 
     initialize();
   }, []);
+
+  useEffect(() => {
+    if (lastLoginCredentials) {
+      setLoginWithBiometrics(isBiometricAvailable && isBiometricEnabled);
+    }
+  }, [isBiometricAvailable, isBiometricEnabled, lastLoginCredentials]);
 
   const handleLogin = async (useBiometric = false) => {
     // Reset error state
@@ -82,36 +95,22 @@ export default function Login() {
 
     // Validate form
     if (!institution) {
-      setError(
-        language === 'es'
-          ? 'Seleccione una institución'
-          : 'Please select an institution'
-      );
+      setError(translations.loginErrors.institution);
       return;
     }
 
     if (!username) {
-      setError(
-        language === 'es' ? 'Ingrese su usuario' : 'Please enter your username'
-      );
+      setError(translations.loginErrors.username);
       return;
     }
 
     if (!password && !useBiometric) {
-      setError(
-        language === 'es'
-          ? 'Ingrese su contraseña'
-          : 'Please enter your password'
-      );
+      setError(translations.loginErrors.password);
       return;
     }
 
     if (!deviceId) {
-      setError(
-        language === 'es'
-          ? 'Error al obtener ID del dispositivo'
-          : 'Error getting device ID'
-      );
+      setError(translations.loginErrors.deviceId);
       return;
     }
 
@@ -119,26 +118,31 @@ export default function Login() {
 
     try {
       // Check if user is trying to login with different credentials
-      if (!useBiometric && 
-          previousUsername && 
-          username !== previousUsername && 
-          isBiometricEnabled) {
+      if (
+        !useBiometric &&
+        previousUsername &&
+        username !== previousUsername &&
+        isBiometricEnabled
+      ) {
         // Disable biometric for previous user
         await setBiometricEnabled(false);
         await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
       }
 
       const functionsInstance = getFunctions();
-      const createCustomTokenFn = httpsCallable(functionsInstance, 'createCustomToken');
+      const createCustomTokenFn = httpsCallable(
+        functionsInstance,
+        "createCustomToken"
+      );
 
       // Encrypt credentials
       const encryptedCredentials = encryptLoginCredentials({
         username,
         password,
-        // deviceId,
-        deviceId: '123456789012345',
-        // companyName: institution
-        companyName: 'Credit Force'
+        deviceId,
+        // deviceId: '123456789012345',
+        companyName: institution,
+        // companyName: 'Credit Force'
       });
 
       const result = await createCustomTokenFn({
@@ -146,45 +150,41 @@ export default function Login() {
         biometric: useBiometric,
       });
 
-      const { token, claims } = result.data;
-
-      // Save credentials for future use
-      await AsyncStorage.setItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS, JSON.stringify({
-        institution,
-        username,
-        password,
-      }));
+      const { token } = result.data;
 
       // Save credentials for biometric login if not using biometric
       if (!useBiometric) {
         // Show biometric prompt if available and not already enabled
         // Only show if this is a new user or first time login
-        if (isBiometricAvailable && 
-            (!isBiometricEnabled || username !== previousUsername)) {
+        if (
+          isBiometricAvailable &&
+          (!isBiometricEnabled || username !== previousUsername)
+        ) {
           setShowBiometricPrompt(true);
           return;
         }
       }
 
-      // Sign in with custom token
-      const userCredential = await signInWithCustomToken(auth, token);
-      const user = userCredential.user;
+      // Save credentials for future use
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS,
+        JSON.stringify({
+          institution,
+          username,
+          password,
+        })
+      );
 
-      // Get the user's claims
-      const idTokenResult = await user.getIdTokenResult();
-      
-      // Navigate based on terms acceptance
-      if (idTokenResult.claims.acceptedTerms === false) {
-        router.replace('/(tabs)');
-      } else {
-        router.replace('/terms-acceptance');
-      }
+      // Sign in with custom token
+      await signInWithCustomToken(auth, token);
     } catch (error: any) {
-      console.error('Login error:', error);
-      
-      const errorCode = error.response?.data?.code || '007';
+      console.error("Login error code:", error.details.code);
+      console.error("Login error:", error.message);
+
+      const errorCode =
+        error.response?.data?.code || error.details.code || "007";
       const errorMessage = getLoginErrorMessage(errorCode, language);
-      
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -193,11 +193,7 @@ export default function Login() {
 
   const handleBiometricLogin = async () => {
     if (!lastLoginCredentials) {
-      setError(
-        language === 'es'
-          ? 'No hay credenciales guardadas para inicio de sesión biométrico'
-          : 'No saved credentials for biometric login'
-      );
+      setError(translations.loginErrors.emptyBiometric);
       return;
     }
 
@@ -208,11 +204,7 @@ export default function Login() {
       setPassword(lastLoginCredentials.password);
       handleLogin(true);
     } else {
-      setError(
-        language === 'es'
-          ? 'Autenticación biométrica fallida'
-          : 'Biometric authentication failed'
-      );
+      setError(translations.loginErrors.failBiometric);
     }
   };
 
@@ -222,27 +214,20 @@ export default function Login() {
       if (success) {
         await setBiometricEnabled(true);
         setShowBiometricPrompt(false);
-        router.replace('/(tabs)');
+        handleLogin(true);
       } else {
         Alert.alert(
-          language === 'es' ? 'Error de autenticación' : 'Authentication Error',
-          language === 'es'
-            ? 'No se pudo verificar su identidad biométrica. Puede intentarlo más tarde desde la configuración.'
-            : 'Could not verify your biometric identity. You can try again later from settings.',
-          [{ text: 'OK' }]
+          translations.loginErrors.errorTitleBiometric,
+          translations.loginErrors.errorDescriptionBiometric,
+          [{ text: translations.ok }]
         );
-        router.replace('/(tabs)');
       }
     } catch (error) {
-      console.error('Biometric setup error:', error);
       Alert.alert(
-        language === 'es' ? 'Error' : 'Error',
-        language === 'es'
-          ? 'Ocurrió un error al configurar la autenticación biométrica. Por favor intente más tarde.'
-          : 'An error occurred while setting up biometric authentication. Please try again later.',
-        [{ text: 'OK' }]
+        translations.loginErrors.errorConfigTitleBiometric,
+        translations.loginErrors.errorConfigDescriptionBiometric,
+        [{ text: translations.ok }]
       );
-      router.replace('/(tabs)');
     }
   };
 
@@ -250,15 +235,10 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const handleSelectInstitution = (item: { value: string; label: string }) => {
-    setInstitution(item.value);
-    setError(null);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoid}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -266,129 +246,164 @@ export default function Login() {
             <SVG.LOGO width={300} height={90} />
           </View>
 
-          <Text style={styles.welcomeText}>
-            {language === 'es' ? 'Bienvenido' : 'Welcome'}
-          </Text>
+          <Text style={styles.welcomeText}>{translations.welcome}</Text>
 
           <View style={styles.form}>
             {error && (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
+
+                <TouchableOpacity onPress={() => setError(null)}>
+                  <X size={20} color="red" />
+                </TouchableOpacity>
               </View>
             )}
 
-            <Text style={styles.inputLabel}>
-              {language === 'es' ? 'Institución' : 'Institution'}
-            </Text>
-            <Dropdown
-              items={costaRicanBanks}
-              selectedValue={institution}
-              onSelect={handleSelectInstitution}
-              placeholder={language === 'es' ? 'Institución' : 'Institution'}
-              containerStyle={styles.dropdownContainer}
-              dropdownStyle={styles.dropdown}
-              textStyle={styles.dropdownText}
-            />
-
-            <Text style={styles.inputLabel}>
-              {language === 'es' ? 'Usuario' : 'Username'}
-            </Text>
+            {/* INSTITUTION  */}
+            <Text style={styles.inputLabel}>{translations.institution}</Text>
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder={language === 'es' ? 'Usuario' : 'Username'}
+                placeholder={translations.institution}
+                value={institution}
+                onChangeText={(text) => {
+                  setInstitution(text);
+                  setError(null);
+                }}
+                autoCapitalize="none"
+                placeholderTextColor="#D0D0D1"
+              />
+            </View>
+
+            {/* USERNAME  */}
+            <Text style={styles.inputLabel}>{translations.username}</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder={translations.username}
                 value={username}
                 onChangeText={(text) => {
                   setUsername(text);
                   setError(null);
                 }}
                 autoCapitalize="none"
-                placeholderTextColor="#BBBBBB"
+                placeholderTextColor="#D0D0D1"
               />
             </View>
 
-            <Text style={styles.inputLabel}>
-              {language === 'es' ? 'Contraseña' : 'Password'}
-            </Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder={language === 'es' ? 'Contraseña' : 'Password'}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setError(null);
-                }}
-                secureTextEntry={!showPassword}
-                placeholderTextColor="#BBBBBB"
-              />
-              <TouchableOpacity
-                onPress={togglePasswordVisibility}
-                style={styles.eyeIcon}
-              >
-                {showPassword ? (
-                  <EyeOff size={20} color="#666666" />
-                ) : (
-                  <Eye size={20} color="#666666" />
-                )}
+            {/* PASSWORD  */}
+            {!loginWithBiometrics && (
+              <View>
+                <Text style={styles.inputLabel}>{translations.password}</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder={translations.password}
+                    value={password}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      setError(null);
+                    }}
+                    secureTextEntry={!showPassword}
+                    placeholderTextColor="#D0D0D1"
+                  />
+                  <TouchableOpacity onPress={togglePasswordVisibility}>
+                    {showPassword ? (
+                      <EyeOff size={20} color="#666666" />
+                    ) : (
+                      <Eye size={20} color="#666666" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {loginWithBiometrics && (
+              <TouchableOpacity onPress={handleBiometricLogin}>
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginVertical: 10,
+                  }}
+                >
+                  <View style={styles.faceIdContainer}>
+                    <Text style={styles.biometricText}>
+                      {translations.faceIdLogin(biometricType)}
+                    </Text>
+                    {biometricType === "facial" ? (
+                      <SVG.FACE_ID width={24} height={24} />
+                    ) : (
+                      <SVG.FINGERPRINT width={24} height={24} />
+                    )}
+                  </View>
+                  {biometricType === "facial" ? (
+                    <SVG.FACE_ID_CIRCLE width={60} height={60} />
+                  ) : (
+                    <SVG.FINGERPRINT_CIRCLE width={60} height={60} />
+                  )}
+                  <TouchableOpacity
+                    onPress={() => setLoginWithBiometrics(false)}
+                  >
+                    <Text
+                      style={[
+                        styles.biometricText,
+                        { color: "#0093D4", marginTop: 5 },
+                      ]}
+                    >
+                      {translations.orPassword}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </TouchableOpacity>
-            </View>
+            )}
 
-            <TouchableOpacity
-              style={styles.faceIdContainer}
-              onPress={() => {}}
-            >
-              <Text style={styles.recoverText}>
-                {language === 'es'
-                  ? 'Recuperar contraseña'
-                  : 'Recover password'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.loginButton,
-                institution && username && password && styles.loginButtonEnable,
-                isLoading && styles.loginButtonDisabled,
-              ]}
-              onPress={() => handleLogin(false)}
-              disabled={isLoading}
-            >
-              <Text
+            {/* LOGIN BUTTON  */}
+            {!loginWithBiometrics && (
+              <TouchableOpacity
                 style={[
-                  styles.loginButtonText,
+                  styles.loginButton,
                   institution &&
                     username &&
                     password &&
-                    styles.loginButtonTextEnable,
+                    styles.loginButtonEnable,
+                  isLoading && styles.loginButtonDisabled,
                 ]}
+                onPress={() => handleLogin(false)}
+                disabled={isLoading}
               >
-                {isLoading
-                  ? language === 'es'
-                    ? 'Iniciando sesión...'
-                    : 'Logging in...'
-                  : language === 'es'
-                  ? 'Iniciar sesión'
-                  : 'Login'}
-              </Text>
-            </TouchableOpacity>
-
-            {isBiometricAvailable && isBiometricEnabled && (
-              <TouchableOpacity
-                style={styles.faceIdContainer}
-                onPress={handleBiometricLogin}
-              >
-                <Text style={styles.faceIdText}>
-                  {language === 'es'
-                    ? `o ingrese con ${biometricType === 'facial' ? 'Face ID' : 'huella'}`
-                    : `or login with ${biometricType === 'facial' ? 'Face ID' : 'fingerprint'}`}
+                <Text
+                  style={[
+                    styles.loginButtonText,
+                    institution &&
+                      username &&
+                      password &&
+                      styles.loginButtonTextEnable,
+                  ]}
+                >
+                  {isLoading ? translations.signingIn : translations.signIn}
                 </Text>
-                <Scan size={24} color="#0096FF" />
+              </TouchableOpacity>
+            )}
+
+            {!loginWithBiometrics && lastLoginCredentials && (
+              <TouchableOpacity onPress={() => setLoginWithBiometrics(true)}>
+                <View style={styles.faceIdContainer}>
+                  <Text style={[styles.biometricText, { color: "#0093D4" }]}>
+                    {translations.faceIdLogin(biometricType)}
+                  </Text>
+                  {biometricType === "facial" ? (
+                    <SVG.FACE_ID_BLUE width={24} height={24} />
+                  ) : (
+                    <SVG.FINGERPRINT_BLUE width={24} height={24} />
+                  )}
+                </View>
               </TouchableOpacity>
             )}
           </View>
         </ScrollView>
         <View style={styles.radarWavesContainer}>
-          <SVG.RADAR_WAVES width="100%" height={200} fill="#F34A2D" />
+          <SVG.RADAR_WAVES width="100%" height="100%" fill="#F34A2D" />
         </View>
       </KeyboardAvoidingView>
 
@@ -396,15 +411,13 @@ export default function Login() {
         visible={showBiometricPrompt}
         onClose={() => {
           setShowBiometricPrompt(false);
-          router.replace('/(tabs)');
         }}
         onEnable={handleEnableBiometrics}
         onSkip={() => {
           setShowBiometricPrompt(false);
-          router.replace('/(tabs)');
+          handleLogin(true);
         }}
         biometricType={biometricType}
-        language={language}
       />
     </SafeAreaView>
   );
@@ -413,13 +426,13 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   keyboardAvoid: {
     flex: 1,
     marginHorizontal: 20,
-    backgroundColor: '#F5F5F6',
-    borderRadius: 20,
+    backgroundColor: "#F5F5F6",
+    borderRadius: 24,
   },
   scrollContent: {
     flexGrow: 1,
@@ -427,118 +440,105 @@ const styles = StyleSheet.create({
     paddingBottom: 200, // Extra padding to account for the radar waves
   },
   logoContainer: {
-    alignItems: 'center',
-    marginTop: 25,
+    alignItems: "center",
+    marginVertical: 10,
   },
   welcomeText: {
     fontSize: 28,
-    fontFamily: 'Quicksand_700Bold',
-    color: '#666666',
-    textAlign: 'center',
-    marginTop: 20,
+    fontFamily: "Quicksand_700Bold",
+    color: "#717275",
+    textAlign: "center",
     marginBottom: 10,
   },
   form: {
-    width: '100%',
+    width: "100%",
   },
   errorContainer: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    backgroundColor: "rgba(255, 59, 48, 0.1)",
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
     borderLeftWidth: 3,
-    borderLeftColor: '#FF3B30',
+    borderLeftColor: "#FF3B30",
+    flexDirection: "row",
   },
   errorText: {
-    color: '#FF3B30',
-    fontFamily: 'Quicksand_500Medium',
+    color: "#FF3B30",
+    fontFamily: "Quicksand_500Medium",
     fontSize: 14,
+    marginRight: 10,
+    flex: 1,
   },
   inputLabel: {
-    fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
-    marginBottom: 5,
-  },
-  dropdownContainer: {
-    marginBottom: 10,
-    height: 44,
-  },
-  dropdown: {
-    backgroundColor: 'white',
-    borderRadius: 30,
-    height: 44,
-  },
-  dropdownText: {
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
+    fontSize: 14,
+    fontFamily: "Quicksand_600SemiBold",
+    color: "#717275",
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#D0D0D1",
     borderRadius: 30,
-    marginBottom: 10,
-    paddingHorizontal: 20,
-    height: 44,
+    marginVertical: 8,
+    padding: 12,
   },
   input: {
     flex: 1,
-    height: '100%',
-    fontFamily: 'Quicksand_500Medium',
+    height: "100%",
+    fontFamily: "Quicksand_500Medium",
     fontSize: 16,
-    color: '#666666',
-  },
-  eyeIcon: {
-    padding: 8,
+    color: "#666666",
   },
   loginButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 15,
     marginTop: 5,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
     height: 48,
   },
   loginButtonEnable: {
-    backgroundColor: '#F04E23',
+    backgroundColor: "#F04E23",
   },
   loginButtonDisabled: {
     opacity: 0.7,
   },
   loginButtonText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_700SemiBold',
+    fontFamily: "Quicksand_700SemiBold",
   },
   loginButtonTextEnable: {
-    color: 'white',
+    color: "white",
   },
   faceIdContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  recoverText: {
-    fontFamily: 'Quicksand_400Regular',
-    fontSize: 16,
-    color: '#F04E23',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 10,
   },
-  faceIdText: {
-    fontFamily: 'Quicksand_500Medium',
+  recoverText: {
+    fontFamily: "Quicksand_400Regular",
     fontSize: 16,
-    color: '#0093D4',
+    color: "#F04E23",
+    marginBottom: 10,
+  },
+  biometricText: {
+    fontFamily: "Quicksand_500Medium",
+    fontSize: 16,
+    color: "#717275",
     marginRight: 8,
   },
   radarWavesContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: 200,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
 });

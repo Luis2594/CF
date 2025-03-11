@@ -1,14 +1,7 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  Platform,
-} from 'react-native';
-import { Fingerprint, Scan, X } from 'lucide-react-native';
-import type { BiometricType } from '../hooks/useBiometrics';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
+import type { BiometricType } from "../hooks/useBiometrics";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface BiometricPromptProps {
   visible: boolean;
@@ -16,7 +9,6 @@ interface BiometricPromptProps {
   onEnable: () => void;
   onSkip: () => void;
   biometricType: BiometricType;
-  language: 'en' | 'es';
 }
 
 export default function BiometricPrompt({
@@ -25,32 +17,8 @@ export default function BiometricPrompt({
   onEnable,
   onSkip,
   biometricType,
-  language,
 }: BiometricPromptProps) {
-  const getBiometricIcon = () => {
-    switch (biometricType) {
-      case 'fingerprint':
-        return <Fingerprint size={48} color="#4c669f" />;
-      case 'facial':
-      case 'iris':
-        return <Scan size={48} color="#4c669f" />;
-      default:
-        return null;
-    }
-  };
-
-  const getBiometricName = () => {
-    switch (biometricType) {
-      case 'fingerprint':
-        return language === 'es' ? 'huella digital' : 'fingerprint';
-      case 'facial':
-        return language === 'es' ? 'reconocimiento facial' : 'Face ID';
-      case 'iris':
-        return language === 'es' ? 'reconocimiento de iris' : 'iris recognition';
-      default:
-        return '';
-    }
-  };
+  const { translations } = useLanguage();
 
   return (
     <Modal
@@ -61,37 +29,25 @@ export default function BiometricPrompt({
     >
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <X size={24} color="#666" />
-          </TouchableOpacity>
-
-          <View style={styles.iconContainer}>
-            {getBiometricIcon()}
-          </View>
-
           <Text style={styles.title}>
-            {language === 'es'
-              ? `¿Habilitar ${getBiometricName()}?`
-              : `Enable ${getBiometricName()}?`}
+            {translations.textsBiometrics(biometricType, "title")}
           </Text>
 
           <Text style={styles.description}>
-            {language === 'es'
-              ? `Inicia sesión de forma rápida y segura usando tu ${getBiometricName()}`
-              : `Sign in quickly and securely using your ${getBiometricName()}`}
+            {translations.textsBiometrics(biometricType, "description")}
           </Text>
-
-          <TouchableOpacity style={styles.enableButton} onPress={onEnable}>
-            <Text style={styles.enableButtonText}>
-              {language === 'es' ? 'Habilitar' : 'Enable'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
-            <Text style={styles.skipButtonText}>
-              {language === 'es' ? 'Ahora no' : 'Not now'}
-            </Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity style={styles.button} onPress={onSkip}>
+              <Text style={styles.cancelButtonText}>
+                {translations.disableBiometrics}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={onEnable}>
+              <Text style={styles.okButtonText}>
+                {translations.enableBiometrics}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -101,20 +57,20 @@ export default function BiometricPrompt({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   content: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 20,
     padding: 24,
-    width: '90%',
+    width: "90%",
     maxWidth: 400,
-    alignItems: 'center',
+    alignItems: "center",
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 16,
     top: 16,
     padding: 8,
@@ -123,46 +79,42 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(76, 102, 159, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(76, 102, 159, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 24,
   },
   title: {
     fontSize: 24,
-    fontFamily: 'Quicksand_700Bold',
-    color: '#333',
+    fontFamily: "Quicksand_700Bold",
+    color: "#333",
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   description: {
     fontSize: 16,
-    fontFamily: 'Quicksand_400Regular',
-    color: '#666',
-    textAlign: 'center',
+    fontFamily: "Quicksand_400Regular",
+    color: "#666",
+    textAlign: "center",
     marginBottom: 24,
     paddingHorizontal: 16,
   },
-  enableButton: {
-    backgroundColor: '#4c669f',
+  button: {
+    flex: 1,
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 12,
   },
-  enableButtonText: {
-    color: 'white',
+  okButtonText: {
+    color: "#F04E23",
     fontSize: 16,
-    fontFamily: 'Quicksand_600SemiBold',
+    fontFamily: "Quicksand_600SemiBold",
   },
-  skipButton: {
-    paddingVertical: 12,
-  },
-  skipButtonText: {
-    color: '#666',
+  cancelButtonText: {
+    color: "#00AEEF",
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
+    fontFamily: "Quicksand_500Medium",
   },
 });
