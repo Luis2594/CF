@@ -45,7 +45,7 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
         httpsAgent: agent,
         headers: {
           'Content-Type': 'application/json',
-          'token': data.token
+          'Authorization:': `Bearer ${data.token}`
         }
       }
     );
