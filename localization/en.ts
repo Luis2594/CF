@@ -8,11 +8,16 @@ export const en = {
   // Language Selection
   languageSelection: 'Select a language',
   languageSubtitle: 'You can change this later in settings',
+  languagePlaceHolder: 'English',
   continue: 'Continue',
-  languages: {
-    en: 'English',
-    es: 'Español',
-  },
+  languajeError: 'You must select some languaje',
+  languages: [{
+    code: "es",
+    name: 'Spanish',
+  }, {
+    code: "en",
+    name: 'English',
+  }],
 
   // Welcome Screen
   welcome: 'Welcome',
@@ -54,6 +59,7 @@ export const en = {
   signIn: 'Login',
   signingIn: 'Logging in...',
   faceIdLogin: (biometricType: BiometricType) => `or login with ${biometricType === "facial" ? "Face ID" : "fingerprint"}`,
+  orPassword: 'or enter with password',
   noAccount: 'Don\'t have an account?',
   signUp: 'Sign Up',
   loginErrors: {
@@ -69,6 +75,29 @@ export const en = {
     errorConfigDescriptionBiometric: 'An error occurred while setting up biometric authentication. Please try again later.'
   },
   ok: 'OK',
+  textsBiometrics: (biometricType: BiometricType, text: 'title' | 'description') => {
+    const biometricText =
+      biometricType === "fingerprint"
+        ? "fingerprint"
+        : biometricType === "facial"
+          ? "Face ID"
+          : biometricType === "iris"
+            ? "iris recognition"
+            : "";
+
+    if (text === 'title') {
+      return `Enable ${biometricText}?`;
+
+    }
+
+    if (text === 'description') {
+      return `Sign in quickly and securely using your ${biometricText}?`;
+
+    }
+    return '';
+  },
+  disableBiometrics: 'Not now',
+  enableBiometrics: 'Enable',
 
   // Terms
   lastUpdated: 'Last Updated: June 1, 2025',

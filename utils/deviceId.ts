@@ -1,16 +1,23 @@
 import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import 'react-native-get-random-values';;
 
 // Get device ID based on platform
 export const getDeviceId = async () => {
-  if (Platform.OS === 'ios') {
-    return await Application.getIosIdForVendorAsync() || generateWebDeviceId();
-  } else if (Platform.OS === 'android') {
-    return Application.androidId || generateWebDeviceId();
-  } else {
+  try {
+    if (Platform.OS === 'ios') {
+      return await Application.getIosIdForVendorAsync() || generateWebDeviceId();
+    } else if (Platform.OS === 'android') {
+      return Application.androidId || generateWebDeviceId();
+    } else {
+      return generateWebDeviceId();
+    }
+  } catch (error) {
+    console.log("Error: ", error);
     return generateWebDeviceId();
   }
+
 };
 
 // Fallback for web platform

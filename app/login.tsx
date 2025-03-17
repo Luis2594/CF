@@ -10,6 +10,8 @@ import {
   Platform,
   ScrollView,
   Alert,
+  StatusBar,
+  Keyboard,
 } from "react-native";
 import { Eye, EyeOff, X } from "lucide-react-native";
 import { useLanguage } from "../context/LanguageContext";
@@ -24,7 +26,7 @@ import { useBiometrics } from "../hooks/useBiometrics";
 import BiometricPrompt from "../components/BiometricPrompt";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storage";
-import { encryptLoginCredentials } from "../utils/encryption";
+import { encryptLoginCredentials, encryptText } from "../utils/encryption";
 
 export default function Login() {
   const { translations, language } = useLanguage();
@@ -44,6 +46,7 @@ export default function Login() {
     password: string;
   } | null>(null);
   const [previousUsername, setPreviousUsername] = useState<string | null>(null);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const {
     isAvailable: isBiometricAvailable,
@@ -56,6 +59,7 @@ export default function Login() {
   useEffect(() => {
     // Get device ID and last login credentials on component mount
     const initialize = async () => {
+      // COMENTAR
       // await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
 
       const id = await getDeviceId();
@@ -88,6 +92,26 @@ export default function Login() {
       setLoginWithBiometrics(isBiometricAvailable && isBiometricEnabled);
     }
   }, [isBiometricAvailable, isBiometricEnabled, lastLoginCredentials]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleLogin = async (useBiometric = false) => {
     // Reset error state
@@ -140,9 +164,9 @@ export default function Login() {
         username,
         password,
         deviceId,
-        // deviceId: '123456789012345',
+        // deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
         companyName: institution,
-        // companyName: 'Credit Force'
+        // companyName: "Credit Force",
       });
 
       const result = await createCustomTokenFn({
@@ -150,7 +174,7 @@ export default function Login() {
         biometric: useBiometric,
       });
 
-      const { token } = result.data;
+      const { token, claims } = result.data;
 
       // Save credentials for biometric login if not using biometric
       if (!useBiometric) {
@@ -172,6 +196,8 @@ export default function Login() {
           institution,
           username,
           password,
+          token: claims.token,
+          deviceId: encryptText(deviceId),
         })
       );
 
@@ -183,7 +209,7 @@ export default function Login() {
 
       const errorCode =
         error.response?.data?.code || error.details.code || "007";
-      const errorMessage = getLoginErrorMessage(errorCode, language);
+      const errorMessage = getLoginErrorMessage(errorCode, language || "es");
 
       setError(errorMessage);
     } finally {
@@ -402,7 +428,12 @@ export default function Login() {
             )}
           </View>
         </ScrollView>
-        <View style={styles.radarWavesContainer}>
+        <View
+          style={[
+            styles.radarWavesContainer,
+            { opacity: keyboardVisible ? 0 : 1 },
+          ]}
+        >
           <SVG.RADAR_WAVES width="100%" height="100%" fill="#F34A2D" />
         </View>
       </KeyboardAvoidingView>
@@ -427,17 +458,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    paddingTop: StatusBar.currentHeight, // FIX status bar in android
   },
   keyboardAvoid: {
     flex: 1,
-    marginHorizontal: 20,
-    backgroundColor: "#F5F5F6",
-    borderRadius: 24,
+    marginTop: 22,
+    marginHorizontal: 22,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    backgroundColor: "#f5f5f6",
   },
   scrollContent: {
-    flexGrow: 1,
+    flex: 1,
     padding: 24,
-    paddingBottom: 200, // Extra padding to account for the radar waves
   },
   logoContainer: {
     alignItems: "center",
@@ -483,10 +516,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginVertical: 8,
     padding: 12,
+    height: 44,
   },
   input: {
     flex: 1,
-    height: "100%",
+    height: 44,
     fontFamily: "Quicksand_500Medium",
     fontSize: 16,
     color: "#666666",

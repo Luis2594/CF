@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
@@ -25,41 +26,48 @@ export default function WelcomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Back button */}
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <ChevronLeft size={24} color="#717275" />
-        <Text style={styles.backText}>{translations.back}</Text>
-      </TouchableOpacity>
-
-      {/* Main content container */}
-      <View style={styles.contentContainer}>
-        {/* Illustration */}
-        <Image
-          source={IMAGES.WELCOME_ILLUSTRATION}
-          style={styles.illustration}
-        />
-
-        {/* Progress dots */}
-        <View style={styles.progressDots}>
-          <View style={[styles.dot, styles.activeDot]} />
-          <View style={styles.dot} />
-        </View>
-
-        {/* Welcome text */}
-        <Text style={styles.title}>{translations.welcome}</Text>
-
-        {/* Description text */}
-        <Text style={styles.description}>
-          {translations.welcomeDescription}
-        </Text>
-
-        {/* Continue button */}
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={handleContinue}
-        >
-          <Text style={styles.continueButtonText}>{translations.next}</Text>
+      <View style={styles.wrapContainer}>
+        {/* Back button */}
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <ChevronLeft size={24} color="#717275" />
+          <Text style={styles.backText}>{translations.back}</Text>
         </TouchableOpacity>
+
+        {/* Main content container */}
+        <View style={styles.contentContainer}>
+          {/* Illustration */}
+          <View style={{ flex: 1 }}>
+            <Image
+              source={IMAGES.WELCOME_ILLUSTRATION}
+              style={styles.illustration}
+            />
+
+            {/* Progress dots */}
+            <View style={styles.progressDots}>
+              <View style={styles.containerDotActive}>
+                <View style={[styles.dot, styles.activeDot]} />
+              </View>
+
+              <View style={styles.dot} />
+            </View>
+
+            {/* Welcome text */}
+            <Text style={styles.title}>{translations.welcome}</Text>
+
+            {/* Description text */}
+            <Text style={styles.description}>
+              {translations.welcomeDescription}
+            </Text>
+          </View>
+
+          {/* Continue button */}
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={handleContinue}
+          >
+            <Text style={styles.continueButtonText}>{translations.next}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -68,18 +76,22 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5f6",
+    backgroundColor: "#F5F5F6",
+    paddingTop: StatusBar.currentHeight, // FIX status bar in android
+  },
+  wrapContainer: {
+    flex: 1,
+    margin: 22,
   },
   backButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#EBEBEB",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
     alignSelf: "flex-start",
-    marginBottom: 20,
-    marginLeft: 20,
+    backgroundColor: "#E6E6E7",
+    borderRadius: 12,
+    paddingVertical: 8, // No lo puedo ver en FIGMA, es calculado
+    paddingHorizontal: 12, // No lo puedo ver en FIGMA, es calculado
+    marginBottom: 20, // No lo puedo ver en FIGMA, es calculado
   },
   backText: {
     fontSize: 12,
@@ -90,31 +102,39 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     backgroundColor: "white",
-    borderRadius: 20,
-    marginHorizontal: 20,
+    borderRadius: 24,
   },
   illustration: {
     width: "100%",
-    height: 470,
-    borderTopStartRadius: 20,
-    borderTopEndRadius: 20,
+    height: 450,
+    resizeMode: "stretch",
+    borderTopStartRadius: 24,
+    borderTopEndRadius: 24,
   },
   progressDots: {
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center",
     marginBottom: 10,
+  },
+  containerDotActive: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FBC7AD",
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: "#D9D9D9",
-    marginHorizontal: 5,
   },
   activeDot: {
     backgroundColor: "#F34A2D",
-    width: 10,
-    borderRadius: 10,
   },
   title: {
     fontSize: 28,
@@ -128,23 +148,21 @@ const styles = StyleSheet.create({
     fontFamily: "Quicksand_400Regular",
     color: "#717275",
     textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 25,
-    marginHorizontal: 20,
+    marginBottom: 20,
+    marginHorizontal: 22,
   },
   continueButton: {
+    height: 48,
+    marginHorizontal: 22,
+    borderRadius: 50,
+    marginBottom: 22,
     backgroundColor: "#F04E23",
-    borderRadius: 30,
-    marginHorizontal: 30,
-    marginBottom: 40,
     alignItems: "center",
     justifyContent: "center",
-    width: "80%",
-    height: 48,
   },
   continueButtonText: {
-    color: "white",
     fontSize: 18,
+    color: "white",
     fontFamily: "Quicksand_600SemiBold",
   },
 });

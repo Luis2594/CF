@@ -50,10 +50,10 @@ export const useBiometrics = () => {
 
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      
+
       if (!hasHardware || !isEnrolled) {
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           isAvailable: false,
           error: !hasHardware ? 'No biometric hardware' : 'No biometric enrolled'
         }));
@@ -138,6 +138,8 @@ export const useBiometrics = () => {
         cancelLabel: 'Cancel',
         disableDeviceFallback: false,
       });
+
+      console.log('result: ', result)
 
       return result.success;
     } catch (error) {

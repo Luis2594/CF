@@ -51,6 +51,7 @@ export default function RootLayout() {
         if (user) {
           // User is signed in, get their claims
           const idTokenResult = await user.getIdTokenResult();
+
           // Navigate based on terms acceptance
           if (idTokenResult.claims.acceptedTerms) {
             router.replace("/(tabs)");
@@ -68,9 +69,8 @@ export default function RootLayout() {
             const timer = setTimeout(() => {
               router.replace("/language");
             }, 7000);
+            return () => clearTimeout(timer);
           }
-
-          return () => clearTimeout(timer);
         }
       } catch (error) {
         console.error("Error checking auth state:", error);

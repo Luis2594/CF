@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft, Check, Square } from "lucide-react-native";
@@ -13,7 +14,8 @@ import { useLanguage } from "../context/LanguageContext";
 import { useTerms } from "../context/TermsContext";
 import { auth, functions } from "../config/firebase";
 import { httpsCallable } from "firebase/functions";
-import { getDeviceId } from "../utils/deviceId";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/constants/storage";
 
 export default function TermsAcceptanceScreen() {
   const { translations, language } = useLanguage();
@@ -49,12 +51,6 @@ export default function TermsAcceptanceScreen() {
         throw new Error("No authenticated user");
       }
 
-      // Get device ID
-      const deviceId = await getDeviceId();
-      if (!deviceId) {
-        throw new Error("Could not get device ID");
-      }
-
       // Get ID token result to get user claims
       const idTokenResult = await user.getIdTokenResult();
       const userId = idTokenResult.claims.userId;
@@ -63,13 +59,23 @@ export default function TermsAcceptanceScreen() {
         throw new Error("No user ID in claims");
       }
 
+      const savedCredentials = await AsyncStorage.getItem(
+        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+      );
+
+      const savedCredentialsJSON = savedCredentials
+        ? JSON.parse(savedCredentials)
+        : null;
+
       // Call the acceptTerms function
       const acceptTermsFn = httpsCallable(functions, "acceptTerms");
+
       await acceptTermsFn({
         userId,
-        deviceId,
+        deviceId: savedCredentialsJSON?.deviceId,
         acceptedOn: new Date().toISOString(),
         language,
+        token: savedCredentialsJSON?.token,
       });
 
       // Save terms acceptance status locally
@@ -166,10 +172,7 @@ export default function TermsAcceptanceScreen() {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[
-          styles.continueButton,
-          (!isChecked || isLoading) && styles.disabledButton,
-        ]}
+        style={[styles.continueButton, !isChecked && styles.disabledButton]}
         onPress={handleContinue}
         disabled={!isChecked || isLoading}
         activeOpacity={isChecked ? 0.7 : 1}
@@ -185,18 +188,19 @@ export default function TermsAcceptanceScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F5F5F6",
+    paddingTop: StatusBar.currentHeight, // FIX status bar in android,
+    margin: 22,
   },
   backButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#EBEBEB",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
     alignSelf: "flex-start",
-    marginBottom: 20,
-    marginLeft: 20,
+    backgroundColor: "#E6E6E7",
+    borderRadius: 12,
+    paddingVertical: 8, // No lo puedo ver en FIGMA, es calculado
+    paddingHorizontal: 12, // No lo puedo ver en FIGMA, es calculado
+    marginBottom: 20, // No lo puedo ver en FIGMA, es calculado
   },
   backText: {
     fontSize: 12,
@@ -210,7 +214,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 10,
     marginBottom: 20,
-    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "#F5F5F6",
     shadowColor: "#000",
@@ -244,7 +247,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
-    marginHorizontal: 20,
     borderLeftWidth: 3,
     borderLeftColor: "#FF3B30",
   },
@@ -257,7 +259,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
-    marginHorizontal: 20,
   },
   uncheckedBox: {
     borderRadius: 4,
@@ -279,12 +280,10 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     backgroundColor: "#F04E23",
-    paddingVertical: 15,
     borderRadius: 30,
-    marginHorizontal: 20,
-    marginBottom: 30,
     alignItems: "center",
     justifyContent: "center",
+    height: 48,
   },
   disabledButton: {
     backgroundColor: "#CCCCCC",

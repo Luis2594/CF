@@ -8,14 +8,16 @@ export const es = {
   // Language Selection
   languageSelection: 'Seleccione un idioma',
   languageSubtitle: 'Puedes cambiarlo más tarde en configuración',
+  languagePlaceHolder: 'Español',
   continue: 'Siguiente',
-  languages: {
-    en: 'English',
-    es: 'Español',
-    fr: 'Français',
-    de: 'Deutsch',
-    zh: '中文',
-  },
+  languajeError: 'Debe seleccionar algun idioma',
+  languages: [{
+    code: "es",
+    name: 'Español',
+  }, {
+    code: "en",
+    name: 'Ingles',
+  }],
 
   // Welcome Screen
   welcome: 'Bienvenido',
@@ -55,8 +57,8 @@ export const es = {
   forgotPassword: '¿Olvidaste tu contraseña?',
   signIn: 'Iniciar sesión',
   signingIn: 'Iniciando sesión...',
-  faceIdLogin: (biometricType: BiometricType) => `o ingrese con ${biometricType === "facial" ? "Face ID" : "huella"
-    }`,
+  faceIdLogin: (biometricType: BiometricType) => `o ingrese con ${biometricType === "facial" ? "Face ID" : "huella"}`,
+  orPassword: 'o ingresar con contraseña',
   noAccount: '¿No tienes una cuenta?',
   signUp: 'Regístrate',
   loginErrors: {
@@ -72,6 +74,29 @@ export const es = {
     errorConfigDescriptionBiometric: 'Ocurrió un error al configurar la autenticación biométrica. Por favor intente más tarde.',
   },
   ok: 'OK',
+  textsBiometrics: (biometricType: BiometricType, text: 'title' | 'description') => {
+    const biometricText =
+      biometricType === "fingerprint"
+        ? "huella digital"
+        : biometricType === "facial"
+          ? "reconocimiento facial"
+          : biometricType === "iris"
+            ? "reconocimiento de iris"
+            : "";
+
+    if (text === 'title') {
+      return `¿Habilitar ${biometricText}?`;
+
+    }
+
+    if (text === 'description') {
+      return `Inicia sesión de forma rápida y segura usando tu ${biometricText}?`;
+
+    }
+    return '';
+  },
+  disableBiometrics: 'Ahora no',
+  enableBiometrics: 'Habilitar',
 
   // Terms
   lastUpdated: 'Última actualización: 1 de junio de 2025',

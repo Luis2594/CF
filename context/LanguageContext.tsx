@@ -2,14 +2,18 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { en } from "../localization/en";
 import { es } from "../localization/es";
+import * as Localization from "expo-localization";
 
 // Define available languages
 export type Language = "en" | "es";
 export type Translations = typeof en;
 
+const languageCodeDevice: Language = Localization.getLocales()[0]
+  ?.languageCode as "en" | "es";
+
 // Create context type
 type LanguageContextType = {
-  language: Language;
+  language?: Language;
   translations: Translations;
   setLanguage: (language: Language) => Promise<void>;
   isLanguageLoaded: boolean;
@@ -30,14 +34,17 @@ const LANGUAGE_STORAGE_KEY = "app_language";
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [language, setLanguageState] = useState<Language>("en");
-  const [translations, setTranslations] = useState<Translations>(en);
+  const [language, setLanguageState] = useState<Language>();
+  const [translations, setTranslations] = useState<Translations>(
+    languageCodeDevice === "es" ? es : en
+  );
   const [isLanguageLoaded, setIsLanguageLoaded] = useState(false);
 
   // Load saved language on mount
   useEffect(() => {
     const loadSavedLanguage = async () => {
       try {
+        // await AsyncStorage.removeItem(LANGUAGE_STORAGE_KEY);
         const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
         if (savedLanguage === "en" || savedLanguage === "es") {
           await updateLanguage(savedLanguage as Language);
@@ -58,8 +65,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   // Function to update language state and translations
   const updateLanguage = async (newLanguage: Language) => {
     setLanguageState(newLanguage);
-    setTranslations(newLanguage === "en" ? en : es);
+    updateTranslation(newLanguage);
     setIsLanguageLoaded(true);
+  };
+
+  const updateTranslation = async (language: Language) => {
+    setTranslations(language === "en" ? en : es);
   };
 
   // Function to set language
@@ -81,7 +92,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <LanguageContext.Provider
-      value={{ language, translations, setLanguage, isLanguageLoaded }}
+      value={{
+        language,
+        translations,
+        setLanguage,
+        isLanguageLoaded,
+      }}
     >
       {children}
     </LanguageContext.Provider>
