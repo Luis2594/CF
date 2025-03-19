@@ -48,6 +48,7 @@ export const es = {
   acceptTermsError: 'Debe aceptar los términos y condiciones para continuar',
   acceptTermsNextError: 'Error al aceptar los términos. Por favor intente de nuevo.',
   processing: 'Procesando...',
+
   // Login
   welcomeBack: 'Bienvenido',
   signInContinue: 'Inicia sesión para continuar',
@@ -100,6 +101,19 @@ export const es = {
 
   // Terms
   lastUpdated: 'Última actualización: 1 de junio de 2025',
+
+  // Client Management
+  clients: {
+    loading: 'Cargando...',
+    noClients: 'No hay clientes disponibles',
+    errors: {
+      loading: 'Error al cargar los clientes',
+      invalidParams: 'Parámetros de solicitud inválidos',
+      unauthorized: 'Acceso no autorizado',
+      general: 'Ocurrió un error al cargar los clientes'
+    }
+  },
+
   // Home Tab
   hello: 'Hola, Alex',
   todayTasks: 'Tareas de hoy',

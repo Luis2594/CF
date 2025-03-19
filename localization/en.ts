@@ -160,4 +160,16 @@ export const en = {
   },
   appVersion: 'Version 1.0.0',
   copyright: '© 2025 FindForce. All rights reserved.',
+
+  // Client Management
+  clients: {
+    loading: 'Loading...',
+    noClients: 'No clients available',
+    errors: {
+      loading: 'Error loading clients',
+      invalidParams: 'Invalid request parameters',
+      unauthorized: 'Unauthorized access',
+      general: 'An error occurred while loading clients'
+    }
+  },
 };
