@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
@@ -16,9 +16,8 @@ import {
 } from "@expo-google-fonts/quicksand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/constants/storage";
-
-// Keep splash screen visible while we check auth state
-SplashScreen.preventAutoHideAsync();
+import EventBus from "@/utils/eventBus";
+import { User } from "firebase/auth";
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -30,10 +29,12 @@ export default function RootLayout() {
     Quicksand_600SemiBold,
     Quicksand_700Bold,
   });
+  const [userAuth, setUserAuth] = useState<User | null>(null);
+  const [navigationEnableAuth, setNavigationEnableAuth] = useState(false);
+  const [finishLottie, setFinishLottie] = useState(false);
 
   const onLayoutRootView = useCallback(async () => {
     if ((fontsLoaded || fontError) && isLanguageLoaded) {
-      await SplashScreen.hideAsync();
       window.frameworkReady?.();
     }
   }, [fontsLoaded, fontError, isLanguageLoaded]);
@@ -45,50 +46,73 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError, isLanguageLoaded, onLayoutRootView]);
 
   useEffect(() => {
+    if (finishLottie && navigationEnableAuth) {
+      handleNavigation();
+    }
+  }, [finishLottie, navigationEnableAuth, userAuth]);
+
+  useEffect(() => {
     // Check initial auth state
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      try {
-        if (user) {
-          // User is signed in, get their claims
-          const idTokenResult = await user.getIdTokenResult();
-
-          // Navigate based on terms acceptance
-          if (idTokenResult.claims.acceptedTerms) {
-            router.replace("/(tabs)");
-          } else {
-            router.replace("/terms-acceptance");
-          }
-        } else {
-          const savedCredentials = await AsyncStorage.getItem(
-            STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-          );
-
-          if (savedCredentials) {
-            router.replace("/login");
-          } else {
-            const timer = setTimeout(() => {
-              router.replace("/language");
-            }, 7000);
-            return () => clearTimeout(timer);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking auth state:", error);
-        router.replace("/login");
-      } finally {
-        // Hide splash screen
-        await SplashScreen.hideAsync();
-      }
+      setUserAuth(user);
+      setNavigationEnableAuth(true);
     });
 
     // Cleanup subscription
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const finishAnimationListener = (data: any) => {
+      setFinishLottie(true);
+      handleNavigation();
+    };
+
+    // Escuchar evento
+    EventBus.on("finishAnimation", finishAnimationListener);
+    // Keep splash screen visible while we check auth state
+    SplashScreen.preventAutoHideAsync();
+    // Cleanup al desmontar
+    return () => {
+      EventBus.off("finishAnimation", finishAnimationListener);
+    };
+  }, []);
+
+  const handleNavigation = async () => {
+    try {
+      if (userAuth) {
+        SplashScreen.hideAsync();
+        // userAuth is signed in, get their claims
+        const idTokenResult = await userAuth.getIdTokenResult();
+
+        // Navigate based on terms acceptance
+        if (idTokenResult.claims.acceptedTerms) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/terms-acceptance");
+        }
+      } else {
+        const savedCredentials = await AsyncStorage.getItem(
+          STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+        );
+
+        if (savedCredentials) {
+          router.replace("/login");
+        } else {
+          router.replace("/language");
+        }
+      }
+    } catch (error) {
+      console.error("Error checking auth state:", error);
+      router.replace("/login");
+    }
+  };
+
   return (
     <LanguageProvider>
       <>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
+          <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  BackHandler,
 } from "react-native";
 import { router } from "expo-router";
 import { ChevronDown, ChevronUp, Check } from "lucide-react-native";
@@ -19,12 +20,32 @@ export default function LanguageSelection() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setLanguage();
+  }, []);
+
   // Check if onboarding is completed on mount
   useEffect(() => {
+    setLanguage();
     if (hasCompletedOnboarding) {
       router.replace("/login");
     }
   }, [hasCompletedOnboarding]);
+
+  // LISTENER
+  useEffect(() => {
+    const backHandlerListener = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        BackHandler.exitApp();
+        return true;
+      }
+    );
+
+    return () => {
+      backHandlerListener.remove();
+    };
+  }, []);
 
   const handleLanguageSelect = (code: Language) => {
     setLanguage(code);
@@ -50,6 +71,14 @@ export default function LanguageSelection() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {error && (
+        <View style={styles.errorContainer}>
+          <TouchableOpacity onPress={() => setError(null)}>
+            <SVG.CLOSE width={20} height={20} />
+          </TouchableOpacity>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
       <View style={styles.contentContainer}>
         <View style={styles.wrapForm}>
           <View style={styles.logoContainer}>
@@ -97,12 +126,6 @@ export default function LanguageSelection() {
               </View>
             )}
           </View>
-
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
 
           <TouchableOpacity
             style={[styles.button, !language && styles.buttonDisable]}
@@ -222,7 +245,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 155, // No lo puedo ver en FIGMA, es calculado
+    height: "21%", // No lo puedo ver en FIGMA, es calculado
     overflow: "hidden",
     borderBottomEndRadius: 24,
     borderBottomStartRadius: 24,
@@ -230,15 +253,15 @@ const styles = StyleSheet.create({
   errorContainer: {
     backgroundColor: "rgba(255, 59, 48, 0.1)",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 6,
     marginBottom: 16,
-    marginTop: -10,
-    borderLeftWidth: 3,
-    borderLeftColor: "#FF3B30",
+    flexDirection: "row",
+    alignContent: "center",
   },
   errorText: {
     color: "#FF3B30",
     fontFamily: "Quicksand_500Medium",
     fontSize: 14,
+    marginLeft: 12,
   },
 });

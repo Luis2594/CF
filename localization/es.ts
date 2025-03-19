@@ -10,13 +10,13 @@ export const es = {
   languageSubtitle: 'Puedes cambiarlo más tarde en configuración',
   languagePlaceHolder: 'Español',
   continue: 'Siguiente',
-  languajeError: 'Debe seleccionar algun idioma',
+  languajeError: 'Debe seleccionar algún idioma',
   languages: [{
     code: "es",
     name: 'Español',
   }, {
     code: "en",
-    name: 'Ingles',
+    name: 'Inglés',
   }],
 
   // Welcome Screen

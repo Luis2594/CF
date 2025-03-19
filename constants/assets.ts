@@ -12,6 +12,7 @@ import FaceIdBlue from '../assets/images/icons/faceId_Blue.svg';
 import FingerprintBlue from '../assets/images/icons/fingerprint_Blue.svg';
 import FaceIdCircle from '../assets/images/icons/faceidCircle.svg';
 import FingerprintCircle from '../assets/images/icons/fingerprintCircle.svg';
+import Close from '../assets/images/icons/close.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -21,7 +22,8 @@ export const SVG = {
   FACE_ID_BLUE: FaceIdBlue,
   FINGERPRINT_BLUE: FingerprintBlue,
   FACE_ID_CIRCLE: FaceIdCircle,
-  FINGERPRINT_CIRCLE: FingerprintCircle
+  FINGERPRINT_CIRCLE: FingerprintCircle,
+  CLOSE: Close,
 } as const;
 
 export const IMAGES = {

@@ -15,7 +15,7 @@ const languageCodeDevice: Language = Localization.getLocales()[0]
 type LanguageContextType = {
   language?: Language;
   translations: Translations;
-  setLanguage: (language: Language) => Promise<void>;
+  setLanguage: (language?: Language) => Promise<void>;
   isLanguageLoaded: boolean;
 };
 
@@ -34,7 +34,7 @@ const LANGUAGE_STORAGE_KEY = "app_language";
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [language, setLanguageState] = useState<Language>();
+  const [language, setLanguageState] = useState<Language | undefined>();
   const [translations, setTranslations] = useState<Translations>(
     languageCodeDevice === "es" ? es : en
   );
@@ -44,7 +44,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const loadSavedLanguage = async () => {
       try {
-        // await AsyncStorage.removeItem(LANGUAGE_STORAGE_KEY);
         const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
         if (savedLanguage === "en" || savedLanguage === "es") {
           await updateLanguage(savedLanguage as Language);
@@ -74,17 +73,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Function to set language
-  const setLanguage = async (newLanguage: Language) => {
+  const setLanguage = async (newLanguage?: Language) => {
     try {
       // Only allow English or Spanish
       if (newLanguage !== "en" && newLanguage !== "es") {
-        console.error("Only English and Spanish are supported");
-        return;
+        await AsyncStorage.removeItem(LANGUAGE_STORAGE_KEY);
+        setLanguageState(newLanguage);
+        updateTranslation(languageCodeDevice);
+      } else {
+        // Save to storage
+        await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
+        // Update state
+        await updateLanguage(newLanguage);
       }
-      // Save to storage
-      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
-      // Update state
-      await updateLanguage(newLanguage);
     } catch (error) {
       console.error("Failed to save language preference:", error);
     }

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import LottieView from "lottie-react-native";
 import { ANIMATIONS } from "../constants/assets";
+import EventBus from "@/utils/eventBus";
 
 export default function SplashScreen() {
   const animationRef = useRef<LottieView>(null);
@@ -22,6 +23,9 @@ export default function SplashScreen() {
           style={styles.logo}
           autoPlay
           loop={false}
+          onAnimationFinish={() =>
+            EventBus.emit("finishAnimation", { finish: true })
+          }
         />
       </View>
     </View>

@@ -53,14 +53,15 @@ export default function TermsIntroScreen() {
                 <View style={[styles.dot, styles.activeDot]} />
               </View>
             </View>
+            <View style={styles.wrapContentText}>
+              {/* Terms title */}
+              <Text style={styles.title}>{translations.termsTitle}</Text>
 
-            {/* Terms title */}
-            <Text style={styles.title}>{translations.termsTitle}</Text>
-
-            {/* Description text */}
-            <Text style={styles.description}>
-              {translations.termsDescription}
-            </Text>
+              {/* Description text */}
+              <Text style={styles.description}>
+                {translations.termsDescription}
+              </Text>
+            </View>
           </View>
 
           {/* Continue button */}
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   },
   illustration: {
     width: "100%",
-    height: 450,
+    height: "65%",
     resizeMode: "stretch",
     borderTopStartRadius: 24,
     borderTopEndRadius: 24,
@@ -138,6 +139,10 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     backgroundColor: "#F34A2D",
+  },
+  wrapContentText: {
+    flex: 1,
+    justifyContent: "center",
   },
   title: {
     fontSize: 28,

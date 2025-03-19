@@ -16,6 +16,7 @@ import { auth, functions } from "../config/firebase";
 import { httpsCallable } from "firebase/functions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/constants/storage";
+import { SVG } from "@/constants/assets";
 
 export default function TermsAcceptanceScreen() {
   const { translations, language } = useLanguage();
@@ -93,6 +94,14 @@ export default function TermsAcceptanceScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {error && (
+        <View style={styles.errorContainer}>
+          <TouchableOpacity onPress={() => setError(null)}>
+            <SVG.CLOSE width={20} height={20} />
+          </TouchableOpacity>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
       {/* Back button - only show if we can go back */}
       {canGoBack && (
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -145,12 +154,6 @@ export default function TermsAcceptanceScreen() {
           </Text>
         </ScrollView>
       </View>
-
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
 
       <TouchableOpacity
         style={styles.checkboxContainer}

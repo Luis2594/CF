@@ -50,14 +50,15 @@ export default function WelcomeScreen() {
 
               <View style={styles.dot} />
             </View>
+            <View style={styles.wrapContentText}>
+              {/* Welcome text */}
+              <Text style={styles.title}>{translations.welcome}</Text>
 
-            {/* Welcome text */}
-            <Text style={styles.title}>{translations.welcome}</Text>
-
-            {/* Description text */}
-            <Text style={styles.description}>
-              {translations.welcomeDescription}
-            </Text>
+              {/* Description text */}
+              <Text style={styles.description}>
+                {translations.welcomeDescription}
+              </Text>
+            </View>
           </View>
 
           {/* Continue button */}
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
   },
   illustration: {
     width: "100%",
-    height: 450,
+    height: "65%",
     resizeMode: "stretch",
     borderTopStartRadius: 24,
     borderTopEndRadius: 24,
@@ -135,6 +136,10 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     backgroundColor: "#F34A2D",
+  },
+  wrapContentText: {
+    flex: 1,
+    justifyContent: "center",
   },
   title: {
     fontSize: 28,

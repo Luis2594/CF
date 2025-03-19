@@ -12,6 +12,7 @@ import {
   Alert,
   StatusBar,
   Keyboard,
+  BackHandler,
 } from "react-native";
 import { Eye, EyeOff, X } from "lucide-react-native";
 import { useLanguage } from "../context/LanguageContext";
@@ -27,6 +28,7 @@ import BiometricPrompt from "../components/BiometricPrompt";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storage";
 import { encryptLoginCredentials, encryptText } from "../utils/encryption";
+import { TouchableWithoutFeedback } from "react-native";
 
 export default function Login() {
   const { translations, language } = useLanguage();
@@ -44,6 +46,7 @@ export default function Login() {
     institution: string;
     username: string;
     password: string;
+    useBiometric: boolean;
   } | null>(null);
   const [previousUsername, setPreviousUsername] = useState<string | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -78,9 +81,6 @@ export default function Login() {
         setInstitution(credentials.institution);
         setUsername(credentials.username);
         setPassword(credentials.password);
-        setLoginWithBiometrics(
-          isBiometricAvailable && isBiometricEnabled && credentials
-        );
       }
     };
 
@@ -89,10 +89,15 @@ export default function Login() {
 
   useEffect(() => {
     if (lastLoginCredentials) {
-      setLoginWithBiometrics(isBiometricAvailable && isBiometricEnabled);
+      setLoginWithBiometrics(
+        isBiometricAvailable &&
+          isBiometricEnabled &&
+          lastLoginCredentials.useBiometric
+      );
     }
   }, [isBiometricAvailable, isBiometricEnabled, lastLoginCredentials]);
 
+  // LISTENER
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -100,6 +105,7 @@ export default function Login() {
         setKeyboardVisible(true);
       }
     );
+
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
@@ -107,114 +113,149 @@ export default function Login() {
       }
     );
 
+    const backHandlerListener = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        BackHandler.exitApp();
+        return true;
+      }
+    );
+
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
+      backHandlerListener.remove();
     };
   }, []);
 
-  const handleLogin = async (useBiometric = false) => {
-    // Reset error state
+  const handleLogin = async (
+    askBiometric = false,
+    useBiometric = lastLoginCredentials?.useBiometric
+  ) => {
     setError(null);
 
-    // Validate form
-    if (!institution) {
-      setError(translations.loginErrors.institution);
-      return;
-    }
+    // Validaciones
+    const errors = {
+      institution: !institution && translations.loginErrors.institution,
+      username: !username && translations.loginErrors.username,
+      password: !password && !useBiometric && translations.loginErrors.password,
+      deviceId: !deviceId && translations.loginErrors.deviceId,
+    };
 
-    if (!username) {
-      setError(translations.loginErrors.username);
-      return;
-    }
-
-    if (!password && !useBiometric) {
-      setError(translations.loginErrors.password);
-      return;
-    }
-
-    if (!deviceId) {
-      setError(translations.loginErrors.deviceId);
+    const firstError = Object.values(errors).find((err) => err);
+    if (firstError) {
+      setError(firstError);
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Check if user is trying to login with different credentials
-      if (
-        !useBiometric &&
-        previousUsername &&
-        username !== previousUsername &&
-        isBiometricEnabled
-      ) {
-        // Disable biometric for previous user
+      const isNewUser = username !== previousUsername;
+      const shouldDisableBiometric =
+        !useBiometric && previousUsername && isNewUser && isBiometricEnabled;
+
+      if (shouldDisableBiometric) {
         await setBiometricEnabled(false);
         await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
       }
 
-      const functionsInstance = getFunctions();
+      if (!deviceId) {
+        setError(translations.loginErrors.deviceId);
+        return;
+      }
+
       const createCustomTokenFn = httpsCallable(
-        functionsInstance,
+        getFunctions(),
         "createCustomToken"
       );
 
-      // Encrypt credentials
+      // const encryptedCredentials = encryptLoginCredentials({
+      //   username: "gestor.domiciliar",
+      //   password: "Desa2025@",
+      //   deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
+      //   companyName: "Una prueba",
+      // });
+
       const encryptedCredentials = encryptLoginCredentials({
         username,
         password,
         deviceId,
-        // deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
         companyName: institution,
-        // companyName: "Credit Force",
       });
 
-      const result = await createCustomTokenFn({
+      const {
+        data: { token, claims },
+      } = await createCustomTokenFn({
         ...encryptedCredentials,
         biometric: useBiometric,
       });
 
-      const { token, claims } = result.data;
+      console.log({
+        askBiometric,
+        isBiometricAvailable,
+        isBiometricEnabled,
+        isNewUser,
+        useBiometric,
+        flat: !isBiometricEnabled || isNewUser,
+      });
 
-      // Save credentials for biometric login if not using biometric
-      if (!useBiometric) {
-        // Show biometric prompt if available and not already enabled
-        // Only show if this is a new user or first time login
-        if (
-          isBiometricAvailable &&
-          (!isBiometricEnabled || username !== previousUsername)
-        ) {
-          setShowBiometricPrompt(true);
-          return;
-        }
+      // Si no es login biométrico y se debe mostrar el prompt
+      if (
+        askBiometric &&
+        isBiometricAvailable &&
+        (!isBiometricEnabled || isNewUser || !useBiometric)
+      ) {
+        setShowBiometricPrompt(true);
+        return;
       }
-
-      // Save credentials for future use
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS,
-        JSON.stringify({
-          institution,
-          username,
-          password,
-          token: claims.token,
-          deviceId: encryptText(deviceId),
-        })
-      );
-
-      // Sign in with custom token
+      await saveLoginCredentials({
+        institution,
+        username,
+        password,
+        token: claims.token,
+        deviceId,
+        useBiometric,
+      });
       await signInWithCustomToken(auth, token);
     } catch (error: any) {
-      console.error("Login error code:", error.details.code);
+      console.error("Login error code:", error.details?.code);
       console.error("Login error:", error.message);
 
       const errorCode =
-        error.response?.data?.code || error.details.code || "007";
-      const errorMessage = getLoginErrorMessage(errorCode, language || "es");
-
-      setError(errorMessage);
+        error.response?.data?.code || error.details?.code || "007";
+      setError(getLoginErrorMessage(errorCode, language || "es"));
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const saveLoginCredentials = async ({
+    institution,
+    username,
+    password,
+    token,
+    deviceId,
+    useBiometric,
+  }: {
+    institution: string;
+    username: string;
+    password: string;
+    token: string;
+    deviceId: string;
+    useBiometric?: boolean;
+  }) => {
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.LAST_LOGIN_CREDENTIALS,
+      JSON.stringify({
+        institution,
+        username,
+        password,
+        token,
+        deviceId: encryptText(deviceId),
+        useBiometric,
+      })
+    );
   };
 
   const handleBiometricLogin = async () => {
@@ -240,7 +281,7 @@ export default function Login() {
       if (success) {
         await setBiometricEnabled(true);
         setShowBiometricPrompt(false);
-        handleLogin(true);
+        handleLogin(false, true);
       } else {
         Alert.alert(
           translations.loginErrors.errorTitleBiometric,
@@ -263,179 +304,199 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {error && (
+        <View style={styles.errorContainer}>
+          <TouchableOpacity onPress={() => setError(null)}>
+            <SVG.CLOSE width={20} height={20} />
+          </TouchableOpacity>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoid}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.logoContainer}>
-            <SVG.LOGO width={300} height={90} />
-          </View>
-
-          <Text style={styles.welcomeText}>{translations.welcome}</Text>
-
-          <View style={styles.form}>
-            {error && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-
-                <TouchableOpacity onPress={() => setError(null)}>
-                  <X size={20} color="red" />
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* INSTITUTION  */}
-            <Text style={styles.inputLabel}>{translations.institution}</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder={translations.institution}
-                value={institution}
-                onChangeText={(text) => {
-                  setInstitution(text);
-                  setError(null);
-                }}
-                autoCapitalize="none"
-                placeholderTextColor="#D0D0D1"
-              />
-            </View>
-
-            {/* USERNAME  */}
-            <Text style={styles.inputLabel}>{translations.username}</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder={translations.username}
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  setError(null);
-                }}
-                autoCapitalize="none"
-                placeholderTextColor="#D0D0D1"
-              />
-            </View>
-
-            {/* PASSWORD  */}
-            {!loginWithBiometrics && (
-              <View>
-                <Text style={styles.inputLabel}>{translations.password}</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={translations.password}
-                    value={password}
-                    onChangeText={(text) => {
-                      setPassword(text);
-                      setError(null);
-                    }}
-                    secureTextEntry={!showPassword}
-                    placeholderTextColor="#D0D0D1"
-                  />
-                  <TouchableOpacity onPress={togglePasswordVisibility}>
-                    {showPassword ? (
-                      <EyeOff size={20} color="#666666" />
-                    ) : (
-                      <Eye size={20} color="#666666" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {loginWithBiometrics && (
-              <TouchableOpacity onPress={handleBiometricLogin}>
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginVertical: 10,
-                  }}
-                >
-                  <View style={styles.faceIdContainer}>
-                    <Text style={styles.biometricText}>
-                      {translations.faceIdLogin(biometricType)}
-                    </Text>
-                    {biometricType === "facial" ? (
-                      <SVG.FACE_ID width={24} height={24} />
-                    ) : (
-                      <SVG.FINGERPRINT width={24} height={24} />
-                    )}
-                  </View>
-                  {biometricType === "facial" ? (
-                    <SVG.FACE_ID_CIRCLE width={60} height={60} />
-                  ) : (
-                    <SVG.FINGERPRINT_CIRCLE width={60} height={60} />
-                  )}
-                  <TouchableOpacity
-                    onPress={() => setLoginWithBiometrics(false)}
-                  >
-                    <Text
-                      style={[
-                        styles.biometricText,
-                        { color: "#0093D4", marginTop: 5 },
-                      ]}
-                    >
-                      {translations.orPassword}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            )}
-
-            {/* LOGIN BUTTON  */}
-            {!loginWithBiometrics && (
-              <TouchableOpacity
-                style={[
-                  styles.loginButton,
-                  institution &&
-                    username &&
-                    password &&
-                    styles.loginButtonEnable,
-                  isLoading && styles.loginButtonDisabled,
-                ]}
-                onPress={() => handleLogin(false)}
-                disabled={isLoading}
-              >
-                <Text
-                  style={[
-                    styles.loginButtonText,
-                    institution &&
-                      username &&
-                      password &&
-                      styles.loginButtonTextEnable,
-                  ]}
-                >
-                  {isLoading ? translations.signingIn : translations.signIn}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {!loginWithBiometrics && lastLoginCredentials && (
-              <TouchableOpacity onPress={() => setLoginWithBiometrics(true)}>
-                <View style={styles.faceIdContainer}>
-                  <Text style={[styles.biometricText, { color: "#0093D4" }]}>
-                    {translations.faceIdLogin(biometricType)}
-                  </Text>
-                  {biometricType === "facial" ? (
-                    <SVG.FACE_ID_BLUE width={24} height={24} />
-                  ) : (
-                    <SVG.FINGERPRINT_BLUE width={24} height={24} />
-                  )}
-                </View>
-              </TouchableOpacity>
-            )}
-          </View>
-        </ScrollView>
         <View
           style={[
             styles.radarWavesContainer,
-            { opacity: keyboardVisible ? 0 : 1 },
+            keyboardVisible && { opacity: 0, zIndex: -1000 },
           ]}
         >
           <SVG.RADAR_WAVES width="100%" height="100%" fill="#F34A2D" />
         </View>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ flex: 1 }}>
+              <View style={styles.logoContainer}>
+                <SVG.LOGO width={300} height={90} />
+              </View>
+
+              <Text style={styles.welcomeText}>{translations.welcome}</Text>
+
+              <View style={styles.form}>
+                {/* INSTITUTION  */}
+                <Text style={styles.inputLabel}>
+                  {translations.institution}
+                </Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder={translations.institution}
+                    value={institution}
+                    onChangeText={(text) => {
+                      setInstitution(text);
+                      setError(null);
+                    }}
+                    autoCapitalize="none"
+                    placeholderTextColor="#D0D0D1"
+                  />
+                </View>
+
+                {/* USERNAME  */}
+                <Text style={styles.inputLabel}>{translations.username}</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder={translations.username}
+                    value={username}
+                    onChangeText={(text) => {
+                      setUsername(text);
+                      setError(null);
+                    }}
+                    autoCapitalize="none"
+                    placeholderTextColor="#D0D0D1"
+                  />
+                </View>
+
+                {/* PASSWORD  */}
+                {!loginWithBiometrics && (
+                  <View>
+                    <Text style={styles.inputLabel}>
+                      {translations.password}
+                    </Text>
+                    <View
+                      style={styles.inputContainer}
+                      pointerEvents="box-none"
+                    >
+                      <TextInput
+                        style={styles.input}
+                        placeholder={translations.password}
+                        value={password}
+                        onChangeText={(text) => {
+                          setPassword(text);
+                          setError(null);
+                        }}
+                        secureTextEntry={!showPassword}
+                        placeholderTextColor="#D0D0D1"
+                      />
+                      <TouchableOpacity
+                        onPress={togglePasswordVisibility}
+                        style={{ padding: 10 }}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={20} color="#666666" />
+                        ) : (
+                          <Eye size={20} color="#666666" />
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+
+                {loginWithBiometrics && (
+                  <TouchableOpacity onPress={handleBiometricLogin}>
+                    <View
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginVertical: 10,
+                      }}
+                    >
+                      <View style={styles.faceIdContainer}>
+                        <Text style={styles.biometricText}>
+                          {translations.faceIdLogin(biometricType)}
+                        </Text>
+                        {biometricType === "facial" ? (
+                          <SVG.FACE_ID width={24} height={24} />
+                        ) : (
+                          <SVG.FINGERPRINT width={24} height={24} />
+                        )}
+                      </View>
+                      {biometricType === "facial" ? (
+                        <SVG.FACE_ID_CIRCLE width={60} height={60} />
+                      ) : (
+                        <SVG.FINGERPRINT_CIRCLE width={60} height={60} />
+                      )}
+                      <TouchableOpacity
+                        onPress={() => setLoginWithBiometrics(false)}
+                      >
+                        <Text
+                          style={[
+                            styles.biometricText,
+                            { color: "#0093D4", marginTop: 5 },
+                          ]}
+                        >
+                          {translations.orPassword}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </TouchableOpacity>
+                )}
+
+                {/* LOGIN BUTTON  */}
+                {!loginWithBiometrics && (
+                  <TouchableOpacity
+                    style={[
+                      styles.loginButton,
+                      (institution || username || password) &&
+                        styles.loginButtonEnable,
+                      isLoading && styles.loginButtonDisabled,
+                    ]}
+                    onPress={() => {
+                      if (institution || username || password) {
+                        handleLogin(true);
+                      }
+                    }}
+                    disabled={isLoading}
+                  >
+                    <Text
+                      style={[
+                        styles.loginButtonText,
+                        (institution || username || password) &&
+                          styles.loginButtonTextEnable,
+                      ]}
+                    >
+                      {isLoading ? translations.signingIn : translations.signIn}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+                {!loginWithBiometrics && lastLoginCredentials?.useBiometric && (
+                  <TouchableOpacity
+                    onPress={() => setLoginWithBiometrics(true)}
+                  >
+                    <View style={styles.faceIdContainer}>
+                      <Text
+                        style={[styles.biometricText, { color: "#0093D4" }]}
+                      >
+                        {translations.faceIdLogin(biometricType)}
+                      </Text>
+                      {biometricType === "facial" ? (
+                        <SVG.FACE_ID_BLUE width={24} height={24} />
+                      ) : (
+                        <SVG.FINGERPRINT_BLUE width={24} height={24} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       <BiometricPrompt
@@ -446,7 +507,7 @@ export default function Login() {
         onEnable={handleEnableBiometrics}
         onSkip={() => {
           setShowBiometricPrompt(false);
-          handleLogin(true);
+          handleLogin();
         }}
         biometricType={biometricType}
       />
@@ -489,18 +550,15 @@ const styles = StyleSheet.create({
   errorContainer: {
     backgroundColor: "rgba(255, 59, 48, 0.1)",
     padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: "#FF3B30",
+    borderRadius: 6,
     flexDirection: "row",
+    alignItems: "center",
   },
   errorText: {
     color: "#FF3B30",
     fontFamily: "Quicksand_500Medium",
     fontSize: 14,
-    marginRight: 10,
-    flex: 1,
+    marginLeft: 12,
   },
   inputLabel: {
     fontSize: 14,
@@ -572,7 +630,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 200,
+    height: "21%",
     overflow: "hidden",
   },
 });
