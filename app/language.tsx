@@ -9,15 +9,14 @@ import {
   BackHandler,
 } from "react-native";
 import { router } from "expo-router";
-import { ChevronDown, ChevronUp, Check } from "lucide-react-native";
 import { useLanguage, Language } from "../context/LanguageContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { SVG } from "../constants/assets";
+import Dropdown from "@/components/Dropdown";
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();
   const { hasCompletedOnboarding, setOnboardingComplete } = useOnboarding();
-  const [dropdownVisible, setDropdownVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -47,9 +46,8 @@ export default function LanguageSelection() {
     };
   }, []);
 
-  const handleLanguageSelect = (code: Language) => {
-    setLanguage(code);
-    setDropdownVisible(false);
+  const handleLanguageSelect = (item: { value: string; label: string }) => {
+    setLanguage(item.value as Language);
     setError(null);
   };
 
@@ -85,47 +83,16 @@ export default function LanguageSelection() {
             <SVG.LOGO width={300} height={90} />
           </View>
 
-          <Text style={styles.label}>{translations.languageSelection}</Text>
-
-          <View style={styles.dropdownContainer}>
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={() => setDropdownVisible(!dropdownVisible)}
-            >
-              <Text
-                style={[
-                  styles.dropdownText,
-                  !language && styles.dropdownTextDisable,
-                ]}
-              >
-                {translations.languages.find((lang) => lang.code === language)
-                  ?.name || translations.languagePlaceHolder}
-              </Text>
-              {dropdownVisible ? (
-                <ChevronUp size={20} color="#717275" />
-              ) : (
-                <ChevronDown size={20} color="#717275" />
-              )}
-            </TouchableOpacity>
-
-            {dropdownVisible && (
-              <View style={styles.dropdownMenu}>
-                {translations.languages.map((lang) => (
-                  <TouchableOpacity
-                    key={lang.code}
-                    style={styles.dropdownItem}
-                    onPress={() => handleLanguageSelect(lang.code as Language)}
-                  >
-                    <Text style={styles.dropdownItemText}>{lang.name}</Text>
-
-                    {language === lang.code && (
-                      <Check size={20} color="#F04E23" />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
+          <Dropdown
+            label={translations.languageSelection}
+            items={translations.languages.map(lang => ({
+              value: lang.code,
+              label: lang.name
+            }))}
+            selectedValue={language || ''}
+            onSelect={handleLanguageSelect}
+            placeholder={translations.languagePlaceHolder}
+          />
 
           <TouchableOpacity
             style={[styles.button, !language && styles.buttonDisable]}
@@ -164,61 +131,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 13,
   },
   logoContainer: {
-    marginBottom: 20, // No lo puedo ver en FIGMA, es calculado
-  },
-  label: {
-    fontSize: 14,
-    color: "#717275",
-    marginBottom: 10,
-    fontFamily: "Quicksand_700Bold",
-  },
-  dropdownContainer: {
-    height: 44,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#D0D0D1",
-    borderRadius: 20,
-    marginBottom: 25, // No lo puedo ver en FIGMA, es calculado
-  },
-  dropdown: {
-    height: 44,
-    paddingHorizontal: 12, // No lo puedo ver en FIGMA, es calculado
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  dropdownText: {
-    fontSize: 14,
-    fontFamily: "Quicksand_500Medium",
-    color: "#4F4E50",
-  },
-  dropdownTextDisable: {
-    color: "#D0D0D1",
-  },
-  dropdownMenu: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    marginHorizontal: -1,
-    position: "absolute",
-    top: 43,
-    left: 0,
-    right: 0,
-    shadowColor: "#000", // No lo puedo ver en FIGMA las propiedades de las sombras, lo hice calculado
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-    zIndex: 1001,
-  },
-  dropdownItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 15, // No lo puedo ver en FIGMA, es calculado
-  },
-  dropdownItemText: {
-    fontSize: 16,
-    fontFamily: "Quicksand_500Medium",
-    color: "#4F4E50",
+    marginBottom: 20,
   },
   button: {
     height: 48,
@@ -226,6 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F04E23",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 25,
   },
   buttonDisable: {
     backgroundColor: "#F5F5F6",
@@ -245,7 +159,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: "21%", // No lo puedo ver en FIGMA, es calculado
+    height: "21%",
     overflow: "hidden",
     borderBottomEndRadius: 24,
     borderBottomStartRadius: 24,

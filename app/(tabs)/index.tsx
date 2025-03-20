@@ -7,14 +7,96 @@ import { useLanguage } from '../../context/LanguageContext';
 import TestList from '../../components/TestList';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { STORAGE_KEYS } from "@/constants/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface Operation {
+  operationId: number;
+  description: string;
+  productCode: string;
+  lastPaymentDate: string;
+  operationType: string;
+  overdueDays: number;
+  minimumPayment: number;
+  overdueBalance: number;
+  totalBalance: number;
+  currency: string;
+}
+
+interface Management {
+  id: string;
+  date: string;
+  action: string;
+  result: string;
+  comment: string;
+  manager: string;
+  portfolio: string;
+  contactPhone: string;
+}
 
 interface Client {
-  id: string;
+  clientId: number;
   name: string;
-  email: string;
-  phone: string;
+  id: string;
+  personalPhoneNumber: string;
+  workPhoneNumber: string | null;
+  jobPosition: string;
+  addressLevel1: string;
+  addressLevel2: string;
   address: string;
+  civilStatus: string;
+  cycle: string;
+  status: number;
+  operations: Operation[];
+  managements: Management[];
 }
+
+const mockClientData = {
+  success: true,
+  message: "Clients returned succesful",
+  clients: [
+    {
+      clientId: 45421,
+      name: "JUANA ROSAURA LOBOS MAS",
+      id: "2483650531408",
+      personalPhoneNumber: "38342921",
+      workPhoneNumber: null,
+      jobPosition: "Auxiliar de Producción",
+      addressLevel1: "Chimaltenango",
+      addressLevel2: "Chimaltenango",
+      address: "Sin definir,CHIMALTENANGO, ZONA 4, 03 CJ COLONIA SOCOBAL",
+      civilStatus: "S",
+      cycle: "Ciclo 01",
+      status: 1,
+      operations: [
+        {
+          operationId: 12180,
+          description: "MIGRADA - CELULAR",
+          productCode: "10539",
+          lastPaymentDate: "2024-01-10",
+          operationType: "Compra Tienda",
+          overdueDays: 0,
+          minimumPayment: 359.32,
+          overdueBalance: 207.33,
+          totalBalance: 1095.79,
+          currency: "320"
+        }
+      ],
+      managements: [
+        {
+          id: "247812",
+          date: "2025-01-22",
+          action: "28",
+          result: "77",
+          comment: "Que le vallan a recoger el dinero al trabajo que lo tiene en efectivo",
+          manager: "raul.hidalgo",
+          portfolio: "1",
+          contactPhone: "86067979"
+        }
+      ]
+    }
+  ]
+};
 
 export default function HomeScreen() {
   const [name, setName] = useState<string>('');
@@ -34,7 +116,6 @@ export default function HomeScreen() {
     storageKey: 'clientsCache',
     language,
     onSync: async (clientId, data) => {
-      // Implement sync logic here when needed
       console.log('Syncing client:', clientId, data);
     }
   });
@@ -42,7 +123,7 @@ export default function HomeScreen() {
   const [clients, setClients] = useState<Client[]>([]);
 
   useEffect(() => {
-    // Get the current user's claims
+    console.log('HOLAAA');
     const getCurrentUser = async () => {
       const user = auth.currentUser;
       if (user) {
@@ -51,13 +132,24 @@ export default function HomeScreen() {
           setName(idTokenResult.claims.name);
         }
 
-        // Fetch clients
         try {
+          const savedCredentials = await AsyncStorage.getItem(
+            STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+          );
+
+          const savedCredentialsJSON = savedCredentials
+            ? JSON.parse(savedCredentials)
+            : null;
+
+          console.log('TOKEN: ', avedCredentialsJSON?.token);
+          
           const getClientsFn = httpsCallable(functions, 'getClients');
-          const result = await getClientsFn({ token: idTokenResult.claims.token });
+          const result = await getClientsFn({ token: savedCredentialsJSON?.token });
           
           if (result.data.success) {
-            setClients(applyPendingChanges(result.data.data));
+            // If API returns empty data, use mock data
+            const clientsData = result.data.data?.length > 0 ? result.data.data : mockClientData.clients;
+            setClients(applyPendingChanges(clientsData));
           } else {
             setError(translations.clients.errors.loading);
           }
@@ -99,13 +191,42 @@ export default function HomeScreen() {
     return errorMessages[code as keyof typeof errorMessages] || translations.clients.errors.general;
   };
 
+  const handleClientPress = (client: Client) => {
+    // Store the selected client in AsyncStorage before navigation
+    AsyncStorage.setItem(STORAGE_KEYS.SELECTED_CLIENT, JSON.stringify(client))
+      .then(() => {
+        router.push(`/info-client/${client.clientId}`);
+      })
+      .catch((error) => {
+        console.error('Error storing client data:', error);
+        // Navigate anyway even if storage fails
+        router.push(`/info-client/${client.clientId}`);
+      });
+  };
+
   const renderClient = ({ item }: { item: Client }) => (
-    <View style={styles.clientCard}>
-      <Text style={styles.clientName}>{item.name}</Text>
-      <Text style={styles.clientDetails}>{item.email}</Text>
-      <Text style={styles.clientDetails}>{item.phone}</Text>
-      <Text style={styles.clientDetails}>{item.address}</Text>
-    </View>
+    <TouchableOpacity onPress={() => handleClientPress(item)}>
+      <View style={styles.clientCard}>
+        <View style={styles.clientHeader}>
+          <Text style={styles.clientName}>{item.name}</Text>
+          <View style={[styles.statusIndicator, item.status === 1 ? styles.statusPending : styles.statusVisited]} />
+        </View>
+        <View style={styles.clientInfo}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Region:</Text>
+            <Text style={styles.infoValue}>{item.addressLevel1}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>City:</Text>
+            <Text style={styles.infoValue}>{item.addressLevel2}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Portfolio:</Text>
+            <Text style={styles.infoValue}>{item.operations[0]?.operationType || 'N/A'}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -138,7 +259,7 @@ export default function HomeScreen() {
         </View>
       ) : clients.length > 0 ? (
         <FlatList
-          data={clients}
+          data={[clients[0]]}
           renderItem={renderClient}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.clientList}
@@ -228,16 +349,47 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  clientHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   clientName: {
     fontSize: 18,
     fontFamily: 'Quicksand_600SemiBold',
     color: '#333',
-    marginBottom: 8,
+    flex: 1,
   },
-  clientDetails: {
+  statusIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginLeft: 8,
+  },
+  statusPending: {
+    backgroundColor: '#FF3B30',
+  },
+  statusVisited: {
+    backgroundColor: '#34C759',
+  },
+  clientInfo: {
+    gap: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoLabel: {
+    fontSize: 14,
+    fontFamily: 'Quicksand_600SemiBold',
+    color: '#666',
+    width: 80,
+  },
+  infoValue: {
     fontSize: 14,
     fontFamily: 'Quicksand_400Regular',
-    color: '#666',
-    marginBottom: 4,
+    color: '#333',
+    flex: 1,
   },
 });

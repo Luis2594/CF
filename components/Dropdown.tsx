@@ -13,7 +13,7 @@ import {
   TextStyle,
   Platform,
 } from 'react-native';
-import { ChevronDown } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Check } from 'lucide-react-native';
 
 type DropdownItem = {
   value: string;
@@ -34,13 +34,14 @@ type DropdownProps = {
   label?: string;
   labelStyle?: TextStyle;
   zIndex?: number;
+  required?: boolean;
 };
 
 const Dropdown: React.FC<DropdownProps> = ({
   items,
   selectedValue,
   onSelect,
-  placeholder = 'Select an option',
+  placeholder = 'Seleccionar',
   containerStyle,
   dropdownStyle,
   textStyle,
@@ -50,6 +51,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   label,
   labelStyle,
   zIndex = 1000,
+  required = false,
 }) => {
   const [visible, setVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -156,7 +158,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     <TouchableOpacity
       style={[
         styles.item,
-        item.value === selectedValue && [styles.selectedItem, selectedItemStyle],
+        item.value === selectedValue && selectedItemStyle,
       ]}
       onPress={() => handleSelect(item)}
     >
@@ -169,12 +171,20 @@ const Dropdown: React.FC<DropdownProps> = ({
       >
         {item.label}
       </Text>
+      {item.value === selectedValue && (
+        <Check size={20} color="#F04E23" />
+      )}
     </TouchableOpacity>
   );
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+      {label && (
+        <View style={styles.labelContainer}>
+          <Text style={[styles.label, labelStyle]}>{label}</Text>
+          {required && <Text style={styles.required}>*</Text>}
+        </View>
+      )}
       
       <TouchableOpacity
         ref={dropdownRef}
@@ -182,10 +192,14 @@ const Dropdown: React.FC<DropdownProps> = ({
         onPress={toggleDropdown}
         activeOpacity={0.7}
       >
-        <Text style={[styles.text, textStyle]}>
+        <Text style={[styles.text, !selectedValue && styles.placeholder, textStyle]}>
           {selectedItem ? selectedItem.label : placeholder}
         </Text>
-        <ChevronDown size={20} color="#666" />
+        {visible ? (
+          <ChevronUp size={20} color="#666" />
+        ) : (
+          <ChevronDown size={20} color="#666" />
+        )}
       </TouchableOpacity>
 
       <Modal
@@ -196,7 +210,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       >
         <TouchableOpacity
           style={styles.overlay}
-          activeOpacity={1}
+          activeOpacity={0}
           onPress={closeDropdown}
         >
           <Animated.View
@@ -233,31 +247,38 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
+  labelContainer: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
   label: {
     fontSize: 16,
     fontFamily: 'Quicksand_500Medium',
     color: '#666666',
-    marginBottom: 8,
+  },
+  required: {
+    color: '#FF3B30',
+    marginLeft: 4,
   },
   dropdown: {
-    height: 60,
+    height: 44,
     backgroundColor: '#FFFFFF',
     borderRadius: 30,
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#D0D0D1',
   },
   text: {
     flex: 1,
     fontSize: 16,
     fontFamily: 'Quicksand_500Medium',
     color: '#666666',
+  },
+  placeholder: {
+    color: '#D0D0D1',
   },
   overlay: {
     flex: 1,
@@ -275,13 +296,16 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
   selectedItem: {
-    backgroundColor: 'rgba(243, 74, 45, 0.1)',
+    // backgroundColor: 'rgba(243, 74, 45, 0.1)',
   },
   itemText: {
     fontSize: 16,
@@ -289,7 +313,7 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   selectedItemText: {
-    color: '#F34A2D',
+    // color: '#F34A2D',
     fontFamily: 'Quicksand_700Bold',
   },
 });

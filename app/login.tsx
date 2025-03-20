@@ -170,19 +170,19 @@ export default function Login() {
         "createCustomToken"
       );
 
-      // const encryptedCredentials = encryptLoginCredentials({
-      //   username: "gestor.domiciliar",
-      //   password: "Desa2025@",
-      //   deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
-      //   companyName: "Una prueba",
-      // });
-
       const encryptedCredentials = encryptLoginCredentials({
-        username,
-        password,
-        deviceId,
-        companyName: institution,
+        username: "gestor.domiciliar",
+        password: "Desa2025@",
+        deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
+        companyName: "Una prueba",
       });
+
+      // const encryptedCredentials = encryptLoginCredentials({
+      //   username,
+      //   password,
+      //   deviceId,
+      //   companyName: institution,
+      // });
 
       const {
         data: { token, claims },
