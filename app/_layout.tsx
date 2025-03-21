@@ -80,24 +80,30 @@ export default function RootLayout() {
 
   const handleNavigation = async () => {
     try {
-      if (userAuth) {
+      console.log("userAuth: ", userAuth);
+      const savedCredentials = await AsyncStorage.getItem(
+        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+      );
+
+      if (userAuth && savedCredentials) {
         SplashScreen.hideAsync();
         // userAuth is signed in, get their claims
         const idTokenResult = await userAuth.getIdTokenResult();
+        console.log("idTokenResult: ", idTokenResult);
         // Navigate based on terms acceptance
         if (idTokenResult.claims.acceptedTerms) {
+          console.log("GO TO tabs");
           router.replace("/(tabs)");
         } else {
+          console.log("GO TO terms-acceptance");
           router.replace("/terms-acceptance");
         }
       } else {
-        const savedCredentials = await AsyncStorage.getItem(
-          STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-        );
-
         if (savedCredentials) {
+          console.log("GO TO login");
           router.replace("/login");
         } else {
+          console.log("GO TO language");
           router.replace("/language");
         }
       }

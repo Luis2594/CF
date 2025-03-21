@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Eye, EyeOff, Info } from "lucide-react-native"; // Íconos para el ojo y el tooltip
 import { styles } from "@/styles/components/customInput.styles";
+import TextError from "./TextError";
 
 type CustomInputProps = {
   label: string;
@@ -76,7 +77,7 @@ export default function CustomInput({
       </View>
 
       {/* Error message */}
-      {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+      {errorMessage && <TextError error={errorMessage} />}
     </View>
   );
 }

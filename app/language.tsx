@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
-  TouchableOpacity,
   SafeAreaView,
   BackHandler,
 } from "react-native";
@@ -12,8 +10,8 @@ import { useOnboarding } from "../context/OnboardingContext";
 import { SVG } from "../constants/assets";
 import Dropdown from "@/components/Dropdown";
 import { styles } from "@/styles/languaje.styles";
-import AlertErrorMessage from "@/components/AlertErrorMessage";
 import Button from "@/components/Button";
+import TextError from "@/components/TextError";
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();
@@ -87,7 +85,7 @@ export default function LanguageSelection() {
             placeholder={translations.languagePlaceHolder}
           />
           {/* Error message */}
-          {error && <Text style={styles.errorText}>{error}</Text>}
+          {error && <TextError error={error} />}
 
           <Button
             text={translations.continue}

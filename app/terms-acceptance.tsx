@@ -20,6 +20,8 @@ import { signOut } from "firebase/auth";
 import Button from "@/components/Button";
 import AlertErrorMessage from "@/components/AlertErrorMessage";
 import BackButton from "@/components/BackButton";
+import { getLoginErrorMessage } from "@/constants/loginErrors";
+import TextError from "@/components/TextError";
 
 export default function TermsAcceptanceScreen() {
   const { translations, language } = useLanguage();
@@ -98,7 +100,13 @@ export default function TermsAcceptanceScreen() {
         // Navigate to home screen
         router.replace("/(tabs)");
       } else {
-        setError(response?.data?.data?.message);
+        let errorCode =
+          response?.data?.data?.code || response?.data?.data?.details?.code;
+        if (errorCode) {
+          setError(getLoginErrorMessage(errorCode, language || "es"));
+        } else {
+          setError(response?.data?.data?.message);
+        }
       }
     } catch (error) {
       console.error("Error accepting terms:", error);
@@ -179,10 +187,9 @@ export default function TermsAcceptanceScreen() {
             {translations.acceptTermsCheckbox}
           </Text>
         </TouchableOpacity>
+
         {/* Error message */}
-        {errorAcceptTerms && (
-          <Text style={styles.errorText}>{errorAcceptTerms}</Text>
-        )}
+        {errorAcceptTerms && <TextError error={errorAcceptTerms} />}
 
         <Button
           text={translations.next}

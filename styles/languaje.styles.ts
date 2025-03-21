@@ -29,11 +29,4 @@ export const styles = StyleSheet.create({
     borderBottomEndRadius: 24,
     borderBottomStartRadius: 24,
   },
-  errorText: {
-    marginTop: 5,
-    color: "#E33C3C",
-    fontSize: 12,
-    fontFamily: "Quicksand",
-    fontWeight: '400'
-  },
 });
