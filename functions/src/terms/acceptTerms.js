@@ -57,7 +57,7 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
 
     log('response: ', response);
 
-    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${body}'`;
+    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${JSON.stringify(body)}'`;
 
     log("Generated cURL Command:\n", curlCommand);
 
