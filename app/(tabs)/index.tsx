@@ -275,7 +275,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {loading ? (
+      {/* {loading ? (
         <View style={styles.centerContainer}>
           <Text style={styles.loadingText}>{translations.clients.loading}</Text>
         </View>
@@ -292,7 +292,7 @@ export default function HomeScreen() {
             {translations.clients.noClients}
           </Text>
         </View>
-      )}
+      )} */}
 
       <TestList language={language} />
     </SafeAreaView>

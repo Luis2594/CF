@@ -32,16 +32,20 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       rejectUnauthorized: false,
     })
 
+    const url = 'https://api-mobile-proxy-test.credit-force.com/api/v1/terms/accept';
+
+    const body = {
+      userId: data.userId,
+      accepted: true,
+      acceptedOn: data.acceptedOn,
+      deviceId: data.deviceId,
+      language: data.language
+    };
+
     // Make request to Credit Force API
     const response = await axios.post(
-      'https://api-mobile-proxy-test.credit-force.com/api/v1/terms/accept',
-      {
-        userId: data.userId,
-        accepted: true,
-        acceptedOn: data.acceptedOn,
-        deviceId: data.deviceId,
-        language: data.language
-      },
+      url,
+      body,
       {
         httpsAgent: agent,
         headers: {
@@ -50,6 +54,8 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
         }
       }
     );
+
+    log('response: ', response);
 
     const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${body}'`;
 

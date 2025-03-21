@@ -3,6 +3,8 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 const https = require('https');
 
+const { log } = require('firebase-functions/logger');
+
 exports.createCustomToken = functions.https.onCall(async (data, context) => {
   try {
     // Validate required parameters
@@ -21,23 +23,20 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
       rejectUnauthorized: false,
     })
 
-    console.log({
+    const url = 'https://api-mobile-proxy-test.credit-force.com/api/v1/auth/login';
+
+    const body = {
       username: data.username,
       password: data.password,
       deviceId: data.deviceId,
       companyName: data.companyName,
       biometric: data.biometric || false,
-    });
+    };
+    log('Body: ', body);
 
     const response = await axios.post(
-      'https://api-mobile-proxy-test.credit-force.com/api/v1/auth/login',
-      {
-        username: data.username,
-        password: data.password,
-        deviceId: data.deviceId,
-        companyName: data.companyName,
-        biometric: data.biometric || false,
-      },
+      url,
+      body,
       {
         httpsAgent: agent,
         headers: {
@@ -47,7 +46,11 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
       }
     );
 
+    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "X-Forwarded-For: 192.4.168.212" \\\n  --data '${body}'`;
+    log("Generated cURL Command:\n", curlCommand);
+
     const responseData = response.data;
+    log('responseData: ', responseData);
 
     // Handle response
     // const responseData = await response.json();
@@ -76,16 +79,18 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
       companyName: data.companyName,
       deviceId: data.deviceId
     };
+    log('claims: ', claims);
 
     // Create Firebase custom token with claims
     const customToken = await admin.auth().createCustomToken(responseData.userId, claims);
+    log('customToken: ', claims);
 
     return {
       token: customToken,
       claims
     };
   } catch (error) {
-    console.error('Authentication error:', error);
+    log('Authentication error:', error);
 
     if (error instanceof functions.https.HttpsError) {
       // Pass through HttpsError with its code
