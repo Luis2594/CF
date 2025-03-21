@@ -63,9 +63,9 @@ export const es = {
   noAccount: '¿No tienes una cuenta?',
   signUp: 'Regístrate',
   loginErrors: {
-    institution: 'Ingrese una institución',
-    username: 'Ingrese su usuario',
-    password: 'Ingrese su contraseña',
+    institution: 'Institución es requerido',
+    username: 'Usuario es requerido',
+    password: 'Contraseña es requerido',
     deviceId: 'Error al obtener ID del dispositivo',
     emptyBiometric: 'No hay credenciales guardadas para inicio de sesión biométrico',
     failBiometric: 'Autenticación biométrica fallida',
@@ -91,7 +91,7 @@ export const es = {
     }
 
     if (text === 'description') {
-      return `Inicia sesión de forma rápida y segura usando tu ${biometricText}?`;
+      return `Inicia sesión de forma rápida y segura usando tu ${biometricText}`;
 
     }
     return '';

@@ -1,12 +1,20 @@
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert, FlatList } from 'react-native';
-import { useEffect, useState } from 'react';
-import { LogOut } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  Alert,
+  FlatList,
+} from "react-native";
+import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react-native";
 import { getAuth, signOut } from "firebase/auth";
-import { router } from 'expo-router';
-import { useLanguage } from '../../context/LanguageContext';
-import TestList from '../../components/TestList';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { router } from "expo-router";
+import { useLanguage } from "../../context/LanguageContext";
+import TestList from "../../components/TestList";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { STORAGE_KEYS } from "@/constants/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -79,8 +87,8 @@ const mockClientData = {
           minimumPayment: 359.32,
           overdueBalance: 207.33,
           totalBalance: 1095.79,
-          currency: "320"
-        }
+          currency: "320",
+        },
       ],
       managements: [
         {
@@ -88,46 +96,47 @@ const mockClientData = {
           date: "2025-01-22",
           action: "28",
           result: "77",
-          comment: "Que le vallan a recoger el dinero al trabajo que lo tiene en efectivo",
+          comment:
+            "Que le vallan a recoger el dinero al trabajo que lo tiene en efectivo",
           manager: "raul.hidalgo",
           portfolio: "1",
-          contactPhone: "86067979"
-        }
-      ]
-    }
-  ]
+          contactPhone: "86067979",
+        },
+      ],
+    },
+  ],
 };
 
 export default function HomeScreen() {
-  const [name, setName] = useState<string>('');
+  const [name, setName] = useState<string>("");
   const { language, translations } = useLanguage();
   const auth = getAuth();
   const functions = getFunctions();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { 
+  const {
     isOnline,
     pendingChanges,
     addPendingChange,
     applyPendingChanges,
-    showOfflineAlert
+    showOfflineAlert,
   } = useOfflineSync<Client>({
-    storageKey: 'clientsCache',
+    storageKey: "clientsCache",
     language,
     onSync: async (clientId, data) => {
-      console.log('Syncing client:', clientId, data);
-    }
+      console.log("Syncing client:", clientId, data);
+    },
   });
 
   const [clients, setClients] = useState<Client[]>([]);
 
   useEffect(() => {
-    console.log('HOLAAA');
     const getCurrentUser = async () => {
       const user = auth.currentUser;
       if (user) {
         const idTokenResult = await user.getIdTokenResult();
+
         if (idTokenResult.claims.name) {
           setName(idTokenResult.claims.name);
         }
@@ -141,21 +150,24 @@ export default function HomeScreen() {
             ? JSON.parse(savedCredentials)
             : null;
 
-          console.log('TOKEN: ', avedCredentialsJSON?.token);
-          
-          const getClientsFn = httpsCallable(functions, 'getClients');
-          const result = await getClientsFn({ token: savedCredentialsJSON?.token });
-          
+          const getClientsFn = httpsCallable(functions, "getClients");
+          const result = await getClientsFn({
+            token: savedCredentialsJSON?.token,
+          });
+
           if (result.data.success) {
             // If API returns empty data, use mock data
-            const clientsData = result.data.data?.length > 0 ? result.data.data : mockClientData.clients;
+            const clientsData =
+              result.data.data?.length > 0
+                ? result.data.data
+                : mockClientData.clients;
             setClients(applyPendingChanges(clientsData));
           } else {
             setError(translations.clients.errors.loading);
           }
         } catch (error: any) {
-          console.error('Error fetching clients:', error);
-          const errorCode = error.details?.code || '007';
+          console.error("Error fetching clients:", error);
+          const errorCode = error.details?.code || "007";
           setError(getErrorMessage(errorCode));
         } finally {
           setLoading(false);
@@ -167,28 +179,33 @@ export default function HomeScreen() {
   }, []);
 
   const handleLogout = () => {
-    signOut(auth).then(() => {
-      router.replace('/login');
-    }).catch((error) => {
-      console.error('Logout error:', error);
-      Alert.alert(
-        'Error',
-        language === 'es'
-          ? 'Error al cerrar sesión. Por favor intente de nuevo.'
-          : 'Error logging out. Please try again.',
-        [{ text: 'OK' }]
-      );
-    });
+    signOut(auth)
+      .then(() => {
+        router.replace("/login");
+      })
+      .catch((error) => {
+        console.error("Logout error:", error);
+        Alert.alert(
+          "Error",
+          language === "es"
+            ? "Error al cerrar sesión. Por favor intente de nuevo."
+            : "Error logging out. Please try again.",
+          [{ text: "OK" }]
+        );
+      });
   };
 
   const getErrorMessage = (code: string): string => {
     const errorMessages = {
-      '001': translations.clients.errors.invalidParams,
-      '002': translations.clients.errors.unauthorized,
-      '007': translations.clients.errors.general
+      "001": translations.clients.errors.invalidParams,
+      "002": translations.clients.errors.unauthorized,
+      "007": translations.clients.errors.general,
     };
 
-    return errorMessages[code as keyof typeof errorMessages] || translations.clients.errors.general;
+    return (
+      errorMessages[code as keyof typeof errorMessages] ||
+      translations.clients.errors.general
+    );
   };
 
   const handleClientPress = (client: Client) => {
@@ -198,7 +215,7 @@ export default function HomeScreen() {
         router.push(`/info-client/${client.clientId}`);
       })
       .catch((error) => {
-        console.error('Error storing client data:', error);
+        console.error("Error storing client data:", error);
         // Navigate anyway even if storage fails
         router.push(`/info-client/${client.clientId}`);
       });
@@ -209,7 +226,12 @@ export default function HomeScreen() {
       <View style={styles.clientCard}>
         <View style={styles.clientHeader}>
           <Text style={styles.clientName}>{item.name}</Text>
-          <View style={[styles.statusIndicator, item.status === 1 ? styles.statusPending : styles.statusVisited]} />
+          <View
+            style={[
+              styles.statusIndicator,
+              item.status === 1 ? styles.statusPending : styles.statusVisited,
+            ]}
+          />
         </View>
         <View style={styles.clientInfo}>
           <View style={styles.infoRow}>
@@ -222,7 +244,9 @@ export default function HomeScreen() {
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Portfolio:</Text>
-            <Text style={styles.infoValue}>{item.operations[0]?.operationType || 'N/A'}</Text>
+            <Text style={styles.infoValue}>
+              {item.operations[0]?.operationType || "N/A"}
+            </Text>
           </View>
         </View>
       </View>
@@ -232,7 +256,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hello{name ? `, ${name}` : ''}</Text>
+        <Text style={styles.greeting}>Hello{name ? `, ${name}` : ""}</Text>
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogout}
@@ -240,7 +264,7 @@ export default function HomeScreen() {
         >
           <LogOut size={20} color="#FF3B30" />
           <Text style={styles.logoutText}>
-            {language === 'es' ? 'Cerrar Sesión' : 'Logout'}
+            {language === "es" ? "Cerrar Sesión" : "Logout"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -253,9 +277,7 @@ export default function HomeScreen() {
 
       {loading ? (
         <View style={styles.centerContainer}>
-          <Text style={styles.loadingText}>
-            {translations.clients.loading}
-          </Text>
+          <Text style={styles.loadingText}>{translations.clients.loading}</Text>
         </View>
       ) : clients.length > 0 ? (
         <FlatList
@@ -280,85 +302,85 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
     padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   greeting: {
     fontSize: 24,
-    fontFamily: 'Quicksand_700Bold',
-    color: '#333',
+    fontFamily: "Quicksand_700Bold",
+    color: "#333",
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 59, 48, 0.1)",
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
   },
   logoutText: {
     marginLeft: 8,
-    color: '#FF3B30',
+    color: "#FF3B30",
     fontSize: 14,
-    fontFamily: 'Quicksand_600SemiBold',
+    fontFamily: "Quicksand_600SemiBold",
   },
   errorContainer: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    backgroundColor: "rgba(255, 59, 48, 0.1)",
     padding: 16,
     margin: 16,
     borderRadius: 8,
   },
   errorText: {
-    color: '#FF3B30',
+    color: "#FF3B30",
     fontSize: 14,
-    fontFamily: 'Quicksand_500Medium',
+    fontFamily: "Quicksand_500Medium",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
+    fontFamily: "Quicksand_500Medium",
+    color: "#666",
   },
   noDataText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
+    fontFamily: "Quicksand_500Medium",
+    color: "#666",
   },
   clientList: {
     padding: 16,
   },
   clientCard: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   clientHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   clientName: {
     fontSize: 18,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
+    fontFamily: "Quicksand_600SemiBold",
+    color: "#333",
     flex: 1,
   },
   statusIndicator: {
@@ -368,28 +390,28 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   statusPending: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: "#FF3B30",
   },
   statusVisited: {
-    backgroundColor: '#34C759',
+    backgroundColor: "#34C759",
   },
   clientInfo: {
     gap: 8,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   infoLabel: {
     fontSize: 14,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#666',
+    fontFamily: "Quicksand_600SemiBold",
+    color: "#666",
     width: 80,
   },
   infoValue: {
     fontSize: 14,
-    fontFamily: 'Quicksand_400Regular',
-    color: '#333',
+    fontFamily: "Quicksand_400Regular",
+    color: "#333",
     flex: 1,
   },
 });

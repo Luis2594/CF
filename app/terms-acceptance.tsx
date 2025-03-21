@@ -17,6 +17,7 @@ import { httpsCallable } from "firebase/functions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/constants/storage";
 import { SVG } from "@/constants/assets";
+import { styles } from "@/styles/terms-acceptance.styles";
 
 export default function TermsAcceptanceScreen() {
   const { translations, language } = useLanguage();
@@ -71,13 +72,15 @@ export default function TermsAcceptanceScreen() {
       // Call the acceptTerms function
       const acceptTermsFn = httpsCallable(functions, "acceptTerms");
 
-      await acceptTermsFn({
+      const response = await acceptTermsFn({
         userId,
         deviceId: savedCredentialsJSON?.deviceId,
         acceptedOn: new Date().toISOString(),
         language,
         token: savedCredentialsJSON?.token,
       });
+
+      console.log("response: ", response);
 
       // Save terms acceptance status locally
       await setTermsAccepted(true);
@@ -162,12 +165,10 @@ export default function TermsAcceptanceScreen() {
       >
         {isChecked ? (
           <View style={styles.checkedBox}>
-            <Check size={20} color="#FFFFFF" />
+            <SVG.CHECK width={10} height={10} />
           </View>
         ) : (
-          <View style={styles.uncheckedBox}>
-            <Square size={20} color="#D1D5DB" />
-          </View>
+          <View style={[styles.checkedBox, styles.uncheckedBox]} />
         )}
         <Text style={styles.checkboxText}>
           {translations.acceptTermsCheckbox}
@@ -187,113 +188,3 @@ export default function TermsAcceptanceScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F5F6",
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android,
-    margin: 22,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "#E6E6E7",
-    borderRadius: 12,
-    paddingVertical: 8, // No lo puedo ver en FIGMA, es calculado
-    paddingHorizontal: 12, // No lo puedo ver en FIGMA, es calculado
-    marginBottom: 20, // No lo puedo ver en FIGMA, es calculado
-  },
-  backText: {
-    fontSize: 12,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
-    marginLeft: 4,
-  },
-  content: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 10,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#F5F5F6",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
-    marginVertical: 20,
-    textAlign: "center",
-  },
-  termsContainer: {
-    flex: 1,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-  termsText: {
-    fontSize: 14,
-    fontFamily: "Quicksand_400Regular",
-    color: "#717275",
-    marginBottom: 16,
-    lineHeight: 24,
-    marginHorizontal: 10,
-  },
-  errorContainer: {
-    backgroundColor: "rgba(255, 59, 48, 0.1)",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: "#FF3B30",
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontFamily: "Quicksand_500Medium",
-    fontSize: 14,
-  },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  uncheckedBox: {
-    borderRadius: 4,
-    marginRight: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkedBox: {
-    borderRadius: 4,
-    backgroundColor: "#F34A2D",
-    marginRight: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxText: {
-    fontSize: 14,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
-  },
-  continueButton: {
-    backgroundColor: "#F04E23",
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    height: 48,
-  },
-  disabledButton: {
-    backgroundColor: "#CCCCCC",
-  },
-  continueButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontFamily: "Quicksand_600SemiBold",
-  },
-});

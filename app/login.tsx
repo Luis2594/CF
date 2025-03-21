@@ -2,41 +2,54 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  TextInput,
   TouchableOpacity,
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
-  StatusBar,
   Keyboard,
   BackHandler,
 } from "react-native";
-import { Eye, EyeOff, X } from "lucide-react-native";
 import { useLanguage } from "../context/LanguageContext";
-import { useTerms } from "../context/TermsContext";
 import { SVG } from "../constants/assets";
 import { auth } from "../config/firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDeviceId } from "../utils/deviceId";
-import { getLoginErrorMessage } from "../constants/loginErrors";
+import {
+  getLoginErrorMessage,
+  LOGIN_ERROR_CODES,
+} from "../constants/loginErrors";
 import { useBiometrics } from "../hooks/useBiometrics";
 import BiometricPrompt from "../components/BiometricPrompt";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storage";
 import { encryptLoginCredentials, encryptText } from "../utils/encryption";
 import { TouchableWithoutFeedback } from "react-native";
+import { styles } from "@/styles/login.styles";
+import Button from "@/components/Button";
+import CustomInput from "@/components/CustomInput";
+import AlertErrorMessage from "@/components/AlertErrorMessage";
+
+type ErrorsInput = {
+  institution?: string;
+  username?: string;
+  password?: string;
+};
+
+type LoginCredentials = {
+  username: string;
+  password: string;
+  deviceId: string;
+  companyName: string;
+};
 
 export default function Login() {
   const { translations, language } = useLanguage();
-  const { hasAcceptedTerms } = useTerms();
   const [institution, setInstitution] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -50,6 +63,28 @@ export default function Login() {
   } | null>(null);
   const [previousUsername, setPreviousUsername] = useState<string | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
+
+  const predefinedCredentials: Record<string, LoginCredentials> = {
+    "gestor.domiciliar": {
+      username: "gestor.domiciliar",
+      password: "Desa2025@",
+      deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
+      companyName: "Credit Force",
+    },
+    GestorCobros: {
+      username: "GestorCobros",
+      password: "Desa2025!",
+      deviceId: "7E402C17-DB92-413C-9DE1-8CF942A5B9E4",
+      companyName: "Credit Force",
+    },
+    "Gestor.Virtual": {
+      username: "Gestor.Virtual",
+      password: "123",
+      deviceId: "C56A4180-65AA-42EC-A945-5FD21DEC0538",
+      companyName: "Una prueba",
+    },
+  };
 
   const {
     isAvailable: isBiometricAvailable,
@@ -128,26 +163,27 @@ export default function Login() {
     };
   }, []);
 
+  const validateInputs = () => {
+    setErrorsInput({});
+    const currentErrorsInput = {
+      institution: !institution
+        ? translations.loginErrors.institution
+        : undefined,
+      username: !username ? translations.loginErrors.username : undefined,
+      password:
+        !password && !lastLoginCredentials?.useBiometric
+          ? translations.loginErrors.password
+          : undefined,
+    };
+
+    // Validaciones
+    setErrorsInput(currentErrorsInput);
+  };
+
   const handleLogin = async (
     askBiometric = false,
     useBiometric = lastLoginCredentials?.useBiometric
   ) => {
-    setError(null);
-
-    // Validaciones
-    const errors = {
-      institution: !institution && translations.loginErrors.institution,
-      username: !username && translations.loginErrors.username,
-      password: !password && !useBiometric && translations.loginErrors.password,
-      deviceId: !deviceId && translations.loginErrors.deviceId,
-    };
-
-    const firstError = Object.values(errors).find((err) => err);
-    if (firstError) {
-      setError(firstError);
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -170,13 +206,7 @@ export default function Login() {
         "createCustomToken"
       );
 
-      const encryptedCredentials = encryptLoginCredentials({
-        username: "gestor.domiciliar",
-        password: "Desa2025@",
-        deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
-        companyName: "Una prueba",
-      });
-
+      // TODO Habilitar cuando ya no ocupemos usuarios quemados
       // const encryptedCredentials = encryptLoginCredentials({
       //   username,
       //   password,
@@ -184,20 +214,19 @@ export default function Login() {
       //   companyName: institution,
       // });
 
+      // TODO Deshabilitar cuando ya no ocupemos usuarios quemados
+      const encryptedCredentials = getEncryptedCredentials(
+        username,
+        password,
+        deviceId,
+        institution
+      );
+
       const {
         data: { token, claims },
       } = await createCustomTokenFn({
         ...encryptedCredentials,
         biometric: useBiometric,
-      });
-
-      console.log({
-        askBiometric,
-        isBiometricAvailable,
-        isBiometricEnabled,
-        isNewUser,
-        useBiometric,
-        flat: !isBiometricEnabled || isNewUser,
       });
 
       // Si no es login biométrico y se debe mostrar el prompt
@@ -219,8 +248,8 @@ export default function Login() {
       });
       await signInWithCustomToken(auth, token);
     } catch (error: any) {
-      console.error("Login error code:", error.details?.code);
-      console.error("Login error:", error.message);
+      console.log("Login error code:", error.details?.code);
+      console.log("Login error:", error.message);
 
       const errorCode =
         error.response?.data?.code || error.details?.code || "007";
@@ -229,6 +258,23 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+  function getEncryptedCredentials(
+    username: string,
+    password: string,
+    deviceId: string,
+    institution: string
+  ) {
+    // Si el username coincide con un caso predefinido, usa esas credenciales
+    const credentials = predefinedCredentials[username] || {
+      username,
+      password,
+      deviceId,
+      companyName: institution,
+    };
+
+    return encryptLoginCredentials(credentials);
+  }
 
   const saveLoginCredentials = async ({
     institution,
@@ -298,20 +344,9 @@ export default function Login() {
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      {error && (
-        <View style={styles.errorContainer}>
-          <TouchableOpacity onPress={() => setError(null)}>
-            <SVG.CLOSE width={20} height={20} />
-          </TouchableOpacity>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
+      <AlertErrorMessage error={error} onClose={() => setError(null)} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -339,72 +374,45 @@ export default function Login() {
 
               <View style={styles.form}>
                 {/* INSTITUTION  */}
-                <Text style={styles.inputLabel}>
-                  {translations.institution}
-                </Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={translations.institution}
-                    value={institution}
-                    onChangeText={(text) => {
-                      setInstitution(text);
-                      setError(null);
-                    }}
-                    autoCapitalize="none"
-                    placeholderTextColor="#D0D0D1"
-                  />
-                </View>
+                <CustomInput
+                  label={translations.institution}
+                  placeholder={translations.institution}
+                  value={institution}
+                  onChangeText={(text) => {
+                    setInstitution(text);
+                    setError(null);
+                    setErrorsInput({ ...errorsInput, institution: undefined });
+                  }}
+                  errorMessage={errorsInput?.institution}
+                />
 
                 {/* USERNAME  */}
-                <Text style={styles.inputLabel}>{translations.username}</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={translations.username}
-                    value={username}
-                    onChangeText={(text) => {
-                      setUsername(text);
-                      setError(null);
-                    }}
-                    autoCapitalize="none"
-                    placeholderTextColor="#D0D0D1"
-                  />
-                </View>
+                <CustomInput
+                  label={translations.username}
+                  placeholder={translations.username}
+                  value={username}
+                  onChangeText={(text) => {
+                    setUsername(text);
+                    setError(null);
+                    setErrorsInput({ ...errorsInput, username: undefined });
+                  }}
+                  errorMessage={errorsInput?.username}
+                />
 
                 {/* PASSWORD  */}
                 {!loginWithBiometrics && (
-                  <View>
-                    <Text style={styles.inputLabel}>
-                      {translations.password}
-                    </Text>
-                    <View
-                      style={styles.inputContainer}
-                      pointerEvents="box-none"
-                    >
-                      <TextInput
-                        style={styles.input}
-                        placeholder={translations.password}
-                        value={password}
-                        onChangeText={(text) => {
-                          setPassword(text);
-                          setError(null);
-                        }}
-                        secureTextEntry={!showPassword}
-                        placeholderTextColor="#D0D0D1"
-                      />
-                      <TouchableOpacity
-                        onPress={togglePasswordVisibility}
-                        style={{ padding: 10 }}
-                      >
-                        {showPassword ? (
-                          <EyeOff size={20} color="#666666" />
-                        ) : (
-                          <Eye size={20} color="#666666" />
-                        )}
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                  <CustomInput
+                    label={translations.password}
+                    placeholder={translations.password}
+                    value={password}
+                    isPassword
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      setError(null);
+                      setErrorsInput({ ...errorsInput, password: undefined });
+                    }}
+                    errorMessage={errorsInput?.password}
+                  />
                 )}
 
                 {loginWithBiometrics && (
@@ -449,30 +457,19 @@ export default function Login() {
 
                 {/* LOGIN BUTTON  */}
                 {!loginWithBiometrics && (
-                  <TouchableOpacity
-                    style={[
-                      styles.loginButton,
-                      (institution || username || password) &&
-                        styles.loginButtonEnable,
-                      isLoading && styles.loginButtonDisabled,
-                    ]}
+                  <Button
+                    text={translations.signIn}
+                    disabled={!(institution && username && password)}
+                    variant={isLoading ? "default" : "outline"}
+                    isLoading={isLoading}
+                    customStyleContainer={{ marginTop: 10 }}
+                    onPressDisable={() => validateInputs()}
                     onPress={() => {
                       if (institution || username || password) {
                         handleLogin(true);
                       }
                     }}
-                    disabled={isLoading}
-                  >
-                    <Text
-                      style={[
-                        styles.loginButtonText,
-                        (institution || username || password) &&
-                          styles.loginButtonTextEnable,
-                      ]}
-                    >
-                      {isLoading ? translations.signingIn : translations.signIn}
-                    </Text>
-                  </TouchableOpacity>
+                  />
                 )}
 
                 {!loginWithBiometrics && lastLoginCredentials?.useBiometric && (
@@ -514,123 +511,3 @@ export default function Login() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
-  },
-  keyboardAvoid: {
-    flex: 1,
-    marginTop: 22,
-    marginHorizontal: 22,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    backgroundColor: "#f5f5f6",
-  },
-  scrollContent: {
-    flex: 1,
-    padding: 24,
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  welcomeText: {
-    fontSize: 28,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  form: {
-    width: "100%",
-  },
-  errorContainer: {
-    backgroundColor: "rgba(255, 59, 48, 0.1)",
-    padding: 12,
-    borderRadius: 6,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontFamily: "Quicksand_500Medium",
-    fontSize: 14,
-    marginLeft: 12,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontFamily: "Quicksand_600SemiBold",
-    color: "#717275",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#D0D0D1",
-    borderRadius: 30,
-    marginVertical: 8,
-    padding: 12,
-    height: 44,
-  },
-  input: {
-    flex: 1,
-    height: 44,
-    fontFamily: "Quicksand_500Medium",
-    fontSize: 16,
-    color: "#666666",
-  },
-  loginButton: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 15,
-    marginTop: 5,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    height: 48,
-  },
-  loginButtonEnable: {
-    backgroundColor: "#F04E23",
-  },
-  loginButtonDisabled: {
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    fontSize: 16,
-    fontFamily: "Quicksand_700SemiBold",
-  },
-  loginButtonTextEnable: {
-    color: "white",
-  },
-  faceIdContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  recoverText: {
-    fontFamily: "Quicksand_400Regular",
-    fontSize: 16,
-    color: "#F04E23",
-    marginBottom: 10,
-  },
-  biometricText: {
-    fontFamily: "Quicksand_500Medium",
-    fontSize: 16,
-    color: "#717275",
-    marginRight: 8,
-  },
-  radarWavesContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "21%",
-    overflow: "hidden",
-  },
-});

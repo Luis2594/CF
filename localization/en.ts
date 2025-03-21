@@ -63,9 +63,9 @@ export const en = {
   noAccount: 'Don\'t have an account?',
   signUp: 'Sign Up',
   loginErrors: {
-    institution: 'Please add an institution',
-    username: 'Please enter your username',
-    password: 'Please enter your password',
+    institution: "Institution is required",
+    username: "Username is required",
+    password: "Password is required",
     deviceId: 'Error getting device ID',
     emptyBiometric: 'No saved credentials for biometric login',
     failBiometric: 'Biometric authentication failed',

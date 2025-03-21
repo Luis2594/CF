@@ -8,57 +8,50 @@ export interface LoginErrorMessage {
   es: string;
   technical?: string;
 }
-
-export const LOGIN_ERROR_CODES: Record<string, LoginErrorMessage> = {
+export const LOGIN_ERROR_CODES: Record<string, { en: string; es: string }> = {
   // Success
   '000': {
-    en: 'Login successful',
-    es: 'El login fue correcto',
-    technical: 'Login successful ✅'
+    en: 'Login successful ✅',
+    es: 'El login fue correcto ✅'
   },
   // Integration error
   '001': {
-    en: 'Invalid request parameters',
-    es: 'Parámetros de solicitud inválidos',
-    technical: 'One or more parameters were not sent, integration error ⛔'
+    en: 'One or more parameters were not sent, integration error ⛔',
+    es: 'Alguno, varios o todos los parámetros no fueron enviados, es un error de integración ⛔'
   },
   // User does not exist
   '002': {
-    en: 'Incorrect username or password',
-    es: 'Usuario o contraseña incorrectos',
-    technical: 'User does not exist ⛔'
+    en: 'User does not exist, reported as "Incorrect username or password" in the technical message ⛔',
+    es: 'El usuario no existe, se reporta como "Usuario o contraseña incorrectos" en mensaje técnico ⛔'
   },
   // User blocked
   '003': {
-    en: 'Account blocked',
-    es: 'Cuenta bloqueada',
-    technical: 'User is blocked ⛔'
+    en: 'The user is blocked ⛔',
+    es: 'El usuario está bloqueado ⛔'
   },
   // Password mismatch
   '004': {
-    en: 'Incorrect username or password',
-    es: 'Usuario o contraseña incorrectos',
-    technical: 'User exists but password does not match ⛔'
+    en: 'The user exists, but the password does not match ⛔',
+    es: 'El usuario existe, pero no coincide la contraseña ⛔'
   },
   // Device error
   '005': {
-    en: 'Device not authorized',
-    es: 'Dispositivo no autorizado',
-    technical: 'Device does not exist or is not configured for this user ⛔'
+    en: 'The device does not exist or is not configured for this user ⛔',
+    es: 'El dispositivo no existe o no está configurado para este usuario ⛔'
   },
   // Encryption error
   '006': {
-    en: 'Security validation failed',
-    es: 'Validación de seguridad fallida',
-    technical: 'One or more payload parameters were not sent encrypted ⛔'
+    en: 'One or more payload parameters were not sent encrypted ⛔',
+    es: 'Alguno de los parámetros del payload no fue enviado de manera encriptada ⛔'
   },
   // General error
   '007': {
-    en: 'An error occurred',
-    es: 'Ocurrió un error',
-    technical: 'General error ⛔'
+    en: 'General error ⛔',
+    es: 'Error general ⛔'
   }
 } as const;
+
+
 
 /**
  * Get error message based on code and language
@@ -66,8 +59,8 @@ export const LOGIN_ERROR_CODES: Record<string, LoginErrorMessage> = {
 export const getLoginErrorMessage = (code: string, language: 'en' | 'es'): string => {
   const errorInfo = LOGIN_ERROR_CODES[code];
   if (!errorInfo) {
-    return language === 'es' 
-      ? 'Error desconocido' 
+    return language === 'es'
+      ? 'Error desconocido'
       : 'Unknown error';
   }
   return errorInfo[language];

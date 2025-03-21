@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  StatusBar,
   BackHandler,
 } from "react-native";
 import { router } from "expo-router";
@@ -13,6 +11,9 @@ import { useLanguage, Language } from "../context/LanguageContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { SVG } from "../constants/assets";
 import Dropdown from "@/components/Dropdown";
+import { styles } from "@/styles/languaje.styles";
+import AlertErrorMessage from "@/components/AlertErrorMessage";
+import Button from "@/components/Button";
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();
@@ -69,14 +70,7 @@ export default function LanguageSelection() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {error && (
-        <View style={styles.errorContainer}>
-          <TouchableOpacity onPress={() => setError(null)}>
-            <SVG.CLOSE width={20} height={20} />
-          </TouchableOpacity>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
+      <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <View style={styles.contentContainer}>
         <View style={styles.wrapForm}>
           <View style={styles.logoContainer}>
@@ -85,25 +79,23 @@ export default function LanguageSelection() {
 
           <Dropdown
             label={translations.languageSelection}
-            items={translations.languages.map(lang => ({
+            items={translations.languages.map((lang) => ({
               value: lang.code,
-              label: lang.name
+              label: lang.name,
             }))}
-            selectedValue={language || ''}
+            selectedValue={language || ""}
             onSelect={handleLanguageSelect}
             placeholder={translations.languagePlaceHolder}
           />
 
-          <TouchableOpacity
-            style={[styles.button, !language && styles.buttonDisable]}
+          <Button
+            text={translations.continue}
+            disabled={!language}
+            variant="outline"
+            customStyleContainer={{ marginTop: 20 }}
+            onPressDisable={() => setError(translations.languajeError)}
             onPress={handleContinue}
-          >
-            <Text
-              style={[styles.buttonText, !language && styles.buttonTextDisable]}
-            >
-              {translations.continue}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
 
         <View style={styles.radarWavesContainer}>
@@ -113,69 +105,3 @@ export default function LanguageSelection() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
-  },
-  contentContainer: {
-    flex: 1,
-    backgroundColor: "#F5F5F6",
-    borderRadius: 24,
-    margin: 22,
-  },
-  wrapForm: {
-    marginTop: 196,
-    marginHorizontal: 13,
-  },
-  logoContainer: {
-    marginBottom: 20,
-  },
-  button: {
-    height: 48,
-    borderRadius: 50,
-    backgroundColor: "#F04E23",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 25,
-  },
-  buttonDisable: {
-    backgroundColor: "#F5F5F6",
-    borderWidth: 1,
-    borderColor: "#D0D0D1",
-  },
-  buttonText: {
-    fontSize: 16,
-    fontFamily: "Quicksand_600SemiBold",
-    color: "white",
-  },
-  buttonTextDisable: {
-    color: "#717275",
-  },
-  radarWavesContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "21%",
-    overflow: "hidden",
-    borderBottomEndRadius: 24,
-    borderBottomStartRadius: 24,
-  },
-  errorContainer: {
-    backgroundColor: "rgba(255, 59, 48, 0.1)",
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 16,
-    flexDirection: "row",
-    alignContent: "center",
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontFamily: "Quicksand_500Medium",
-    fontSize: 14,
-    marginLeft: 12,
-  },
-});

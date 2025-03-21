@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 const { encryptText } = require('../utils/encryption');
 const https = require('https');
+const { log } = require('firebase-functions/logger');
 
 
 exports.acceptTerms = functions.https.onCall(async (data, context) => {
@@ -49,6 +50,10 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
         }
       }
     );
+
+    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${body}'`;
+
+    log("Generated cURL Command:\n", curlCommand);
 
     /* const response = {
       "hashTerms": "5DA14919-2C6C-4F93-AC8A-C905AC7FEBF0",
