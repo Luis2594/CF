@@ -12,6 +12,6 @@ export const styles = StyleSheet.create({
     color: "#9D2B2B",
     fontFamily: "Quicksand_700Bold",
     fontSize: 14,
-    marginLeft: 12,
+    marginHorizontal: 12,
   },
 });

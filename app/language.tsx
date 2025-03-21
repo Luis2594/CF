@@ -70,7 +70,6 @@ export default function LanguageSelection() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <View style={styles.contentContainer}>
         <View style={styles.wrapForm}>
           <View style={styles.logoContainer}>
@@ -87,6 +86,8 @@ export default function LanguageSelection() {
             onSelect={handleLanguageSelect}
             placeholder={translations.languagePlaceHolder}
           />
+          {/* Error message */}
+          {error && <Text style={styles.errorText}>{error}</Text>}
 
           <Button
             text={translations.continue}

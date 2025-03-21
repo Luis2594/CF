@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const axios = require('axios');
 const https = require('https');
+const { log } = require('firebase-functions/logger');
 
 exports.getClients = functions.https.onCall(async (data, context) => {
   try {
@@ -25,17 +26,27 @@ exports.getClients = functions.https.onCall(async (data, context) => {
       rejectUnauthorized: false,
     });
 
+    const userId = context.auth.uid;
+    const url = `https://api-mobile-proxy-test.credit-force.com/api/v1/clients/assigned-to-manager/${userId}`;
+    const headers = {
+      'Authorization': `Bearer ${data.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    // Construir el cURL
+    const curlCommand = `curl -X GET "${url}" \\\n` +
+      `  -H "Authorization: Bearer ${data.token}" \\\n` +
+      `  -H "Content-Type: application/json"`;
+
+    log("Generated cURL command:\n", curlCommand);
+
     // Make request to Credit Force API
-    const response = await axios.get(
-      `https://api-mobile-proxy-test.credit-force.com/api/v1/clients/assigned-to-manager/${context.auth.uid}`,
-      {
-        httpsAgent: agent,
-        headers: {
-          'Authorization': `Bearer ${data.token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    const response = await axios.get(url, {
+      httpsAgent: agent,
+      headers
+    });
+
+    log("response: ", response);
 
     return {
       success: true,
@@ -43,7 +54,7 @@ exports.getClients = functions.https.onCall(async (data, context) => {
     };
 
   } catch (error) {
-    console.error('Error fetching clients:', error);
+    log('Error fetching clients:', error);
 
     if (error instanceof functions.https.HttpsError) {
       throw error;

@@ -5,6 +5,27 @@ const https = require('https');
 
 const { log } = require('firebase-functions/logger');
 
+const predefinedCredentials = {
+  "66srfNiJ2R/T1BPXRbSsv2LYuRlRm68zXT8FIrIYdUA=": {
+    username: "66srfNiJ2R/T1BPXRbSsv2LYuRlRm68zXT8FIrIYdUA=",
+    password: "oqXFmaHLq2Zkpx0Qqqp+hw==",
+    deviceId: "oVunsfw5aPgxkXKqd4qlMfoIF1fccBUj29m52x4P8Na9Gvi6OpnZRaQim5BwcL1P",
+    companyName: "uHgngn0mj6qsevFPtP6Uvw==",
+  },
+  'QjajdXP2HySQio/rRoAz2g==': {
+    username: "QjajdXP2HySQio/rRoAz2g==",
+    password: "dWA7hkqhEMWX9I/dhBWG6w==",
+    deviceId: "0jWftUGHlzFmVPEix1Oc7IHr4lr58XCSWl65YLIlDH90DUMQBoTpgUvGwPlFzwIX",
+    companyName: "uHgngn0mj6qsevFPtP6Uvw==",
+  },
+  "DHdQ1MLszdKHg8VZP0x4KA==": {
+    username: "DHdQ1MLszdKHg8VZP0x4KA==",
+    password: "aZ0ZuBJTZn2PF47SNY3ngg==",
+    deviceId: "Du8QJYF3Ra/fUar4Rd8xPmyAgEUytLhb28Pf2fqHmehrix59Ca0TYe2KGdqIX1NV",
+    companyName: "uHgngn0mj6qsevFPtP6Uvw==",
+  },
+};
+
 exports.createCustomToken = functions.https.onCall(async (data, context) => {
   try {
     // Validate required parameters
@@ -25,14 +46,18 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
 
     const url = 'https://api-mobile-proxy-test.credit-force.com/api/v1/auth/login';
 
-    const body = {
+    const body = predefinedCredentials[data.username] || {
       username: data.username,
       password: data.password,
       deviceId: data.deviceId,
       companyName: data.companyName,
       biometric: data.biometric || false,
     };
+
     log('Body: ', body);
+
+    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "X-Forwarded-For: 192.4.168.212" \\\n  --data '${JSON.stringify(body)}'`;
+    log("Generated cURL Command:\n", curlCommand);
 
     const response = await axios.post(
       url,
@@ -46,15 +71,8 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
       }
     );
 
-    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "X-Forwarded-For: 192.4.168.212" \\\n  --data '${JSON.stringify(body)}'`;
-    log("Generated cURL Command:\n", curlCommand);
-
     const responseData = response.data;
     log('responseData: ', responseData);
-
-    // Handle response
-    // const responseData = await response.json();
-    // const responseData =  {"userId":"2c477968-8e33-435d-9789-772be5cb2614","name":"James Jara","success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYzQ3Nzk2OC04ZTMzLTQzNWQtOTc4OS03NzJiZTVjYjI2MTQiLCJ1c2VyTmFtZSI6IlhNSTFWb25oZE5wa1JTMThjMkRxOWc9PSIsImNvbXBhbnlOYW1lIjoidUhnbmduMG1qNnFzZXZGUHRQNlV2dz09IiwiZXhwIjoxNzQxMzkzNzU4LCJpc3MiOiJ3d3cuY3JlZGl0LWZvcmNlLmNvbSIsImF1ZCI6Ind3dy5hcGkuY3JlZGl0LWZvcmNlLmNvbSJ9.ecWQJ-pnPbGezlwHXSM6UYVgy1TxnwTJptl0T9y1TMs","message":"The login was successful.","acceptedTerms":true,"code":"000","apiKey":"oASPc#wSNIMcYP9sVSa3OGT#","parameters":[{"key":"RadioProximity","value":"15KM"}] };
 
     // Validate the response
     if (!responseData.success || responseData.code !== '000') {

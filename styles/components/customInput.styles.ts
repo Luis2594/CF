@@ -33,14 +33,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: 44,
     fontFamily: "Quicksand_500Medium",
-    fontSize: 16,
-    color: "#666666",
+    fontSize: 14,
+    color: "#717275",
   },
   inputDisabled: {
     backgroundColor: "#E5E5E5",
   },
   inputDisabledText: {
-    color: "#666",
+    color: "#D0D0D1",
   },
   eyeIcon: {
     padding: 10,

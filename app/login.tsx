@@ -17,10 +17,7 @@ import { auth } from "../config/firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDeviceId } from "../utils/deviceId";
-import {
-  getLoginErrorMessage,
-  LOGIN_ERROR_CODES,
-} from "../constants/loginErrors";
+import { getLoginErrorMessage } from "../constants/loginErrors";
 import { useBiometrics } from "../hooks/useBiometrics";
 import BiometricPrompt from "../components/BiometricPrompt";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -36,13 +33,6 @@ type ErrorsInput = {
   institution?: string;
   username?: string;
   password?: string;
-};
-
-type LoginCredentials = {
-  username: string;
-  password: string;
-  deviceId: string;
-  companyName: string;
 };
 
 export default function Login() {
@@ -64,27 +54,6 @@ export default function Login() {
   const [previousUsername, setPreviousUsername] = useState<string | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
-
-  const predefinedCredentials: Record<string, LoginCredentials> = {
-    "gestor.domiciliar": {
-      username: "gestor.domiciliar",
-      password: "Desa2025@",
-      deviceId: "37EC15AE-D8E3-4735-B6A4-EA5E84DF90D7",
-      companyName: "Credit Force",
-    },
-    GestorCobros: {
-      username: "GestorCobros",
-      password: "Desa2025!",
-      deviceId: "7E402C17-DB92-413C-9DE1-8CF942A5B9E4",
-      companyName: "Credit Force",
-    },
-    "Gestor.Virtual": {
-      username: "Gestor.Virtual",
-      password: "123",
-      deviceId: "C56A4180-65AA-42EC-A945-5FD21DEC0538",
-      companyName: "Una prueba",
-    },
-  };
 
   const {
     isAvailable: isBiometricAvailable,
@@ -170,10 +139,7 @@ export default function Login() {
         ? translations.loginErrors.institution
         : undefined,
       username: !username ? translations.loginErrors.username : undefined,
-      password:
-        !password && !lastLoginCredentials?.useBiometric
-          ? translations.loginErrors.password
-          : undefined,
+      password: !password ? translations.loginErrors.password : undefined,
     };
 
     // Validaciones
@@ -206,21 +172,12 @@ export default function Login() {
         "createCustomToken"
       );
 
-      // TODO Habilitar cuando ya no ocupemos usuarios quemados
-      // const encryptedCredentials = encryptLoginCredentials({
-      //   username,
-      //   password,
-      //   deviceId,
-      //   companyName: institution,
-      // });
-
-      // TODO Deshabilitar cuando ya no ocupemos usuarios quemados
-      const encryptedCredentials = getEncryptedCredentials(
+      const encryptedCredentials = encryptLoginCredentials({
         username,
         password,
         deviceId,
-        institution
-      );
+        companyName: institution,
+      });
 
       const {
         data: { token, claims },
@@ -258,23 +215,6 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-
-  function getEncryptedCredentials(
-    username: string,
-    password: string,
-    deviceId: string,
-    institution: string
-  ) {
-    // Si el username coincide con un caso predefinido, usa esas credenciales
-    const credentials = predefinedCredentials[username] || {
-      username,
-      password,
-      deviceId,
-      companyName: institution,
-    };
-
-    return encryptLoginCredentials(credentials);
-  }
 
   const saveLoginCredentials = async ({
     institution,
@@ -344,6 +284,38 @@ export default function Login() {
     }
   };
 
+  const onChangeInstitution = (text: string) => {
+    setInstitution(text);
+    setError(null);
+    setErrorsInput({ ...errorsInput, institution: undefined });
+
+    if (
+      lastLoginCredentials?.useBiometric &&
+      lastLoginCredentials?.institution === text &&
+      lastLoginCredentials.username === username
+    ) {
+      setLoginWithBiometrics(true);
+    } else {
+      setLoginWithBiometrics(false);
+    }
+  };
+
+  const onChangeUsername = (text: string) => {
+    setUsername(text);
+    setError(null);
+    setErrorsInput({ ...errorsInput, username: undefined });
+
+    if (
+      lastLoginCredentials?.useBiometric &&
+      lastLoginCredentials?.username === text &&
+      lastLoginCredentials?.institution === institution
+    ) {
+      setLoginWithBiometrics(true);
+    } else {
+      setLoginWithBiometrics(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <AlertErrorMessage error={error} onClose={() => setError(null)} />
@@ -378,11 +350,7 @@ export default function Login() {
                   label={translations.institution}
                   placeholder={translations.institution}
                   value={institution}
-                  onChangeText={(text) => {
-                    setInstitution(text);
-                    setError(null);
-                    setErrorsInput({ ...errorsInput, institution: undefined });
-                  }}
+                  onChangeText={onChangeInstitution}
                   errorMessage={errorsInput?.institution}
                 />
 
@@ -391,11 +359,7 @@ export default function Login() {
                   label={translations.username}
                   placeholder={translations.username}
                   value={username}
-                  onChangeText={(text) => {
-                    setUsername(text);
-                    setError(null);
-                    setErrorsInput({ ...errorsInput, username: undefined });
-                  }}
+                  onChangeText={onChangeUsername}
                   errorMessage={errorsInput?.username}
                 />
 

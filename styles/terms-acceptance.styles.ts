@@ -5,7 +5,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F6",
     paddingTop: StatusBar.currentHeight, // FIX status bar in android,
-    margin: 22,
+  },
+  wrappMargin: {
+    flex: 1,
+    marginHorizontal: 22,
+    marginTop: 10
   },
   backButton: {
     flexDirection: "row",
@@ -28,7 +32,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 20,
     padding: 10,
-    marginBottom: 20,
     borderWidth: 1,
     borderColor: "#F5F5F6",
     shadowColor: "#000",
@@ -47,7 +50,6 @@ export const styles = StyleSheet.create({
   termsContainer: {
     flex: 1,
     borderRadius: 20,
-    marginBottom: 20,
   },
   termsText: {
     fontSize: 14,
@@ -66,14 +68,16 @@ export const styles = StyleSheet.create({
     borderLeftColor: "#FF3B30",
   },
   errorText: {
-    color: "#FF3B30",
-    fontFamily: "Quicksand_500Medium",
-    fontSize: 14,
+    marginTop: 5,
+    color: "#E33C3C",
+    fontSize: 12,
+    fontFamily: "Quicksand",
+    fontWeight: '400'
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginTop: 22
   },
   checkedBox: {
     borderRadius: 4,

@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const axios = require('axios');
 const https = require('https');
+const { log } = require('firebase-functions/logger');
 
 exports.postGestor = functions.https.onCall(async (data, context) => {
   try {
@@ -23,8 +24,8 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
 
     // Validate required fields
     const requiredFields = [
-      'userId', 'clientId', 'portfolioId', 'actionCodeId', 
-      'resultCodeId', 'reasonNoPaymentId', 'comments', 
+      'userId', 'clientId', 'portfolioId', 'actionCodeId',
+      'resultCodeId', 'reasonNoPaymentId', 'comments',
       'latitude', 'longitude', 'isRealTime', 'detail', 'token'
     ];
 
@@ -49,19 +50,29 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
       rejectUnauthorized: false,
     });
 
-    // Make request to Credit Force API
-    const response = await axios.post(
-      'https://api-mobile-proxy-test.credit-force.com/api/v1/management/record',
-      data,
-      {
-        httpsAgent: agent,
-        headers: {
-          'Authorization': `Bearer ${data.token}`,
-          'Content-Type': 'application/json',
-          'accept': '*/*'
-        }
-      }
-    );
+    const url = "https://api-mobile-proxy-test.credit-force.com/api/v1/management/record";
+    const headers = {
+      'Authorization': `Bearer ${data.token}`,
+      'Content-Type': 'application/json',
+      'accept': '*/*'
+    };
+
+    // Construir el cURL
+    const curlCommand = `curl -X POST "${url}" \\\n` +
+      `  -H "Authorization: Bearer ${data.token}" \\\n` +
+      `  -H "Content-Type: application/json" \\\n` +
+      `  -H "accept: */*" \\\n` +
+      `  --data '${JSON.stringify(data)}'`;
+
+    log("Generated cURL command:\n", curlCommand);
+
+    // Realizar la petición
+    const response = await axios.post(url, data, {
+      httpsAgent: agent,
+      headers
+    });
+
+    log('response: ', response);
 
     return {
       success: true,
@@ -69,7 +80,7 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
     };
 
   } catch (error) {
-    console.error('Error updating client:', error);
+    log('Error updating client:', error);
 
     if (error instanceof functions.https.HttpsError) {
       throw error;

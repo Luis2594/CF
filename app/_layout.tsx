@@ -54,7 +54,6 @@ export default function RootLayout() {
   useEffect(() => {
     // Check initial auth state
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      console.log("IN onAuthStateChanged...");
       setUserAuth(user);
       setNavigationEnableAuth(true);
     });
@@ -85,12 +84,10 @@ export default function RootLayout() {
         SplashScreen.hideAsync();
         // userAuth is signed in, get their claims
         const idTokenResult = await userAuth.getIdTokenResult();
-        console.log("idTokenResult: ", idTokenResult);
         // Navigate based on terms acceptance
         if (idTokenResult.claims.acceptedTerms) {
           router.replace("/(tabs)");
         } else {
-          // router.replace("/(tabs)");
           router.replace("/terms-acceptance");
         }
       } else {

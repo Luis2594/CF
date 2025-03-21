@@ -10,19 +10,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 16,
     color: "white",
     fontFamily: "Quicksand_600SemiBold",
+    fontWeight: '600'
   },
   buttonDisabled: {
-    backgroundColor: "#D9D9D9", // Color gris del botón deshabilitado
+    backgroundColor: "#D9D9D9",
   },
   buttonDisabledOutline: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#D9D9D9",
+    borderColor: "#D0D0D1",
   },
   buttonTextDisabled: {
-    color: "#A0A0A0", // Color de texto cuando está deshabilitado
+    color: "#717275",
   },
 });

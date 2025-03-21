@@ -27,7 +27,6 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       }
     }
 
-
     const agent = new https.Agent({
       rejectUnauthorized: false,
     })
@@ -41,6 +40,10 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       deviceId: data.deviceId,
       language: data.language
     };
+
+    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${JSON.stringify(body)}'`;
+
+    log("Generated cURL Command:\n", curlCommand);
 
     // Make request to Credit Force API
     const response = await axios.post(
@@ -56,16 +59,6 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
     );
 
     log('response: ', response);
-
-    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${JSON.stringify(body)}'`;
-
-    log("Generated cURL Command:\n", curlCommand);
-
-    /* const response = {
-      "hashTerms": "5DA14919-2C6C-4F93-AC8A-C905AC7FEBF0",
-      "success": true,
-      "message": "Terms accepted successfully."
-    };*/
 
     return {
       success: true,
