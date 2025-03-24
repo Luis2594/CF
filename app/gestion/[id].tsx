@@ -8,7 +8,6 @@ import {
   ScrollView,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-import { Camera } from "lucide-react-native";
 import Dropdown from "@/components/organism/Dropdown";
 import { styles } from "@/styles/gestion.styles";
 import BackButton from "@/components/molecules/buttons/BackButton";
@@ -24,6 +23,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Client } from "@/components/molecules/items/ItemInfoClient";
 import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import { SVG } from "@/constants/assets";
+import { encryptText } from "@/utils/encryption";
+import { auth } from "@/config/firebase";
 
 interface ResultCodes {
   id: string;
@@ -243,9 +244,9 @@ export default function GestionScreen() {
 
     const functions = getFunctions();
     const postGestorFn = httpsCallable(functions, 'postGestor');
-    const result = await postGestorFn(gestionData);
+    const response = await postGestorFn(gestionData);
 
-    if (result.data.success) {
+    if (response.data.success) {
       router.back();
     } else {
       setError(translations.gestion.errors.saveFailed);
