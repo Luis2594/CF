@@ -20,6 +20,7 @@ import CardOperations from "./CardOperations";
 import Tabs, { TabType } from "./Tabs";
 import CardHistory from "./CardHistory";
 import { getInitials } from "@/utils/utils";
+import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 
 export default function InfoClientScreen() {
   const { id } = useLocalSearchParams();
@@ -30,7 +31,6 @@ export default function InfoClientScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLanguage('en');
     const loadClientData = async () => {
       try {
         const storedClient = await AsyncStorage.getItem(
@@ -38,6 +38,7 @@ export default function InfoClientScreen() {
         );
         if (storedClient) {
           const parsedClient = JSON.parse(storedClient);
+          console.log("parsedClient: ", parsedClient);
           if (parsedClient.clientId.toString() === id) {
             setClient(parsedClient);
           } else {
@@ -60,23 +61,14 @@ export default function InfoClientScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.loadingText}>
-          {translations.clients.loading}
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={styles.loadingText}>{translations.clients.loading}</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ChevronLeft size={20} color="#666" />
       </TouchableOpacity>
@@ -90,7 +82,9 @@ export default function InfoClientScreen() {
         <Text style={styles.name}>{client?.name}</Text>
         <Text style={styles.portfolioType}>
           {translations.client.portfolioGroup}:{" "}
-          <Text style={styles.portfolioValue}>{translations.client.consumption}</Text>
+          <Text style={styles.portfolioValue}>
+            {client?.cycle}
+          </Text>
         </Text>
 
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />

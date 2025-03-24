@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
     color: '#F04E23',
     fontSize: 16,
     fontFamily: 'Quicksand_600SemiBold',
-    marginLeft: 8,
+    marginRight: 8,
   },
   saveButton: {
     backgroundColor: '#F04E23',

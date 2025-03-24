@@ -5,6 +5,7 @@ import { CreditCard } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
 import { useLanguage } from "@/context/LanguageContext";
+import { formatCurrency } from "@/utils/utils";
 
 export interface Operation {
   operationId: number;
@@ -35,7 +36,14 @@ export default function ItemOperationDetail({
     <View style={styles.operationRow}>
       <Text style={styles.operationLabel}>{label}</Text>
       <Text style={styles.operationValue}>
-        {isMoney ? `₡${value.toLocaleString()}` : value}
+        {isMoney
+          ? formatCurrency(
+              value,
+              operation.currency,
+              "symbol",
+              translations.currencyNames
+            )
+          : value}
       </Text>
     </View>
   );
@@ -45,34 +53,77 @@ export default function ItemOperationDetail({
       <View>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleContainer}>
-            <CreditCard size={20} color="#FF3B30" />
+            <SVG.CARD width={25} height={25} />
             <View>
-              <Text style={styles.cardTitle}>{operation.description}</Text>
-              <Text style={styles.cardNumber}>{operation.description}</Text>
+              <Text style={styles.cardTitle}>{operation.operationType}</Text>
+              <Text style={styles.cardNumber}>{operation.operationId}</Text>
             </View>
           </View>
           <View style={styles.currencyBadge}>
-            <Text style={styles.currencyText}>Colones</Text>
+            <Text style={styles.currencyText}>
+              {formatCurrency(
+                0,
+                operation.currency,
+                "name",
+                translations.currencyNames
+              )}
+            </Text>
           </View>
         </View>
         <Divider orientation="horizontal" color="#E6E6E7" />
 
         <View style={styles.operationDetails}>
-          {renderDetail(translations.operations.overdueDays, operation.overdueDays)}
+          {renderDetail(
+            translations.operations.overdueDays,
+            operation.overdueDays
+          )}
           {renderDetail(translations.operations.overduePayments, "1")}
-          {renderDetail(translations.operations.totalBalance, operation.totalBalance, true)}
-          {renderDetail(translations.operations.overdueBalance, operation.overdueBalance, true)}
-          {renderDetail(translations.operations.minimumPayment, operation.minimumPayment, true)}
-          {renderDetail(translations.operations.cycle, translations.operations.cycleValue)}
+          {renderDetail(
+            translations.operations.totalBalance,
+            operation.totalBalance,
+            true
+          )}
+          {renderDetail(
+            translations.operations.overdueBalance,
+            operation.overdueBalance,
+            true
+          )}
+          {renderDetail(
+            translations.operations.minimumPayment,
+            operation.minimumPayment,
+            true
+          )}
+          {renderDetail(
+            translations.operations.cycle,
+            translations.operations.cycleValue
+          )}
 
           {expanded && (
             <View>
-              {renderDetail(translations.operations.overdueDays, operation.overdueDays)}
+              {renderDetail(
+                translations.operations.overdueDays,
+                operation.overdueDays
+              )}
               {renderDetail(translations.operations.overduePayments, "1")}
-              {renderDetail(translations.operations.totalBalance, operation.totalBalance, true)}
-              {renderDetail(translations.operations.overdueBalance, operation.overdueBalance, true)}
-              {renderDetail(translations.operations.minimumPayment, operation.minimumPayment, true)}
-              {renderDetail(translations.operations.cycle, translations.operations.cycleValue)}
+              {renderDetail(
+                translations.operations.totalBalance,
+                operation.totalBalance,
+                true
+              )}
+              {renderDetail(
+                translations.operations.overdueBalance,
+                operation.overdueBalance,
+                true
+              )}
+              {renderDetail(
+                translations.operations.minimumPayment,
+                operation.minimumPayment,
+                true
+              )}
+              {renderDetail(
+                translations.operations.cycle,
+                translations.operations.cycleValue
+              )}
             </View>
           )}
         </View>

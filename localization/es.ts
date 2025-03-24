@@ -161,8 +161,8 @@ export const es = {
     result: 'Resultado',
     comment: 'Comentario',
     contact: 'Contacto',
-    other: 'Otro',
-    others: 'Otros'
+    manager: 'Gerente',
+    portfolio: 'Cartera',
   },
 
   // Gestion Screen
@@ -179,6 +179,15 @@ export const es = {
     paymentDate: 'Fecha de pago',
     takePhoto: 'Tomar foto',
     save: 'Guardar',
+    errors: {
+      action: 'Acción es requerido',
+      result: 'Resultado es requerido',
+      reason: 'Razón es requerido',
+      localAmount: 'Monto local es requerido',
+      extAmount: 'Monto Ext es requerido',
+      paymentDate: 'Fecha de pago es requerido',
+
+    }
   },
 
   // Settings Tab
@@ -195,4 +204,13 @@ export const es = {
   },
   appVersion: 'Versión 1.0.0',
   copyright: '© 2025 FindForce. Todos los derechos reservados.',
+
+  currencyNames: {
+    "320": "Colones",
+    "840": "Dólares",
+    "978": "Euros",
+    "826": "Libras Esterlinas",
+    "484": "Pesos Mexicanos",
+    "392": "Yenes",
+  }
 };

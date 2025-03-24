@@ -10,3 +10,20 @@ export const getInitials = (name?: string) => {
     // Tomar la primera letra del primer y segundo nombre
     return (words[0][0] + words[1][0]).toUpperCase();
 };
+
+export function formatCurrency(value: number | string, currency: string, returnType: "symbol" | "name", currencyNames: Record<string, string>): string {
+    const currencySymbols: Record<string, string> = {
+        "320": "₡",
+        "840": "$",
+        "978": "€",
+        "826": "£",
+        "484": "MX$",
+        "392": "¥",
+    };
+
+    if (returnType === "symbol") {
+        return `${currencySymbols[currency] || currency}${value.toLocaleString()}`;
+    } else {
+        return currencyNames[currency] || "Unknown";
+    }
+}

@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { ChevronDown, ChevronUp, Check } from "lucide-react-native";
 import { styles } from "@/styles/components/dropdown.styles";
+import TextError from "../atoms/TextError";
 
 export type DropdownItem = {
   value: string;
@@ -38,6 +39,7 @@ type DropdownProps = {
   zIndex?: number;
   required?: boolean;
   disable?: boolean;
+  error?: string;
 };
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -56,6 +58,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   zIndex = 1000,
   required = false,
   disable = false,
+  error,
 }) => {
   const [visible, setVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -204,6 +207,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           <ChevronDown size={20} color="#666" />
         )}
       </TouchableOpacity>
+      {error && <TextError error={error} />}
 
       <Modal
         transparent

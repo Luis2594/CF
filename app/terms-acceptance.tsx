@@ -31,8 +31,6 @@ export default function TermsAcceptanceScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const canGoBack = router.canGoBack();
-
   const handleBack = () => {
     signOut(auth)
       .then(() => {
@@ -121,7 +119,7 @@ export default function TermsAcceptanceScreen() {
       <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <View style={styles.wrappMargin}>
         {/* Back button - only show if we can go back */}
-        {canGoBack && <BackButton onPress={handleBack} />}
+        <BackButton onPress={handleBack} />
 
         <View style={styles.content}>
           <Text style={styles.title}>{translations.termsTitle}</Text>

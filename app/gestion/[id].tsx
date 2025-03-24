@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,9 @@ import { STORAGE_KEYS } from "@/constants/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { useLanguage } from "@/context/LanguageContext";
+import { Client } from "@/components/molecules/items/ItemInfoClient";
+import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
+import { SVG } from "@/constants/assets";
 
 interface ResultCodes {
   id: string;
@@ -41,8 +44,20 @@ interface ReasonNoPayment {
   reason: string;
 }
 
+interface ErrorsInput {
+  action?: string;
+  result?: string;
+  reason?: string;
+  montoLocal?: string;
+  montoExt?: string;
+  date?: string;
+}
+
 export default function GestionScreen() {
   const { id } = useLocalSearchParams();
+  const [client, setClient] = useState<Client | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [action, setAction] = useState("");
   const [result, setResult] = useState("");
   const [reason, setReason] = useState("");
@@ -51,8 +66,11 @@ export default function GestionScreen() {
   const [montoExt, setMontoExt] = useState("");
   const [date, setDate] = useState("");
   const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
-  const [reasonsNoPayment, setReasonsNoPayment] = useState<Array<ReasonNoPayment>>([]);
-  const { translations, language } = useLanguage();
+  const [reasonsNoPayment, setReasonsNoPayment] = useState<
+    Array<ReasonNoPayment>
+  >([]);
+  const { translations, setLanguage } = useLanguage();
+  const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
 
   const functions = getFunctions();
 
@@ -69,6 +87,33 @@ export default function GestionScreen() {
       await Promise.all([fetchActionsResults(), fetchReasonsNoPayment()]);
     },
   });
+
+  useEffect(() => {
+    const loadClientData = async () => {
+      try {
+        const storedClient = await AsyncStorage.getItem(
+          STORAGE_KEYS.SELECTED_CLIENT
+        );
+        if (storedClient) {
+          const parsedClient = JSON.parse(storedClient);
+          if (parsedClient.clientId.toString() === id) {
+            setClient(parsedClient);
+          } else {
+            setError(translations.clients.errors.notFound);
+          }
+        } else {
+          setError(translations.clients.errors.noData);
+        }
+      } catch (error) {
+        console.error("Error loading client data:", error);
+        setError(translations.clients.errors.loading);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadClientData();
+  }, [id, translations]);
 
   const fetchActionsResults = async () => {
     try {
@@ -144,8 +189,109 @@ export default function GestionScreen() {
     Promise.all([fetchActionsResults(), fetchReasonsNoPayment()]);
   }, []);
 
+  useEffect(() => {
+    if (action && result) {
+      console.log("Consultar operaciones");
+    }
+  }, [action, result]);
+
   const handleSave = () => {
-    router.back();
+    if (validateInputs()) return;
+  };
+
+  const validateInputs = (): boolean => {
+    setErrorsInput({});
+
+    const currentErrorsInput: ErrorsInput = {
+      action: !action ? translations.gestion.errors.action : undefined,
+      result: !result ? translations.gestion.errors.result : undefined,
+      reason: !reason ? translations.gestion.errors.reason : undefined,
+      montoLocal: !montoLocal
+        ? translations.gestion.errors.localAmount
+        : undefined,
+      montoExt: !montoExt ? translations.gestion.errors.extAmount : undefined,
+      date: !date ? translations.gestion.errors.paymentDate : undefined,
+    };
+
+    setErrorsInput(currentErrorsInput);
+
+    // Verifica si hay algún error en currentErrorsInput
+    return Object.values(currentErrorsInput).some(
+      (error) => error !== undefined
+    );
+  };
+
+  const clearInputError = (key: keyof ErrorsInput) => {
+    setErrorsInput((prevErrors) => ({
+      ...prevErrors,
+      [key]: undefined, // Elimina el error específico
+    }));
+  };
+
+  const renderOperations = () => {
+    return (
+      <View>
+        {client?.operations.map((operationDetail) => (
+          <Fragment key={operationDetail.operationId}>
+            <View>
+              <TagOperation
+                text={operationDetail.operationType}
+                customContainerStyle={styles.spacingTagOperation}
+              />
+              <Dropdown
+                label={translations.gestion.result}
+                items={DataHarcode.results}
+                selectedValue={result}
+                onSelect={(item) => setResult(item.value)}
+                required
+                containerStyle={styles.spacing}
+                labelStyle={styles.label}
+                disable
+              />
+
+              <CustomInput
+                label={translations.gestion.localAmount}
+                value={montoLocal}
+                onChangeText={(text) => {
+                  setMontoLocal(text);
+                  clearInputError("montoLocal");
+                }}
+                placeholder="0.00"
+                isRequired
+                currency={operationDetail.currency}
+                errorMessage={errorsInput?.montoLocal}
+              />
+
+              <CustomInput
+                label={translations.gestion.extAmount}
+                value={montoExt}
+                onChangeText={(text) => {
+                  setMontoExt(text);
+                  clearInputError("montoExt");
+                }}
+                placeholder="0.00"
+                isRequired
+                currency={"320"}
+                errorMessage={errorsInput?.montoExt}
+              />
+
+              <CustomInput
+                label={translations.gestion.paymentDate}
+                value={date}
+                onChangeText={(text) => {
+                  setDate(text);
+                  clearInputError("date");
+                }}
+                placeholder="00/00/0000"
+                isRequired
+                isDate
+                errorMessage={errorsInput?.date}
+              />
+            </View>
+          </Fragment>
+        ))}
+      </View>
+    );
   };
 
   const actionItems = actionsResults.map((item) => ({
@@ -170,6 +316,7 @@ export default function GestionScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <ScrollView style={styles.scrollView}>
         <BackButton />
 
@@ -180,30 +327,42 @@ export default function GestionScreen() {
             label={translations.gestion.action}
             items={actionItems}
             selectedValue={action}
-            onSelect={(item) => setAction(item.value)}
+            onSelect={(item) => {
+              setAction(item.value);
+              clearInputError("action");
+            }}
             required
             containerStyle={styles.spacing}
             labelStyle={styles.label}
+            error={errorsInput?.action}
           />
 
           <Dropdown
             label={translations.gestion.result}
             items={resultsItems}
             selectedValue={result}
-            onSelect={(item) => setResult(item.value)}
+            onSelect={(item) => {
+              setResult(item.value);
+              clearInputError("result");
+            }}
             required
             containerStyle={styles.spacing}
             labelStyle={styles.label}
+            error={errorsInput?.result}
           />
 
           <Dropdown
             label={translations.gestion.reasonNoPayment}
             items={reasonItems}
             selectedValue={reason}
-            onSelect={(item) => setReason(item.value)}
+            onSelect={(item) => {
+              setReason(item.value);
+              clearInputError("reason");
+            }}
             required
             containerStyle={styles.spacing}
             labelStyle={styles.label}
+            error={errorsInput?.reason}
           />
 
           <Text style={styles.label}>{translations.gestion.comment}</Text>
@@ -217,57 +376,13 @@ export default function GestionScreen() {
             placeholderTextColor="#D0D0D1"
           />
 
-          {result === "PRP" && (
-            <View>
-              <View>
-                <TagOperation
-                  text="Operación 123654- Tarjeta de crédito"
-                  customContainerStyle={styles.spacingTagOperation}
-                />
-                <Dropdown
-                  label={translations.gestion.result}
-                  items={DataHarcode.results}
-                  selectedValue={result}
-                  onSelect={(item) => setResult(item.value)}
-                  required
-                  containerStyle={styles.spacing}
-                  labelStyle={styles.label}
-                  disable
-                />
-
-                <CustomInput
-                  label={translations.gestion.localAmount}
-                  value={montoLocal}
-                  onChangeText={setMontoLocal}
-                  placeholder="0.00"
-                  isRequired
-                  isCurrency
-                />
-
-                <CustomInput
-                  label={translations.gestion.extAmount}
-                  value={montoExt}
-                  onChangeText={setMontoExt}
-                  placeholder="0.00"
-                  isRequired
-                  isCurrency
-                />
-
-                <CustomInput
-                  label={translations.gestion.paymentDate}
-                  value={date}
-                  onChangeText={setDate}
-                  placeholder="00/00/0000"
-                  isRequired
-                  isDate
-                />
-              </View>
-            </View>
-          )}
+          {result === "PRP" && renderOperations()}
 
           <TouchableOpacity style={styles.photoButton}>
-            <Camera size={20} color="#F04E23" />
-            <Text style={styles.photoButtonText}>{translations.gestion.takePhoto}</Text>
+            <Text style={styles.photoButtonText}>
+              {translations.gestion.takePhoto}
+            </Text>
+            <SVG.CAMERA width={20} height={20} />
           </TouchableOpacity>
 
           <Button text={translations.gestion.save} onPress={handleSave} />

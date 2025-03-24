@@ -4,6 +4,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Eye, EyeOff, Info, Calendar } from "lucide-react-native"; // Íconos
 import { styles } from "@/styles/components/customInput.styles";
 import TextError from "../atoms/TextError";
+import { SVG } from "@/constants/assets";
 
 type CustomInputProps = {
   label: string;
@@ -15,7 +16,7 @@ type CustomInputProps = {
   isDisabled?: boolean;
   showTooltip?: boolean;
   isPassword?: boolean;
-  isCurrency?: boolean; // Nuevo: Indica si el input tiene prefijo de moneda
+  currency?: string; // Nuevo: Indica si el input tiene prefijo de moneda
   isDate?: boolean; // Nuevo: Indica si el input es una fecha
 };
 
@@ -29,7 +30,7 @@ export default function CustomInput({
   isDisabled = false,
   showTooltip = false,
   isPassword = false,
-  isCurrency = false,
+  currency,
   isDate = false,
 }: CustomInputProps) {
   const [secureText, setSecureText] = useState(isPassword);
@@ -64,14 +65,16 @@ export default function CustomInput({
       {/* Input Container */}
       <View style={[styles.inputContainer, isDisabled && styles.inputDisabled]}>
         {/* Prefijo de moneda */}
-        {isCurrency && <Text style={styles.prefix}>$</Text>}
+        {currency && (
+          <Text style={styles.prefix}>{currency === "320" ? "₡" : "$"}</Text>
+        )}
 
         {/* Input */}
         <TextInput
           style={[
             styles.input,
             isDisabled && styles.inputDisabledText,
-            isCurrency && styles.inputWithPrefix,
+            currency && styles.inputWithPrefix,
           ]}
           placeholder={placeholder}
           value={value}
@@ -84,7 +87,7 @@ export default function CustomInput({
           }}
           placeholderTextColor="#D0D0D1"
           secureTextEntry={secureText} // Ocultar texto si es contraseña
-          keyboardType={isCurrency ? "numeric" : "default"} // Solo números si es moneda
+          keyboardType={currency ? "numeric" : "default"} // Solo números si es moneda
         />
 
         {/* Botón para mostrar/ocultar contraseña */}
@@ -102,7 +105,7 @@ export default function CustomInput({
         )}
 
         {/* Botón de calendario */}
-        {isDate && <Calendar size={20} color="#666" />}
+        {isDate && <SVG.CALENDAR width={20} height={20} />}
       </View>
 
       {/* DateTimePicker para seleccionar fecha */}

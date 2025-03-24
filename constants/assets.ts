@@ -17,6 +17,10 @@ import CloseSecond from '../assets/images/icons/closeSecond.svg';
 import Check from '../assets/images/icons/checbox.svg';
 import ChevronUp from '../assets/images/icons/chevronUp.svg';
 import ChevronDown from '../assets/images/icons/chevronDown.svg';
+import Card from '../assets/images/icons/card.svg';
+import Calendar from '../assets/images/icons/calendar.svg';
+import Camera from '../assets/images/icons/camera.svg';
+import Finance from '../assets/images/icons/finance.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -32,6 +36,10 @@ export const SVG = {
   CHECK: Check,
   CHEVRON_UP: ChevronUp,
   CHEVRON_DOWN: ChevronDown,
+  CARD: Card,
+  CALENDAR: Calendar,
+  CAMERA: Camera,
+  FINANCE: Finance,
 } as const;
 
 export const IMAGES = {

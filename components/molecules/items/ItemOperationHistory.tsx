@@ -5,6 +5,7 @@ import { CreditCard } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
 import { useLanguage } from "@/context/LanguageContext";
+import { formatCurrency } from "@/utils/utils";
 
 export interface Management {
   id: string;
@@ -26,16 +27,10 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
   const [expanded, setExpanded] = useState(false);
   const { translations } = useLanguage();
 
-  const renderDetail = (
-    label: string,
-    value: string | number,
-    isMoney?: boolean
-  ) => (
+  const renderDetail = (label: string, value: string | number) => (
     <View style={styles.operationRow}>
       <Text style={styles.operationLabel}>{label}</Text>
-      <Text style={styles.operationValue}>
-        {isMoney ? `₡${value.toLocaleString()}` : value}
-      </Text>
+      <Text style={styles.operationValue}>{value}</Text>
     </View>
   );
 
@@ -44,7 +39,7 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
       <View>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleContainer}>
-            <CreditCard size={20} color="#FF3B30" />
+            <SVG.FINANCE width={22} height={22} />
             <View>
               <Text style={styles.cardTitle}>
                 {translations.history.management} {management.id}
@@ -64,7 +59,8 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
 
           {expanded && (
             <View>
-              {renderDetail(translations.history.other, translations.history.others)}
+              {renderDetail(translations.history.manager, management.manager)}
+              {renderDetail(translations.history.portfolio, management.portfolio)}
             </View>
           )}
         </View>

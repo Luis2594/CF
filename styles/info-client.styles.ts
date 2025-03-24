@@ -80,13 +80,6 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-  errorText: {
-    fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#FF3B30',
-    textAlign: 'center',
-    marginTop: 20,
-  },
   button: {
     marginTop: 20,
   },

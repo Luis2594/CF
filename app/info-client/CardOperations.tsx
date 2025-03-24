@@ -9,6 +9,7 @@ import Divider from "@/components/atoms/Divider";
 import { Client } from "@/components/molecules/items/ItemInfoClient";
 import { router } from "expo-router";
 import Button from "@/components/molecules/buttons/Button";
+import { SVG } from "@/constants/assets";
 
 export default function CardOperations({ client }: { client: Client | null }) {
   const { translations } = useLanguage();
@@ -26,7 +27,7 @@ export default function CardOperations({ client }: { client: Client | null }) {
           <Fragment key={operation.code}>
             <ItemOperationSection
               title={operation.label}
-              icon={<CreditCard size={25} color="#FF3B30" />}
+              icon={<SVG.CARD width={25} height={25}/>}
             >
               {client?.operations.map((operationDetail) => (
                 <Fragment key={operationDetail.operationId}>
@@ -35,7 +36,7 @@ export default function CardOperations({ client }: { client: Client | null }) {
               ))}
             </ItemOperationSection>
 
-            {index < translations.operations.length - 1 && (
+            {index < translations.operationTypes.length - 1 && (
               <Divider orientation="horizontal" color="#E6E6E7" />
             )}
           </Fragment>

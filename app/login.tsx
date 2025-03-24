@@ -198,6 +198,7 @@ export default function Login() {
         setShowBiometricPrompt(true);
         return;
       }
+
       await saveLoginCredentials({
         institution,
         username,
@@ -479,7 +480,7 @@ export default function Login() {
         onEnable={handleEnableBiometrics}
         onSkip={() => {
           setShowBiometricPrompt(false);
-          handleLogin();
+          handleLogin(false, false);
         }}
         biometricType={biometricType}
       />
