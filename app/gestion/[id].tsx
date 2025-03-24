@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Camera } from "lucide-react-native";
@@ -18,6 +18,22 @@ import Button from "@/components/molecules/buttons/Button";
 import * as DataHarcode from "@/data/dataHarcode";
 import TagOperation from "@/components/atoms/TagOperation";
 import CustomInput from "@/components/organism/CustomInput";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/constants/storage";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+
+interface ActionResult {
+  actionId: string;
+  actionDescription: string;
+  resultId: string;
+  resultDescription: string;
+}
+
+interface ReasonNoPayment {
+  reasonId: string;
+  reasonDescription: string;
+}
 
 export default function GestionScreen() {
   const { id } = useLocalSearchParams();
@@ -28,26 +44,122 @@ export default function GestionScreen() {
   const [montoLocal, setMontoLocal] = useState("");
   const [montoExt, setMontoExt] = useState("");
   const [date, setDate] = useState("");
+  const [actionsResults, setActionsResults] = useState<ActionResult[]>([]);
+  const [reasonsNoPayment, setReasonsNoPayment] = useState<ReasonNoPayment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const functions = getFunctions();
+
+  const {
+    isOnline,
+    pendingChanges,
+    addPendingChange,
+    applyPendingChanges,
+    showOfflineAlert,
+  } = useOfflineSync<ActionResult | ReasonNoPayment>({
+    storageKey: "gestionsCache",
+    language: "es",
+    onSync: async () => {
+      await Promise.all([fetchActionsResults(), fetchReasonsNoPayment()]);
+    },
+  });
+
+  const fetchActionsResults = async () => {
+    try {
+      const savedCredentials = await AsyncStorage.getItem(
+        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+      );
+      const savedCredentialsJSON = savedCredentials
+        ? JSON.parse(savedCredentials)
+        : null;
+
+      const getActionsResultsFn = httpsCallable(functions, "getActionsResults");
+      const result = await getActionsResultsFn({
+        token: savedCredentialsJSON?.token,
+      });
+
+      if (result.data.success) {
+        const actionsResultsData = result.data.data || [];
+        setActionsResults(applyPendingChanges(actionsResultsData) as ActionResult[]);
+        await AsyncStorage.setItem(
+          "actionsResults",
+          JSON.stringify(actionsResultsData)
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching actions-results:", error);
+      const cachedData = await AsyncStorage.getItem("actionsResults");
+      if (cachedData) {
+        setActionsResults(JSON.parse(cachedData));
+      }
+    }
+  };
+
+  const fetchReasonsNoPayment = async () => {
+    try {
+      const savedCredentials = await AsyncStorage.getItem(
+        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+      );
+      const savedCredentialsJSON = savedCredentials
+        ? JSON.parse(savedCredentials)
+        : null;
+
+      const getReasonsNoPaymentFn = httpsCallable(functions, "getReasonsNoPayment");
+      const result = await getReasonsNoPaymentFn({
+        token: savedCredentialsJSON?.token,
+      });
+
+      if (result.data.success) {
+        const reasonsData = result.data.data || [];
+        setReasonsNoPayment(applyPendingChanges(reasonsData) as ReasonNoPayment[]);
+        await AsyncStorage.setItem(
+          "reasonsNoPayment",
+          JSON.stringify(reasonsData)
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching reasons-no-payment:", error);
+      const cachedData = await AsyncStorage.getItem("reasonsNoPayment");
+      if (cachedData) {
+        setReasonsNoPayment(JSON.parse(cachedData));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    Promise.all([fetchActionsResults(), fetchReasonsNoPayment()]);
+  }, []);
 
   const handleSave = () => {
-    // Implement save logic here
     router.back();
   };
+
+  const actionItems = actionsResults.map((item) => ({
+    value: item.actionId,
+    label: `${item.actionId} - ${item.actionDescription}`,
+  }));
+
+  const reasonItems = reasonsNoPayment.map((item) => ({
+    value: item.reasonId,
+    label: `${item.reasonId} - ${item.reasonDescription}`,
+  }));
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {/* Header */}
         <BackButton />
 
-        {/* Title */}
         <Text style={styles.title}>Grabar gestión</Text>
 
-        {/* Form */}
         <View>
+          {error && <Text style={styles.errorText}>{error}</Text>}
+
           <Dropdown
             label="Acción"
-            items={DataHarcode.actions}
+            items={actionItems}
             selectedValue={action}
             onSelect={(item) => setAction(item.value)}
             required
@@ -67,7 +179,7 @@ export default function GestionScreen() {
 
           <Dropdown
             label="Razón no pago"
-            items={DataHarcode.reasons}
+            items={reasonItems}
             selectedValue={reason}
             onSelect={(item) => setReason(item.value)}
             required
@@ -86,7 +198,7 @@ export default function GestionScreen() {
             placeholderTextColor="#D0D0D1"
           />
 
-          {(result === "PRP") && (
+          {result === "PRP" && (
             <View>
               <View>
                 <TagOperation
