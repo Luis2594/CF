@@ -1,100 +1,10 @@
-// import React, { useRef, useState } from "react";
-// import { View, Text, TouchableOpacity, Animated } from "react-native";
-// import { styles } from "@/styles/components/itemOperationHistory.styles";
-// import { ChevronDown, ChevronUp, DollarSign } from "lucide-react-native";
-
-// export interface Management {
-//   id: string;
-//   date: string;
-//   action: string;
-//   result: string;
-//   comment: string;
-//   manager: string;
-//   portfolio: string;
-//   contactPhone: string;
-// }
-
-// interface HistoryItemProps {
-//   management: Management;
-//   index: number;
-// }
-
-// export default function ItemOperationHistory({
-//   management,
-//   index,
-// }: HistoryItemProps) {
-//   const [isExpanded, setIsExpanded] = useState(false);
-//   const animationHeight = useRef(new Animated.Value(0)).current;
-
-//   const toggleExpand = () => {
-//     setIsExpanded(!isExpanded);
-//     Animated.timing(animationHeight, {
-//       toValue: isExpanded ? 0 : 1,
-//       duration: 300,
-//       useNativeDriver: false,
-//     }).start();
-//   };
-
-//   return (
-//     <View style={styles.historyItem}>
-//       <TouchableOpacity onPress={toggleExpand}>
-//         <View style={styles.historyHeader}>
-//           <DollarSign size={24} color="#FF3B30" />
-//           <Text style={styles.historyTitle}>
-//             Gestión {String(index + 1).padStart(2, "0")}
-//           </Text>
-//           {isExpanded ? (
-//             <ChevronUp size={24} color="#666" />
-//           ) : (
-//             <ChevronDown size={24} color="#666" />
-//           )}
-//         </View>
-//       </TouchableOpacity>
-
-//       <Animated.View
-//         style={[
-//           styles.historyDetails,
-//           {
-//             maxHeight: animationHeight.interpolate({
-//               inputRange: [0, 1],
-//               outputRange: [0, 500],
-//             }),
-//             opacity: animationHeight,
-//             overflow: "hidden",
-//           },
-//         ]}
-//       >
-//         <View style={styles.historyRow}>
-//           <Text style={styles.historyLabel}></Text>
-//           <Text style={styles.historyValue}>{management.date}</Text>
-//         </View>
-//         <View style={styles.historyRow}>
-//           <Text style={styles.historyLabel}></Text>
-//           <Text style={styles.historyValue}>{management.action}</Text>
-//         </View>
-//         <View style={styles.historyRow}>
-//           <Text style={styles.historyLabel}></Text>
-//           <Text style={styles.historyValue}>{management.result}</Text>
-//         </View>
-//         <View style={styles.historyRow}>
-//           <Text style={styles.historyLabel}></Text>
-//           <Text style={styles.historyValue}>{management.comment}</Text>
-//         </View>
-//         <View style={styles.historyRow}>
-//           <Text style={styles.historyLabel}></Text>
-//           <Text style={styles.historyValue}>{management.contactPhone}</Text>
-//         </View>
-//       </Animated.View>
-//     </View>
-//   );
-// }
-
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/components/itemOperationHistory.styles";
 import { CreditCard } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface Management {
   id: string;
@@ -114,6 +24,7 @@ interface HistoryItemProps {
 
 export default function ItemOperationHistory({ management }: HistoryItemProps) {
   const [expanded, setExpanded] = useState(false);
+  const { translations } = useLanguage();
 
   const renderDetail = (
     label: string,
@@ -135,7 +46,9 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
           <View style={styles.cardTitleContainer}>
             <CreditCard size={20} color="#FF3B30" />
             <View>
-              <Text style={styles.cardTitle}>Gestión {management.id}</Text>
+              <Text style={styles.cardTitle}>
+                {translations.history.management} {management.id}
+              </Text>
             </View>
           </View>
         </View>
@@ -143,13 +56,17 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
         <Divider orientation="horizontal" color="#E6E6E7" />
 
         <View style={styles.operationDetails}>
-          {renderDetail("Fecha gestión", management.date)}
-          {renderDetail("Acción", management.action)}
-          {renderDetail("Resultado", management.result)}
-          {renderDetail("Comentario", management.comment)}
-          {renderDetail("Contacto", management.contactPhone)}
+          {renderDetail(translations.history.managementDate, management.date)}
+          {renderDetail(translations.history.action, management.action)}
+          {renderDetail(translations.history.result, management.result)}
+          {renderDetail(translations.history.comment, management.comment)}
+          {renderDetail(translations.history.contact, management.contactPhone)}
 
-          {expanded && <View>{renderDetail("Otro", "Otros")}</View>}
+          {expanded && (
+            <View>
+              {renderDetail(translations.history.other, translations.history.others)}
+            </View>
+          )}
         </View>
 
         <Divider orientation="horizontal" color="#E6E6E7" />

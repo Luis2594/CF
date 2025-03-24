@@ -20,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "@/constants/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ResultCodes {
   id: string;
@@ -50,9 +51,8 @@ export default function GestionScreen() {
   const [montoExt, setMontoExt] = useState("");
   const [date, setDate] = useState("");
   const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
-  const [reasonsNoPayment, setReasonsNoPayment] = useState<
-    Array<ReasonNoPayment>
-  >([]);
+  const [reasonsNoPayment, setReasonsNoPayment] = useState<Array<ReasonNoPayment>>([]);
+  const { translations, language } = useLanguage();
 
   const functions = getFunctions();
 
@@ -137,8 +137,6 @@ export default function GestionScreen() {
       if (cachedData) {
         setReasonsNoPayment(JSON.parse(cachedData));
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -175,11 +173,11 @@ export default function GestionScreen() {
       <ScrollView style={styles.scrollView}>
         <BackButton />
 
-        <Text style={styles.title}>Grabar gestión</Text>
+        <Text style={styles.title}>{translations.gestion.title}</Text>
 
         <View>
           <Dropdown
-            label="Acción"
+            label={translations.gestion.action}
             items={actionItems}
             selectedValue={action}
             onSelect={(item) => setAction(item.value)}
@@ -189,7 +187,7 @@ export default function GestionScreen() {
           />
 
           <Dropdown
-            label="Resultado"
+            label={translations.gestion.result}
             items={resultsItems}
             selectedValue={result}
             onSelect={(item) => setResult(item.value)}
@@ -199,7 +197,7 @@ export default function GestionScreen() {
           />
 
           <Dropdown
-            label="Razón no pago"
+            label={translations.gestion.reasonNoPayment}
             items={reasonItems}
             selectedValue={reason}
             onSelect={(item) => setReason(item.value)}
@@ -208,12 +206,12 @@ export default function GestionScreen() {
             labelStyle={styles.label}
           />
 
-          <Text style={styles.label}>Comentario</Text>
+          <Text style={styles.label}>{translations.gestion.comment}</Text>
           <TextInput
             style={styles.commentInput}
             value={comment}
             onChangeText={setComment}
-            placeholder="Comentario"
+            placeholder={translations.gestion.commentPlaceholder}
             multiline
             numberOfLines={4}
             placeholderTextColor="#D0D0D1"
@@ -227,7 +225,7 @@ export default function GestionScreen() {
                   customContainerStyle={styles.spacingTagOperation}
                 />
                 <Dropdown
-                  label="Resultado"
+                  label={translations.gestion.result}
                   items={DataHarcode.results}
                   selectedValue={result}
                   onSelect={(item) => setResult(item.value)}
@@ -238,7 +236,7 @@ export default function GestionScreen() {
                 />
 
                 <CustomInput
-                  label="Monto Local"
+                  label={translations.gestion.localAmount}
                   value={montoLocal}
                   onChangeText={setMontoLocal}
                   placeholder="0.00"
@@ -247,7 +245,7 @@ export default function GestionScreen() {
                 />
 
                 <CustomInput
-                  label="Monto Ext"
+                  label={translations.gestion.extAmount}
                   value={montoExt}
                   onChangeText={setMontoExt}
                   placeholder="0.00"
@@ -256,7 +254,7 @@ export default function GestionScreen() {
                 />
 
                 <CustomInput
-                  label="Fecha de pago"
+                  label={translations.gestion.paymentDate}
                   value={date}
                   onChangeText={setDate}
                   placeholder="00/00/0000"
@@ -269,10 +267,10 @@ export default function GestionScreen() {
 
           <TouchableOpacity style={styles.photoButton}>
             <Camera size={20} color="#F04E23" />
-            <Text style={styles.photoButtonText}>Tomar foto</Text>
+            <Text style={styles.photoButtonText}>{translations.gestion.takePhoto}</Text>
           </TouchableOpacity>
 
-          <Button text="Guardar" onPress={handleSave} />
+          <Button text={translations.gestion.save} onPress={handleSave} />
         </View>
       </ScrollView>
     </SafeAreaView>

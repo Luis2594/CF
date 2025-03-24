@@ -19,19 +19,19 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
       <View style={styles.containerInfoTabs}>
         <View style={styles.tabs}>
           <TabItem
-            label={"Información"}
+            label={translations.client.tabs.information}
             isActive={activeTab === "information"}
             onPress={() => setActiveTab("information")}
           />
           <Divider orientation="vertical" />
           <TabItem
-            label={"Operaciones"}
+            label={translations.client.tabs.operations}
             isActive={activeTab === "operations"}
             onPress={() => setActiveTab("operations")}
           />
           <Divider orientation="vertical" />
           <TabItem
-            label={"Historial"}
+            label={translations.client.tabs.history}
             isActive={activeTab === "history"}
             onPress={() => setActiveTab("history")}
           />

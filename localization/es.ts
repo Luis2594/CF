@@ -87,12 +87,10 @@ export const es = {
 
     if (text === 'title') {
       return `¿Habilitar ${biometricText}?`;
-
     }
 
     if (text === 'description') {
       return `Inicia sesión de forma rápida y segura usando tu ${biometricText}`;
-
     }
     return '';
   },
@@ -107,59 +105,80 @@ export const es = {
     loading: 'Cargando...',
     noClients: 'No hay clientes disponibles',
     errors: {
-      loading: 'Error al cargar los clientes',
+      loading: 'Error al cargar los datos del cliente',
       invalidParams: 'Parámetros de solicitud inválidos',
       unauthorized: 'Acceso no autorizado',
-      general: 'Ocurrió un error al cargar los clientes'
+      general: 'Ocurrió un error al cargar los clientes',
+      notFound: 'Cliente no encontrado',
+      noData: 'Datos del cliente no disponibles'
     }
   },
 
-  // Home Tab
-  hello: 'Hola, Alex',
-  todayTasks: 'Tareas de hoy',
-  recentProjects: 'Proyectos recientes',
-  viewAll: 'Ver todos',
-  taskTitle: 'Completar propuesta de proyecto',
-  projectTitle: 'Campaña de Marketing',
-  progress: 'Progreso',
-
-  // Client
-  // OPERATIONS
-  operations: [{ code: '1', label: 'Tarjetas' }, { code: '2', label: 'Préstamos' }],
-
-  // Profile Tab
-  editProfile: 'Editar Perfil',
-  aboutMe: 'Sobre mí',
-  aboutMeText: 'Diseñador de productos con más de 5 años de experiencia creando soluciones digitales centradas en el usuario. Apasionado por resolver problemas complejos con diseños elegantes.',
-  achievements: 'Logros',
-  achievementItems: {
-    topDesigner: {
-      title: 'Mejor Diseñador 2024',
-      desc: 'Reconocido por trabajo excepcional en UI/UX',
+  // Client Info
+  client: {
+    portfolioGroup: 'Grupo de cartera',
+    consumption: 'Consumo',
+    manage: 'Gestionar',
+    tabs: {
+      information: 'Información',
+      operations: 'Operaciones',
+      history: 'Historial'
     },
-    milestone: {
-      title: 'Hito de 5 años',
-      desc: 'Completados 5 años en la industria',
-    },
-    projects: {
-      title: '100+ Proyectos',
-      desc: 'Entregados con éxito más de 100 proyectos',
-    },
-  },
-  stats: {
-    projects: 'Proyectos',
-    followers: 'Seguidores',
-    following: 'Siguiendo',
+    info: {
+      identification: 'Identificación',
+      civilStatus: 'Estado civil',
+      single: 'Soltero',
+      married: 'Casado',
+      position: 'Puesto',
+      address: 'Dirección',
+      cycle: 'Ciclo',
+      mobilePhone: 'Teléfono móvil',
+      workPhone: 'Teléfono trabajo'
+    }
   },
 
-  // Notifications Tab
-  notifications: 'Notificaciones',
-  markAllRead: 'Marcar todo como leído',
-  notificationTypes: {
-    message: 'Nuevo mensaje',
-    like: 'le gustó tu publicación',
-    follow: 'Nuevo seguidor',
-    reminder: 'Recordatorio de reunión',
+  // Operations
+  operationTypes: [
+    { code: '1', label: 'Tarjetas' },
+    { code: '2', label: 'Préstamos' }
+  ],
+  operations: {
+    overdueDays: 'Días vencidos',
+    overduePayments: 'Pagos vencidos',
+    totalBalance: 'Saldo total',
+    overdueBalance: 'Saldo vencido',
+    minimumPayment: 'Pago mínimo',
+    cycle: 'Ciclo',
+    cycleValue: '30 días',
+    currency: 'Colones'
+  },
+
+  // History
+  history: {
+    management: 'Gestión',
+    managementDate: 'Fecha gestión',
+    action: 'Acción',
+    result: 'Resultado',
+    comment: 'Comentario',
+    contact: 'Contacto',
+    other: 'Otro',
+    others: 'Otros'
+  },
+
+  // Gestion Screen
+  gestion: {
+    title: 'Grabar gestión',
+    action: 'Acción',
+    result: 'Resultado',
+    reasonNoPayment: 'Razón no pago',
+    comment: 'Comentario',
+    commentPlaceholder: 'Ingrese su comentario',
+    operation: 'Operación',
+    localAmount: 'Monto Local',
+    extAmount: 'Monto Ext',
+    paymentDate: 'Fecha de pago',
+    takePhoto: 'Tomar foto',
+    save: 'Guardar',
   },
 
   // Settings Tab

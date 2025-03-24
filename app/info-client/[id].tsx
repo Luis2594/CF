@@ -23,13 +23,14 @@ import { getInitials } from "@/utils/utils";
 
 export default function InfoClientScreen() {
   const { id } = useLocalSearchParams();
-  const { language, translations } = useLanguage();
+  const { language, translations, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>("information");
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLanguage('en');
     const loadClientData = async () => {
       try {
         const storedClient = await AsyncStorage.getItem(
@@ -40,37 +41,27 @@ export default function InfoClientScreen() {
           if (parsedClient.clientId.toString() === id) {
             setClient(parsedClient);
           } else {
-            setError(
-              language === "es" ? "Cliente no encontrado" : "Client not found"
-            );
+            setError(translations.clients.errors.notFound);
           }
         } else {
-          setError(
-            language === "es"
-              ? "Datos del cliente no disponibles"
-              : "Client data not available"
-          );
+          setError(translations.clients.errors.noData);
         }
       } catch (error) {
         console.error("Error loading client data:", error);
-        setError(
-          language === "es"
-            ? "Error al cargar los datos del cliente"
-            : "Error loading client data"
-        );
+        setError(translations.clients.errors.loading);
       } finally {
         setLoading(false);
       }
     };
 
     loadClientData();
-  }, [id, language]);
+  }, [id, language, translations]);
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <Text style={styles.loadingText}>
-          {language === "es" ? "Cargando..." : "Loading..."}
+          {translations.clients.loading}
         </Text>
       </SafeAreaView>
     );
@@ -86,13 +77,11 @@ export default function InfoClientScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* BACK  */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ChevronLeft size={20} color="#666" />
       </TouchableOpacity>
 
       <View style={styles.containerInfo}>
-        {/* AVATAR  */}
         <Avatar
           name={getInitials(client?.name)}
           customStyleContainer={styles.avatar}
@@ -100,7 +89,8 @@ export default function InfoClientScreen() {
 
         <Text style={styles.name}>{client?.name}</Text>
         <Text style={styles.portfolioType}>
-          Grupo de cartera: <Text style={styles.portfolioValue}>Consumo</Text>
+          {translations.client.portfolioGroup}:{" "}
+          <Text style={styles.portfolioValue}>{translations.client.consumption}</Text>
         </Text>
 
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />

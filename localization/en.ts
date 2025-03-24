@@ -87,12 +87,10 @@ export const en = {
 
     if (text === 'title') {
       return `Enable ${biometricText}?`;
-
     }
 
     if (text === 'description') {
       return `Sign in quickly and securely using your ${biometricText}?`;
-
     }
     return '';
   },
@@ -102,53 +100,85 @@ export const en = {
   // Terms
   lastUpdated: 'Last Updated: June 1, 2025',
 
-  // Home Tab
-  hello: 'Hello, Alex',
-  todayTasks: 'Today\'s Tasks',
-  recentProjects: 'Recent Projects',
-  viewAll: 'View All',
-  taskTitle: 'Complete project proposal',
-  projectTitle: 'Marketing Campaign',
-  progress: 'Progress',
-
-  // Client
-  // OPERATIONS
-  operations: [{ code: '1', label: 'Cards' }, { code: '2', label: 'Loans' }],
-
-
-  // Profile Tab
-  editProfile: 'Edit Profile',
-  aboutMe: 'About Me',
-  aboutMeText: 'Product designer with 5+ years of experience creating user-centered digital solutions. Passionate about solving complex problems with elegant designs.',
-  achievements: 'Achievements',
-  achievementItems: {
-    topDesigner: {
-      title: 'Top Designer 2024',
-      desc: 'Recognized for exceptional UI/UX work',
-    },
-    milestone: {
-      title: '5 Year Milestone',
-      desc: 'Completed 5 years in the industry',
-    },
-    projects: {
-      title: '100+ Projects',
-      desc: 'Successfully delivered over 100 projects',
-    },
-  },
-  stats: {
-    projects: 'Projects',
-    followers: 'Followers',
-    following: 'Following',
+  // Client Management
+  clients: {
+    loading: 'Loading...',
+    noClients: 'No clients available',
+    errors: {
+      loading: 'Error loading client data',
+      invalidParams: 'Invalid request parameters',
+      unauthorized: 'Unauthorized access',
+      general: 'An error occurred while loading clients',
+      notFound: 'Client not found',
+      noData: 'Client data not available'
+    }
   },
 
-  // Notifications Tab
-  notifications: 'Notifications',
-  markAllRead: 'Mark all as read',
-  notificationTypes: {
-    message: 'New message',
-    like: 'liked your post',
-    follow: 'New follower',
-    reminder: 'Meeting reminder',
+  // Client Info
+  client: {
+    portfolioGroup: 'Portfolio Group',
+    consumption: 'Consumption',
+    manage: 'Manage',
+    tabs: {
+      information: 'Information',
+      operations: 'Operations',
+      history: 'History'
+    },
+    info: {
+      identification: 'Identification',
+      civilStatus: 'Civil Status',
+      single: 'Single',
+      married: 'Married',
+      position: 'Position',
+      address: 'Address',
+      cycle: 'Cycle',
+      mobilePhone: 'Mobile Phone',
+      workPhone: 'Work Phone'
+    }
+  },
+
+  // Operations
+  operationTypes: [
+    { code: '1', label: 'Cards' },
+    { code: '2', label: 'Loans' }
+  ],
+  operations: {
+    overdueDays: 'Overdue Days',
+    overduePayments: 'Overdue Payments',
+    totalBalance: 'Total Balance',
+    overdueBalance: 'Overdue Balance',
+    minimumPayment: 'Minimum Payment',
+    cycle: 'Cycle',
+    cycleValue: '30 days',
+    currency: 'Colones'
+  },
+
+  // History
+  history: {
+    management: 'Management',
+    managementDate: 'Management Date',
+    action: 'Action',
+    result: 'Result',
+    comment: 'Comment',
+    contact: 'Contact',
+    other: 'Other',
+    others: 'Others'
+  },
+
+  // Gestion Screen
+  gestion: {
+    title: 'Record Management',
+    action: 'Action',
+    result: 'Result',
+    reasonNoPayment: 'Reason for No Payment',
+    comment: 'Comment',
+    commentPlaceholder: 'Enter your comment',
+    operation: 'Operation',
+    localAmount: 'Local Amount',
+    extAmount: 'External Amount',
+    paymentDate: 'Payment Date',
+    takePhoto: 'Take Photo',
+    save: 'Save',
   },
 
   // Settings Tab
@@ -165,16 +195,4 @@ export const en = {
   },
   appVersion: 'Version 1.0.0',
   copyright: '© 2025 FindForce. All rights reserved.',
-
-  // Client Management
-  clients: {
-    loading: 'Loading...',
-    noClients: 'No clients available',
-    errors: {
-      loading: 'Error loading clients',
-      invalidParams: 'Invalid request parameters',
-      unauthorized: 'Unauthorized access',
-      general: 'An error occurred while loading clients'
-    }
-  },
 };

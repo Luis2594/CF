@@ -3,6 +3,7 @@ import { View, Text } from "react-native";
 import { styles } from "@/styles/components/itemInfoClient.styles";
 import { Operation } from "./ItemOperationDetail";
 import { Management } from "./ItemOperationHistory";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface Client {
   clientId: number;
@@ -22,40 +23,44 @@ export interface Client {
 }
 
 export default function ItemInfoClient({ client }: { client: Client | null }) {
+  const { translations } = useLanguage();
+
   return (
     <View style={styles.infoContainer}>
       <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Identificación</Text>
+        <Text style={styles.infoLabel}>{translations.client.info.identification}</Text>
         <Text style={styles.infoValue}>{client?.id}</Text>
       </View>
       <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Estado civil</Text>
+        <Text style={styles.infoLabel}>{translations.client.info.civilStatus}</Text>
         <Text style={styles.infoValue}>
-          {client?.civilStatus === "S" ? "Soltero" : "Casado"}
+          {client?.civilStatus === "S" 
+            ? translations.client.info.single 
+            : translations.client.info.married}
         </Text>
       </View>
       <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Puesto</Text>
+        <Text style={styles.infoLabel}>{translations.client.info.position}</Text>
         <Text style={styles.infoValue}>{client?.jobPosition}</Text>
       </View>
       <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Dirección</Text>
+        <Text style={styles.infoLabel}>{translations.client.info.address}</Text>
         <Text style={styles.infoValue}>{client?.address}</Text>
       </View>
       <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Ciclo</Text>
+        <Text style={styles.infoLabel}>{translations.client.info.cycle}</Text>
         <Text style={styles.infoValue}>{client?.cycle}</Text>
       </View>
 
       {client?.personalPhoneNumber && (
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Teléfono móvil</Text>
+          <Text style={styles.infoLabel}>{translations.client.info.mobilePhone}</Text>
           <Text style={styles.infoValue}>{client?.personalPhoneNumber}</Text>
         </View>
       )}
       {client?.workPhoneNumber && (
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Teléfono trabajo</Text>
+          <Text style={styles.infoLabel}>{translations.client.info.workPhone}</Text>
           <Text style={styles.infoValue}>{client.workPhoneNumber}</Text>
         </View>
       )}

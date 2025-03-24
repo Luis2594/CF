@@ -22,7 +22,7 @@ export default function CardOperations({ client }: { client: Client | null }) {
   return (
     <View>
       <View style={styles.operationsContainer}>
-        {translations.operations.map((operation, index) => (
+        {translations.operationTypes.map((operation, index) => (
           <Fragment key={operation.code}>
             <ItemOperationSection
               title={operation.label}
@@ -35,7 +35,6 @@ export default function CardOperations({ client }: { client: Client | null }) {
               ))}
             </ItemOperationSection>
 
-            {/* DIVIDER */}
             {index < translations.operations.length - 1 && (
               <Divider orientation="horizontal" color="#E6E6E7" />
             )}
@@ -44,7 +43,7 @@ export default function CardOperations({ client }: { client: Client | null }) {
       </View>
 
       <Button
-        text="Gestionar"
+        text={translations.client.manage}
         onPress={handleManage}
         customStyleContainer={styles.button}
       />

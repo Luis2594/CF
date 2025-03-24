@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/components/itemOperationDetail.styles";
-import { ChevronDown, ChevronUp, CreditCard } from "lucide-react-native";
+import { CreditCard } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface Operation {
   operationId: number;
@@ -24,6 +25,7 @@ export default function ItemOperationDetail({
   operation: Operation;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const { translations } = useLanguage();
 
   const renderDetail = (
     label: string,
@@ -56,21 +58,21 @@ export default function ItemOperationDetail({
         <Divider orientation="horizontal" color="#E6E6E7" />
 
         <View style={styles.operationDetails}>
-          {renderDetail("Días vencidos", operation.overdueDays)}
-          {renderDetail("Pagos vencidos", "1")}
-          {renderDetail("Saldo total", operation.totalBalance, true)}
-          {renderDetail("Saldo vencido", operation.overdueBalance, true)}
-          {renderDetail("Saldo total", operation.minimumPayment, true)}
-          {renderDetail("Ciclo", "30 días")}
+          {renderDetail(translations.operations.overdueDays, operation.overdueDays)}
+          {renderDetail(translations.operations.overduePayments, "1")}
+          {renderDetail(translations.operations.totalBalance, operation.totalBalance, true)}
+          {renderDetail(translations.operations.overdueBalance, operation.overdueBalance, true)}
+          {renderDetail(translations.operations.minimumPayment, operation.minimumPayment, true)}
+          {renderDetail(translations.operations.cycle, translations.operations.cycleValue)}
 
           {expanded && (
             <View>
-              {renderDetail("Días vencidos", operation.overdueDays)}
-              {renderDetail("Pagos vencidos", "1")}
-              {renderDetail("Saldo total", operation.totalBalance, true)}
-              {renderDetail("Saldo vencido", operation.overdueBalance, true)}
-              {renderDetail("Saldo total", operation.minimumPayment, true)}
-              {renderDetail("Ciclo", "30 días")}
+              {renderDetail(translations.operations.overdueDays, operation.overdueDays)}
+              {renderDetail(translations.operations.overduePayments, "1")}
+              {renderDetail(translations.operations.totalBalance, operation.totalBalance, true)}
+              {renderDetail(translations.operations.overdueBalance, operation.overdueBalance, true)}
+              {renderDetail(translations.operations.minimumPayment, operation.minimumPayment, true)}
+              {renderDetail(translations.operations.cycle, translations.operations.cycleValue)}
             </View>
           )}
         </View>
