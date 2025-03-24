@@ -37,6 +37,7 @@ type DropdownProps = {
   labelStyle?: TextStyle;
   zIndex?: number;
   required?: boolean;
+  disable?: boolean;
 };
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -54,6 +55,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   labelStyle,
   zIndex = 1000,
   required = false,
+  disable = false,
 }) => {
   const [visible, setVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -74,6 +76,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   const selectedItem = items.find((item) => item.value === selectedValue);
 
   const toggleDropdown = () => {
+    if (disable) return;
     if (visible) {
       closeDropdown();
     } else {
@@ -236,6 +239,7 @@ const Dropdown: React.FC<DropdownProps> = ({
               keyExtractor={(item) => item.value}
               showsVerticalScrollIndicator={true}
               nestedScrollEnabled
+              style={styles.containerDropdownList}
             />
           </Animated.View>
         </TouchableOpacity>

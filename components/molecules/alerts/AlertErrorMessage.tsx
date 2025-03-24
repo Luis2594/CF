@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/components/alertErrorMessage.styles";
-import { SVG } from "../constants/assets";
+import { SVG } from "../../../constants/assets";
 
 interface ErrorMessageProps {
   error: string | null;

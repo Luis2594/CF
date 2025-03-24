@@ -12,4 +12,5 @@ export const STORAGE_KEYS = {
   LAST_LOGIN_CREDENTIALS: 'lastLoginCredentials',
   BIOMETRIC_ENABLED: 'biometricEnabled',
   DEVICE_ID: 'deviceId',
+  SELECTED_CLIENT: 'clients'
 } as const;

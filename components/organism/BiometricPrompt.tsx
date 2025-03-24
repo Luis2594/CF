@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
-import type { BiometricType } from "../hooks/useBiometrics";
+import type { BiometricType } from "../../hooks/useBiometrics";
 import { useLanguage } from "@/context/LanguageContext";
 import { styles } from "@/styles/components/biometricPrompt.styles";
-import { SVG } from "../constants/assets"; // Asegúrate de importar el ícono de cierre
+import { SVG } from "../../constants/assets"; // Asegúrate de importar el ícono de cierre
 
 interface BiometricPromptProps {
   visible: boolean;

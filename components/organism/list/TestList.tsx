@@ -8,8 +8,8 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { CreditCard as Edit2, Check, X, Wifi, WifiOff } from 'lucide-react-native';
-import { db } from '../config/firebase';
-import { useOfflineSync } from '../hooks/useOfflineSync';
+import { db } from '../../../config/firebase';
+import { useOfflineSync } from '../../../hooks/useOfflineSync';
 
 interface Test {
   id: string;

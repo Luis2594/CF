@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform, Image } from 'react-native';
-import { IMAGES } from '../constants/assets';
+import { IMAGES } from '../../constants/assets';
 
 type LogoProps = {
   size?: 'small' | 'medium' | 'large';

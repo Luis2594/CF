@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Quicksand",
     color: "#717275",
-    fontWeight: '700'
+    fontWeight: "700",
   },
   asterisk: {
     color: "red",
@@ -24,7 +24,6 @@ export const styles = StyleSheet.create({
     borderColor: "#D0D0D1",
     borderRadius: 25,
     paddingHorizontal: 15,
-    justifyContent: "center",
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
@@ -36,6 +35,9 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "#717275",
   },
+  inputWithPrefix: {
+    marginLeft: 5, // Ajuste para que el texto no toque el $
+  },
   inputDisabled: {
     backgroundColor: "#E5E5E5",
   },
@@ -44,5 +46,11 @@ export const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 10,
+  },
+  prefix: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#717275",
+    marginRight: 5,
   },
 });

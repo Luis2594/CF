@@ -10,15 +10,11 @@ import { router } from "expo-router";
 import { useLanguage } from "../context/LanguageContext";
 import { IMAGES } from "../constants/assets";
 import { styles } from "@/styles/welcome.styles";
-import BackButton from "@/components/BackButton";
-import Button from "@/components/Button";
+import BackButton from "@/components/molecules/buttons/BackButton";
+import Button from "@/components/molecules/buttons/Button";
 
 export default function WelcomeScreen() {
   const { translations } = useLanguage();
-
-  const handleBack = () => {
-    router.back();
-  };
 
   const handleContinue = () => {
     router.push("/terms-intro");
@@ -28,7 +24,7 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.wrapContainer}>
         {/* Back button */}
-        <BackButton text={translations.back} onPress={handleBack} />
+        <BackButton />
 
         {/* Main content container */}
         <View style={styles.contentContainer}>

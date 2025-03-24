@@ -123,6 +123,10 @@ export const es = {
   projectTitle: 'Campaña de Marketing',
   progress: 'Progreso',
 
+  // Client
+  // OPERATIONS
+  operations: [{ code: '1', label: 'Tarjetas' }, { code: '2', label: 'Préstamos' }],
+
   // Profile Tab
   editProfile: 'Editar Perfil',
   aboutMe: 'Sobre mí',

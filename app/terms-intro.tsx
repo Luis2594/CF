@@ -11,16 +11,12 @@ import { useLanguage } from "../context/LanguageContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { IMAGES } from "../constants/assets";
 import { styles } from "@/styles/terms-intro.styles";
-import BackButton from "@/components/BackButton";
-import Button from "@/components/Button";
+import BackButton from "@/components/molecules/buttons/BackButton";
+import Button from "@/components/molecules/buttons/Button";
 
 export default function TermsIntroScreen() {
   const { translations } = useLanguage();
   const { setOnboardingComplete } = useOnboarding();
-
-  const handleBack = () => {
-    router.back();
-  };
 
   const handleContinue = async () => {
     // Mark onboarding as complete
@@ -32,7 +28,7 @@ export default function TermsIntroScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.wrapContainer}>
         {/* Back button */}
-        <BackButton text={translations.back} onPress={handleBack} />
+        <BackButton />
 
         {/* Main content container */}
         <View style={styles.contentContainer}>

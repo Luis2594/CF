@@ -8,10 +8,10 @@ import { router } from "expo-router";
 import { useLanguage, Language } from "../context/LanguageContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { SVG } from "../constants/assets";
-import Dropdown from "@/components/Dropdown";
+import Dropdown from "@/components/organism/Dropdown";
 import { styles } from "@/styles/languaje.styles";
-import Button from "@/components/Button";
-import TextError from "@/components/TextError";
+import Button from "@/components/molecules/buttons/Button";
+import TextError from "@/components/atoms/TextError";
 
 export default function LanguageSelection() {
   const { translations, language, setLanguage } = useLanguage();

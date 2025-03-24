@@ -13,7 +13,7 @@ type ButtonProps = {
   onPressDisable?: () => void;
   disabled?: boolean;
   isLoading?: boolean;
-  variant?: "default" | "outline"; // "outline" para el estilo con borde gris
+  variant?: "default" | "outline";
   customStyleContainer?: ViewStyle;
 };
 
@@ -26,7 +26,7 @@ export default function Button({
   variant = "default",
   customStyleContainer = {},
 }: ButtonProps) {
-  const isDisabled = disabled; // Deshabilitar el botón si está cargando
+  const isDisabled = disabled;
 
   return (
     <TouchableOpacity
@@ -36,7 +36,7 @@ export default function Button({
           (variant === "outline"
             ? styles.buttonDisabledOutline
             : styles.buttonDisabled),
-        customStyleContainer, // Aplicar el estilo personalizado
+        customStyleContainer,
       ]}
       onPress={!isDisabled && !isLoading ? onPress : onPressDisable}
       disabled={isDisabled && !onPressDisable}

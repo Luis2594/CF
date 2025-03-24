@@ -96,7 +96,8 @@ export default function RootLayout() {
           router.replace("/(tabs)");
         } else {
           console.log("GO TO terms-acceptance");
-          router.replace("/terms-acceptance");
+          router.replace("/(tabs)");
+          // router.replace("/terms-acceptance");
         }
       } else {
         if (savedCredentials) {

@@ -19,15 +19,15 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDeviceId } from "../utils/deviceId";
 import { getLoginErrorMessage } from "../constants/loginErrors";
 import { useBiometrics } from "../hooks/useBiometrics";
-import BiometricPrompt from "../components/BiometricPrompt";
+import BiometricPrompt from "../components/organism/BiometricPrompt";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storage";
 import { encryptLoginCredentials, encryptText } from "../utils/encryption";
 import { TouchableWithoutFeedback } from "react-native";
 import { styles } from "@/styles/login.styles";
-import Button from "@/components/Button";
-import CustomInput from "@/components/CustomInput";
-import AlertErrorMessage from "@/components/AlertErrorMessage";
+import Button from "@/components/molecules/buttons/Button";
+import CustomInput from "@/components/organism/CustomInput";
+import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 
 type ErrorsInput = {
   institution?: string;
@@ -45,6 +45,9 @@ export default function Login() {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
   const [loginWithBiometrics, setLoginWithBiometrics] = useState(false);
+  const [optionLoginWithBiometrics, setOptionLoginWithBiometrics] = useState<
+    "option" | "biometrics"
+  >("biometrics");
   const [lastLoginCredentials, setLastLoginCredentials] = useState<{
     institution: string;
     username: string;
@@ -364,7 +367,8 @@ export default function Login() {
                 />
 
                 {/* PASSWORD  */}
-                {!loginWithBiometrics && (
+                {(!loginWithBiometrics ||
+                  optionLoginWithBiometrics === "option") && (
                   <CustomInput
                     label={translations.password}
                     placeholder={translations.password}
@@ -379,48 +383,52 @@ export default function Login() {
                   />
                 )}
 
-                {loginWithBiometrics && (
-                  <TouchableOpacity onPress={handleBiometricLogin}>
-                    <View
-                      style={{
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginVertical: 10,
-                      }}
-                    >
-                      <View style={styles.faceIdContainer}>
-                        <Text style={styles.biometricText}>
-                          {translations.faceIdLogin(biometricType)}
-                        </Text>
-                        {biometricType === "facial" ? (
-                          <SVG.FACE_ID width={24} height={24} />
-                        ) : (
-                          <SVG.FINGERPRINT width={24} height={24} />
-                        )}
-                      </View>
-                      {biometricType === "facial" ? (
-                        <SVG.FACE_ID_CIRCLE width={60} height={60} />
-                      ) : (
-                        <SVG.FINGERPRINT_CIRCLE width={60} height={60} />
-                      )}
-                      <TouchableOpacity
-                        onPress={() => setLoginWithBiometrics(false)}
+                {loginWithBiometrics &&
+                  optionLoginWithBiometrics === "biometrics" && (
+                    <TouchableOpacity onPress={handleBiometricLogin}>
+                      <View
+                        style={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginVertical: 10,
+                        }}
                       >
-                        <Text
-                          style={[
-                            styles.biometricText,
-                            { color: "#0093D4", marginTop: 5 },
-                          ]}
+                        <View style={styles.faceIdContainer}>
+                          <Text style={styles.biometricText}>
+                            {translations.faceIdLogin(biometricType)}
+                          </Text>
+                          {biometricType === "facial" ? (
+                            <SVG.FACE_ID width={24} height={24} />
+                          ) : (
+                            <SVG.FINGERPRINT width={24} height={24} />
+                          )}
+                        </View>
+                        {biometricType === "facial" ? (
+                          <SVG.FACE_ID_CIRCLE width={60} height={60} />
+                        ) : (
+                          <SVG.FINGERPRINT_CIRCLE width={60} height={60} />
+                        )}
+                        <TouchableOpacity
+                          onPress={() => {
+                            setOptionLoginWithBiometrics("option");
+                          }}
                         >
-                          {translations.orPassword}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                )}
+                          <Text
+                            style={[
+                              styles.biometricText,
+                              { color: "#0093D4", marginTop: 5 },
+                            ]}
+                          >
+                            {translations.orPassword}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </TouchableOpacity>
+                  )}
 
                 {/* LOGIN BUTTON  */}
-                {!loginWithBiometrics && (
+                {(!loginWithBiometrics ||
+                  optionLoginWithBiometrics === "option") && (
                   <Button
                     text={translations.signIn}
                     disabled={!(institution && username && password)}
@@ -436,24 +444,27 @@ export default function Login() {
                   />
                 )}
 
-                {!loginWithBiometrics && lastLoginCredentials?.useBiometric && (
-                  <TouchableOpacity
-                    onPress={() => setLoginWithBiometrics(true)}
-                  >
-                    <View style={styles.faceIdContainer}>
-                      <Text
-                        style={[styles.biometricText, { color: "#0093D4" }]}
-                      >
-                        {translations.faceIdLogin(biometricType)}
-                      </Text>
-                      {biometricType === "facial" ? (
-                        <SVG.FACE_ID_BLUE width={24} height={24} />
-                      ) : (
-                        <SVG.FINGERPRINT_BLUE width={24} height={24} />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                )}
+                {loginWithBiometrics &&
+                  optionLoginWithBiometrics === "option" && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setOptionLoginWithBiometrics("biometrics");
+                      }}
+                    >
+                      <View style={styles.faceIdContainer}>
+                        <Text
+                          style={[styles.biometricText, { color: "#0093D4" }]}
+                        >
+                          {translations.faceIdLogin(biometricType)}
+                        </Text>
+                        {biometricType === "facial" ? (
+                          <SVG.FACE_ID_BLUE width={24} height={24} />
+                        ) : (
+                          <SVG.FINGERPRINT_BLUE width={24} height={24} />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  )}
               </View>
             </View>
           </TouchableWithoutFeedback>

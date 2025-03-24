@@ -12,7 +12,7 @@ import { LogOut } from "lucide-react-native";
 import { getAuth, signOut } from "firebase/auth";
 import { router } from "expo-router";
 import { useLanguage } from "../../context/LanguageContext";
-import TestList from "../../components/TestList";
+import TestList from "../../components/organism/list/TestList";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { STORAGE_KEYS } from "@/constants/storage";
@@ -150,6 +150,8 @@ export default function HomeScreen() {
             ? JSON.parse(savedCredentials)
             : null;
 
+          console.log("token: ", savedCredentialsJSON?.token);
+
           const getClientsFn = httpsCallable(functions, "getClients");
           const result = await getClientsFn({
             token: savedCredentialsJSON?.token,
@@ -275,7 +277,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* {loading ? (
+      {loading ? (
         <View style={styles.centerContainer}>
           <Text style={styles.loadingText}>{translations.clients.loading}</Text>
         </View>
@@ -292,7 +294,7 @@ export default function HomeScreen() {
             {translations.clients.noClients}
           </Text>
         </View>
-      )} */}
+      )}
 
       <TestList language={language} />
     </SafeAreaView>

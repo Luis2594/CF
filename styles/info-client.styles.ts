@@ -1,81 +1,77 @@
-import { StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    padding: 20,
+    backgroundColor: '#F5F5F6',
+    paddingTop: StatusBar.currentHeight, // FIX status bar in android
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: '#E6E6E7',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginLeft: 22,
+    marginVertical: 22
   },
-  profileSection: {
+  containerInfo: {
+    flex: 1,
     alignItems: 'center',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
+    paddingHorizontal: 22
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FF3B30',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginBottom: 12,
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 32,
-    fontFamily: 'Quicksand_700Bold',
+    marginTop: -58
   },
   name: {
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
+    color: '#717275',
     marginBottom: 8,
     textAlign: 'center',
   },
   portfolioType: {
     fontSize: 16,
     fontFamily: 'Quicksand_400Regular',
-    color: '#666',
+    fontWeight: '400',
+    color: '#F04E23',
   },
   portfolioValue: {
-    color: '#FF3B30',
+    color: '#F04E23',
     fontFamily: 'Quicksand_700Bold',
+    fontWeight: '700',
+  },
+  shadowWrapper: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 4,
+    width: '100%',
+    marginVertical: 22,
+  },
+  containerInfoTabs: {
+    backgroundColor: "white",
+    borderRadius: 60,
+    overflow: "hidden",
   },
   tabs: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#FF3B30',
-  },
-  tabText: {
-    fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#FF3B30',
-    fontFamily: 'Quicksand_700Bold',
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   content: {
     flex: 1,
+    width: '100%',
+  },
+  operationsContainer: {
+    borderWidth: 1,
+    borderColor: '#E6E6E7',
+    borderRadius: 20,
   },
   loadingText: {
     fontSize: 16,
@@ -91,133 +87,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-  infoContainer: {
-    padding: 20,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  infoLabel: {
-    fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
-    flex: 1,
-  },
-  infoValue: {
-    fontSize: 16,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
-    flex: 2,
-    textAlign: 'right',
-  },
-  operationsContainer: {
-    padding: 20,
-  },
-  operationSection: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  operationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  operationTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
-    marginLeft: 12,
-  },
-  operationContent: {
-    overflow: 'hidden',
-  },
-  operationDetails: {
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    marginTop: 16,
-  },
-  operationRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  operationLabel: {
-    fontSize: 14,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
-  },
-  operationValue: {
-    fontSize: 14,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
-  },
-  manageButton: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 25,
-    padding: 16,
-    alignItems: 'center',
+  button: {
     marginTop: 20,
-  },
-  manageButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontFamily: 'Quicksand_600SemiBold',
-  },
-  historyContainer: {
-    padding: 20,
-  },
-  historyItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  historyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  historyTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
-    marginLeft: 12,
-  },
-  historyDetails: {
-    gap: 12,
-  },
-  historyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  historyLabel: {
-    fontSize: 14,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
-  },
-  historyValue: {
-    fontSize: 14,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
   },
 });

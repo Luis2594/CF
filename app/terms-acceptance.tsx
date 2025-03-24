@@ -17,11 +17,11 @@ import { STORAGE_KEYS } from "@/constants/storage";
 import { SVG } from "@/constants/assets";
 import { styles } from "@/styles/terms-acceptance.styles";
 import { signOut } from "firebase/auth";
-import Button from "@/components/Button";
-import AlertErrorMessage from "@/components/AlertErrorMessage";
-import BackButton from "@/components/BackButton";
+import Button from "@/components/molecules/buttons/Button";
+import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
+import BackButton from "@/components/molecules/buttons/BackButton";
 import { getLoginErrorMessage } from "@/constants/loginErrors";
-import TextError from "@/components/TextError";
+import TextError from "@/components/atoms/TextError";
 
 export default function TermsAcceptanceScreen() {
   const { translations, language } = useLanguage();
@@ -121,9 +121,7 @@ export default function TermsAcceptanceScreen() {
       <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <View style={styles.wrappMargin}>
         {/* Back button - only show if we can go back */}
-        {canGoBack && (
-          <BackButton text={translations.back} onPress={handleBack} />
-        )}
+        {canGoBack && <BackButton onPress={handleBack} />}
 
         <View style={styles.content}>
           <Text style={styles.title}>{translations.termsTitle}</Text>

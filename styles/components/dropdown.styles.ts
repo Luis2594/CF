@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     color: '#666666',
   },
   required: {
-    color: '#FF3B30',
+    color: '#9D2B2B',
     marginLeft: 4,
   },
   dropdown: {
@@ -45,12 +45,16 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 4,
+  },
+  containerDropdownList: {
+    backgroundColor: "white",
+    borderRadius: 60,
+    overflow: "hidden",
   },
   item: {
     flexDirection: 'row',

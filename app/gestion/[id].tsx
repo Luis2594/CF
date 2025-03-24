@@ -1,35 +1,33 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { ChevronLeft, Camera } from 'lucide-react-native';
-import Dropdown from '@/components/Dropdown';
-import { styles } from '@/styles/gestion.styles';
-
-const actions = [
-  { value: 'VT', label: 'VT - VISITA TRABAJO' },
-  { value: 'VC', label: 'VC - VISITA CASA' },
-  { value: 'LT', label: 'LT - LLAMADA TRABAJO' },
-  { value: 'LC', label: 'LC - LLAMADA CASA' },
-];
-
-const results = [
-  { value: 'CSP', label: 'CSP - CONTACTO SIN PROMESA' },
-  { value: 'CCP', label: 'CCP - CONTACTO CON PROMESA' },
-  { value: 'NL', label: 'NL - NO LOCALIZADO' },
-];
-
-const reasons = [
-  { value: 'DES', label: 'Desempleado' },
-  { value: 'ENF', label: 'Enfermedad' },
-  { value: 'ING', label: 'Ingresos insuficientes' },
-];
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { Camera } from "lucide-react-native";
+import Dropdown from "@/components/organism/Dropdown";
+import { styles } from "@/styles/gestion.styles";
+import BackButton from "@/components/molecules/buttons/BackButton";
+import Button from "@/components/molecules/buttons/Button";
+import * as DataHarcode from "@/data/dataHarcode";
+import TagOperation from "@/components/atoms/TagOperation";
+import CustomInput from "@/components/organism/CustomInput";
 
 export default function GestionScreen() {
   const { id } = useLocalSearchParams();
-  const [action, setAction] = useState('');
-  const [result, setResult] = useState('');
-  const [reason, setReason] = useState('');
-  const [comment, setComment] = useState('');
+  const [action, setAction] = useState("");
+  const [result, setResult] = useState("");
+  const [reason, setReason] = useState("");
+  const [comment, setComment] = useState("");
+  const [montoLocal, setMontoLocal] = useState("");
+  const [montoExt, setMontoExt] = useState("");
+  const [date, setDate] = useState("");
 
   const handleSave = () => {
     // Implement save logic here
@@ -40,50 +38,42 @@ export default function GestionScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <ChevronLeft size={24} color="#666" />
-            <Text style={styles.backText}>Regresar</Text>
-          </TouchableOpacity>
-        </View>
+        <BackButton />
 
         {/* Title */}
         <Text style={styles.title}>Grabar gestión</Text>
 
         {/* Form */}
-        <View style={styles.form}>
+        <View>
           <Dropdown
             label="Acción"
-            items={actions}
+            items={DataHarcode.actions}
             selectedValue={action}
             onSelect={(item) => setAction(item.value)}
             required
+            containerStyle={styles.spacing}
+            labelStyle={styles.label}
           />
-
-          <View style={styles.spacing} />
 
           <Dropdown
             label="Resultado"
-            items={results}
+            items={DataHarcode.results}
             selectedValue={result}
             onSelect={(item) => setResult(item.value)}
             required
+            containerStyle={styles.spacing}
+            labelStyle={styles.label}
           />
-
-          <View style={styles.spacing} />
 
           <Dropdown
             label="Razón no pago"
-            items={reasons}
+            items={DataHarcode.reasons}
             selectedValue={reason}
             onSelect={(item) => setReason(item.value)}
             required
+            containerStyle={styles.spacing}
+            labelStyle={styles.label}
           />
-
-          <View style={styles.spacing} />
 
           <Text style={styles.label}>Comentario</Text>
           <TextInput
@@ -96,17 +86,60 @@ export default function GestionScreen() {
             placeholderTextColor="#D0D0D1"
           />
 
+          {(result === "PRP") && (
+            <View>
+              <View>
+                <TagOperation
+                  text="Operación 123654- Tarjeta de crédito"
+                  customContainerStyle={styles.spacingTagOperation}
+                />
+                <Dropdown
+                  label="Resultado"
+                  items={DataHarcode.results}
+                  selectedValue={result}
+                  onSelect={(item) => setResult(item.value)}
+                  required
+                  containerStyle={styles.spacing}
+                  labelStyle={styles.label}
+                  disable
+                />
+
+                <CustomInput
+                  label="Monto Local"
+                  value={montoLocal}
+                  onChangeText={setMontoLocal}
+                  placeholder="0.00"
+                  isRequired
+                  isCurrency
+                />
+
+                <CustomInput
+                  label="Monto Ext"
+                  value={montoExt}
+                  onChangeText={setMontoExt}
+                  placeholder="0.00"
+                  isRequired
+                  isCurrency
+                />
+
+                <CustomInput
+                  label="Fecha de pago"
+                  value={date}
+                  onChangeText={setDate}
+                  placeholder="00/00/0000"
+                  isRequired
+                  isDate
+                />
+              </View>
+            </View>
+          )}
+
           <TouchableOpacity style={styles.photoButton}>
             <Camera size={20} color="#F04E23" />
             <Text style={styles.photoButtonText}>Tomar foto</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.saveButton}
-            onPress={handleSave}
-          >
-            <Text style={styles.saveButtonText}>Guardar</Text>
-          </TouchableOpacity>
+          <Button text="Guardar" onPress={handleSave} />
         </View>
       </ScrollView>
     </SafeAreaView>

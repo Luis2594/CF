@@ -111,6 +111,11 @@ export const en = {
   projectTitle: 'Marketing Campaign',
   progress: 'Progress',
 
+  // Client
+  // OPERATIONS
+  operations: [{ code: '1', label: 'Cards' }, { code: '2', label: 'Loans' }],
+
+
   // Profile Tab
   editProfile: 'Edit Profile',
   aboutMe: 'About Me',

@@ -1,49 +1,34 @@
-import { StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
+    paddingTop: StatusBar.currentHeight, // FIX status bar in android
   },
   scrollView: {
     flex: 1,
-  },
-  header: {
-    padding: 20,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: '#E6E6E7',
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  backText: {
-    fontSize: 12,
-    fontFamily: 'Quicksand_700Bold',
-    color: '#717275',
-    marginLeft: 4,
+    margin: 22,
   },
   title: {
-    fontSize: 28,
-    fontFamily: 'Quicksand_700Bold',
+    fontSize: 22,
+    fontFamily: 'Quicksand',
+    fontWeight: '700',
     color: '#F04E23',
     textAlign: 'center',
-    marginBottom: 32,
-  },
-  form: {
-    paddingHorizontal: 20,
+    marginVertical: 22,
   },
   spacing: {
-    height: 20,
+    marginBottom: 12
+  },
+  spacingTagOperation: {
+    marginBottom: 20
   },
   label: {
-    fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
-    marginBottom: 8,
+    fontSize: 14,
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
+    color: '#717275',
   },
   commentInput: {
     backgroundColor: '#FFFFFF',
@@ -56,6 +41,9 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Quicksand_500Medium',
     color: '#666666',
+    marginBottom: 20
+  },
+  keyboardAvoid: {
   },
   photoButton: {
     flexDirection: 'row',

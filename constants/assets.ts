@@ -15,6 +15,8 @@ import FingerprintCircle from '../assets/images/icons/fingerprintCircle.svg';
 import Close from '../assets/images/icons/close.svg';
 import CloseSecond from '../assets/images/icons/closeSecond.svg';
 import Check from '../assets/images/icons/checbox.svg';
+import ChevronUp from '../assets/images/icons/chevronUp.svg';
+import ChevronDown from '../assets/images/icons/chevronDown.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -28,6 +30,8 @@ export const SVG = {
   CLOSE: Close,
   CLOSE_SECOND: CloseSecond,
   CHECK: Check,
+  CHEVRON_UP: ChevronUp,
+  CHEVRON_DOWN: ChevronDown,
 } as const;
 
 export const IMAGES = {
