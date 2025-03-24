@@ -186,6 +186,8 @@ export const es = {
       localAmount: 'Monto local es requerido',
       extAmount: 'Monto Ext es requerido',
       paymentDate: 'Fecha de pago es requerido',
+      saveFailed: "Error al guardar el registro de gestión",
+      unauthorized: "Acceso no autorizado",
 
     }
   },

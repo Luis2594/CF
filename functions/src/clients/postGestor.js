@@ -1,3 +1,4 @@
+// functions/src/clients/postGestor.js
 const functions = require('firebase-functions');
 const axios = require('axios');
 const https = require('https');
@@ -57,16 +58,7 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
       'accept': '*/*'
     };
 
-    // Construir el cURL
-    const curlCommand = `curl -X POST "${url}" \\\n` +
-      `  -H "Authorization: Bearer ${data.token}" \\\n` +
-      `  -H "Content-Type: application/json" \\\n` +
-      `  -H "accept: */*" \\\n` +
-      `  --data '${JSON.stringify(data)}'`;
-
-    log("Generated cURL command:\n", curlCommand);
-
-    // Realizar la petición
+    // Make the request
     const response = await axios.post(url, data, {
       httpsAgent: agent,
       headers

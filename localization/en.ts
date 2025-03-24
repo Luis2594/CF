@@ -186,6 +186,8 @@ export const en = {
       localAmount: "Local amount is required",
       extAmount: "External amount is required",
       paymentDate: "Payment date is required",
+      saveFailed: "Failed to save management record",
+      unauthorized: "Unauthorized access",
     }
   },
 

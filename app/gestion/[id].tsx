@@ -195,9 +195,66 @@ export default function GestionScreen() {
     }
   }, [action, result]);
 
-  const handleSave = () => {
-    if (validateInputs()) return;
-  };
+  const handleSave = async () => {
+  if (validateInputs()) return;
+
+  try {
+    const savedCredentials = await AsyncStorage.getItem(
+      STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+    );
+    const savedCredentialsJSON = savedCredentials
+      ? JSON.parse(savedCredentials)
+      : null;
+
+    const user = auth.currentUser;
+    if (!user) {
+      setError(translations.clients.errors.unauthorized);
+      return;
+    }
+
+    const gestionData = {
+      userId: user.uid,
+      clientId: encryptText(client?.clientId.toString() || ''),
+      portfolioId: encryptText('1'), // Replace with actual portfolio ID
+      actionCodeId: encryptText(action),
+      resultCodeId: encryptText(result),
+      reasonNoPaymentId: encryptText(reason),
+      comments: encryptText(comment),
+      latitude: encryptText('0'), // Replace with actual location
+      longitude: encryptText('0'), // Replace with actual location
+      isRealTime: encryptText('true'),
+      detail: client?.operations.map(operation => ({
+        operationId: encryptText(operation.operationId.toString()),
+        localCurrency: encryptText(montoLocal),
+        foreignCurrency: encryptText(montoExt),
+        promiseDate: encryptText(date),
+        existPromise: encryptText('true')
+      })) || [],
+      token: savedCredentialsJSON?.token
+    };
+
+    if (!isOnline) {
+      // Store for offline sync
+      addPendingChange(client?.clientId.toString() || '', gestionData);
+      showOfflineAlert();
+      router.back();
+      return;
+    }
+
+    const functions = getFunctions();
+    const postGestorFn = httpsCallable(functions, 'postGestor');
+    const result = await postGestorFn(gestionData);
+
+    if (result.data.success) {
+      router.back();
+    } else {
+      setError(translations.gestion.errors.saveFailed);
+    }
+  } catch (error) {
+    console.error('Error saving gestion:', error);
+    setError(translations.gestion.errors.saveFailed);
+  }
+};
 
   const validateInputs = (): boolean => {
     setErrorsInput({});
@@ -271,7 +328,7 @@ export default function GestionScreen() {
                 }}
                 placeholder="0.00"
                 isRequired
-                currency={"320"}
+                currency={operationDetail.currency}
                 errorMessage={errorsInput?.montoExt}
               />
 

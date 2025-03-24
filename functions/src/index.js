@@ -1,3 +1,4 @@
+// functions/src/index.js
 const admin = require('firebase-admin');
 const { createCustomToken } = require('./auth/createCustomToken');
 const { acceptTerms } = require('./terms/acceptTerms');
