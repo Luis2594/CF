@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Platform,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Camera } from "lucide-react-native";
@@ -23,16 +21,23 @@ import { STORAGE_KEYS } from "@/constants/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 
+interface ResultCodes {
+  id: string;
+  codeResult: string;
+  description: string;
+  promise: boolean;
+}
+
 interface ActionResult {
-  actionId: string;
-  actionDescription: string;
-  resultId: string;
-  resultDescription: string;
+  id: string;
+  actionCode: string;
+  description: string;
+  resultCodes: Array<ResultCodes>;
 }
 
 interface ReasonNoPayment {
-  reasonId: string;
-  reasonDescription: string;
+  id: string;
+  reason: string;
 }
 
 export default function GestionScreen() {
@@ -44,10 +49,10 @@ export default function GestionScreen() {
   const [montoLocal, setMontoLocal] = useState("");
   const [montoExt, setMontoExt] = useState("");
   const [date, setDate] = useState("");
-  const [actionsResults, setActionsResults] = useState<ActionResult[]>([]);
-  const [reasonsNoPayment, setReasonsNoPayment] = useState<ReasonNoPayment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
+  const [reasonsNoPayment, setReasonsNoPayment] = useState<
+    Array<ReasonNoPayment>
+  >([]);
 
   const functions = getFunctions();
 
@@ -79,9 +84,11 @@ export default function GestionScreen() {
         token: savedCredentialsJSON?.token,
       });
 
-      if (result.data.success) {
-        const actionsResultsData = result.data.data || [];
-        setActionsResults(applyPendingChanges(actionsResultsData) as ActionResult[]);
+      if (result?.data?.success) {
+        const actionsResultsData = (result.data.data.result ||
+          []) as Array<ActionResult>;
+
+        setActionsResults(actionsResultsData);
         await AsyncStorage.setItem(
           "actionsResults",
           JSON.stringify(actionsResultsData)
@@ -91,7 +98,7 @@ export default function GestionScreen() {
       console.error("Error fetching actions-results:", error);
       const cachedData = await AsyncStorage.getItem("actionsResults");
       if (cachedData) {
-        setActionsResults(JSON.parse(cachedData));
+        setActionsResults(JSON.parse(cachedData) as Array<ActionResult>);
       }
     }
   };
@@ -105,14 +112,20 @@ export default function GestionScreen() {
         ? JSON.parse(savedCredentials)
         : null;
 
-      const getReasonsNoPaymentFn = httpsCallable(functions, "getReasonsNoPayment");
+      const getReasonsNoPaymentFn = httpsCallable(
+        functions,
+        "getReasonsNoPayment"
+      );
       const result = await getReasonsNoPaymentFn({
         token: savedCredentialsJSON?.token,
       });
 
-      if (result.data.success) {
-        const reasonsData = result.data.data || [];
-        setReasonsNoPayment(applyPendingChanges(reasonsData) as ReasonNoPayment[]);
+      if (result?.data?.success) {
+        const reasonsData = result.data.data.result || [];
+        console.log("reasonsData: ", reasonsData);
+        setReasonsNoPayment(
+          applyPendingChanges(reasonsData) as ReasonNoPayment[]
+        );
         await AsyncStorage.setItem(
           "reasonsNoPayment",
           JSON.stringify(reasonsData)
@@ -138,13 +151,23 @@ export default function GestionScreen() {
   };
 
   const actionItems = actionsResults.map((item) => ({
-    value: item.actionId,
-    label: `${item.actionId} - ${item.actionDescription}`,
+    value: item.actionCode,
+    label: `${item.actionCode} - ${item.description}`,
   }));
 
+  const actionSelected = actionsResults.find(
+    (item) => item.actionCode === action
+  );
+
+  const resultsItems =
+    actionSelected?.resultCodes?.map((item: ResultCodes) => ({
+      value: item.codeResult,
+      label: `${item.codeResult} - ${item.description}`,
+    })) ?? [];
+
   const reasonItems = reasonsNoPayment.map((item) => ({
-    value: item.reasonId,
-    label: `${item.reasonId} - ${item.reasonDescription}`,
+    value: item.id,
+    label: `${item.reason}`,
   }));
 
   return (
@@ -155,8 +178,6 @@ export default function GestionScreen() {
         <Text style={styles.title}>Grabar gestión</Text>
 
         <View>
-          {error && <Text style={styles.errorText}>{error}</Text>}
-
           <Dropdown
             label="Acción"
             items={actionItems}
@@ -169,7 +190,7 @@ export default function GestionScreen() {
 
           <Dropdown
             label="Resultado"
-            items={DataHarcode.results}
+            items={resultsItems}
             selectedValue={result}
             onSelect={(item) => setResult(item.value)}
             required

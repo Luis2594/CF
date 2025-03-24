@@ -17,7 +17,7 @@ import {
 import { ChevronDown, ChevronUp, Check } from "lucide-react-native";
 import { styles } from "@/styles/components/dropdown.styles";
 
-type DropdownItem = {
+export type DropdownItem = {
   value: string;
   label: string;
 };
