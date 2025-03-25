@@ -33,12 +33,6 @@ exports.getClients = functions.https.onCall(async (data, context) => {
       'Content-Type': 'application/json'
     };
 
-    const curlCommand = `curl -X GET "${url}" \\\n` +
-      `  -H "Authorization: Bearer ${data.token}" \\\n` +
-      `  -H "Content-Type: application/json"`;
-
-    log("Generated cURL command:\n", curlCommand);
-
     const response = await axios.get(url, {
       httpsAgent: agent,
       headers

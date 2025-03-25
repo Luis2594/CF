@@ -41,10 +41,6 @@ exports.acceptTerms = functions.https.onCall(async (data, context) => {
       language: data.language
     };
 
-    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer ${data.token}" \\\n  --data '${JSON.stringify(body)}'`;
-
-    log("Generated cURL Command:\n", curlCommand);
-
     // Make request to Credit Force API
     const response = await axios.post(
       url,

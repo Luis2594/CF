@@ -58,14 +58,6 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
       'accept': '*/*'
     };
 
-    const curlCommand = `curl --location --request POST '${url}' \\
---header 'Authorization: Bearer ${data.token}' \\
---header 'Content-Type: application/json' \\
---header 'Accept: */*' \\
---data-raw '${JSON.stringify(data, null, 2)}'`;
-
-    log("cURL Command:\n", curlCommand);
-
     // Make the request
     const response = await axios.post(url, data, {
       httpsAgent: agent,

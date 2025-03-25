@@ -56,9 +56,6 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
 
     log('Body: ', body);
 
-    const curlCommand = `curl -X POST "${url}" \\\n  -H "Content-Type: application/json" \\\n  -H "X-Forwarded-For: 192.4.168.212" \\\n  --data '${JSON.stringify(body)}'`;
-    log("Generated cURL Command:\n", curlCommand);
-
     const response = await axios.post(
       url,
       body,
