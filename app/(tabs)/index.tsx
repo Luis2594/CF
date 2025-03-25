@@ -277,25 +277,6 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {loading ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.loadingText}>{translations.clients.loading}</Text>
-        </View>
-      ) : clients.length > 0 ? (
-        <FlatList
-          data={[clients[0]]}
-          renderItem={renderClient}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.clientList}
-        />
-      ) : (
-        <View style={styles.centerContainer}>
-          <Text style={styles.noDataText}>
-            {translations.clients.noClients}
-          </Text>
-        </View>
-      )}
-
       <TestList language={language} />
     </SafeAreaView>
   );
