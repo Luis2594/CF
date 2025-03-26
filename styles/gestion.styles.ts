@@ -21,7 +21,8 @@ export const styles = StyleSheet.create({
   spacing: {
     marginBottom: 12
   },
-  spacingTagOperation: {
+  containerInputs: {
+    marginTop: 10,
     marginBottom: 20
   },
   label: {

@@ -42,6 +42,25 @@ export const encryptText = (text: string): string => {
 };
 
 /**
+ * Decrypts AES encrypted text using ECB mode and PKCS7 padding
+ * @param encryptedText - Encrypted text to decrypt
+ * @returns Decrypted plain text
+ */
+export const decryptText = (encryptedText: string): string => {
+  try {
+    const secretBytes = CryptoJS.enc.Utf8.parse(API_KEY);
+    const decrypted = CryptoJS.AES.decrypt(encryptedText, secretBytes, {
+      mode: CryptoJS.mode.ECB,
+      padding: CryptoJS.pad.Pkcs7
+    });
+
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  } catch (error) {
+    return encryptedText;
+  }
+};
+
+/**
  * Encrypts login credentials using the API key
  */
 export const encryptLoginCredentials = (params: {

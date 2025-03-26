@@ -1,23 +1,31 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/components/itemOperationDetail.styles";
-import { CreditCard } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
 import { useLanguage } from "@/context/LanguageContext";
-import { formatCurrency } from "@/utils/utils";
 
 export interface Operation {
-  operationId: number;
+  operationId: string;
   description: string;
   productCode: string;
   lastPaymentDate: string;
+  lastPaymentAmount: number;
+  nextPaymentDate: string;
   operationType: string;
   overdueDays: number;
-  minimumPayment: number;
   overdueBalance: number;
+  overduePayments: number;
+  minimumPayment: number;
+  outstanding: number;
   totalBalance: number;
+  clientId: string;
+  portfolio: string;
   currency: string;
+  currencyCode: string;
+  currencyISO: number;
+  currencySymbol: string;
+  cycle: number;
 }
 
 export default function ItemOperationDetail({
@@ -37,12 +45,7 @@ export default function ItemOperationDetail({
       <Text style={styles.operationLabel}>{label}</Text>
       <Text style={styles.operationValue}>
         {isMoney
-          ? formatCurrency(
-              value,
-              operation.currency,
-              "symbol",
-              translations.currencyNames
-            )
+          ? `${operation.currencySymbol} ${operation.totalBalance}`
           : value}
       </Text>
     </View>
@@ -55,19 +58,12 @@ export default function ItemOperationDetail({
           <View style={styles.cardTitleContainer}>
             <SVG.CARD width={25} height={25} />
             <View>
-              <Text style={styles.cardTitle}>{operation.operationType}</Text>
+              <Text style={styles.cardTitle}>{operation.description}</Text>
               <Text style={styles.cardNumber}>{operation.operationId}</Text>
             </View>
           </View>
           <View style={styles.currencyBadge}>
-            <Text style={styles.currencyText}>
-              {formatCurrency(
-                0,
-                operation.currency,
-                "name",
-                translations.currencyNames
-              )}
-            </Text>
+            <Text style={styles.currencyText}>{operation.currency}</Text>
           </View>
         </View>
         <Divider orientation="horizontal" color="#E6E6E7" />
@@ -77,7 +73,10 @@ export default function ItemOperationDetail({
             translations.operations.overdueDays,
             operation.overdueDays
           )}
-          {renderDetail(translations.operations.overduePayments, "1")}
+          {renderDetail(
+            translations.operations.overduePayments,
+            operation.overduePayments
+          )}
           {renderDetail(
             translations.operations.totalBalance,
             operation.totalBalance,
@@ -89,40 +88,34 @@ export default function ItemOperationDetail({
             true
           )}
           {renderDetail(
-            translations.operations.minimumPayment,
-            operation.minimumPayment,
+            translations.operations.totalBalance,
+            operation.totalBalance,
             true
           )}
-          {renderDetail(
-            translations.operations.cycle,
-            translations.operations.cycleValue
-          )}
+          {renderDetail(translations.operations.cycle, operation.cycle)}
 
           {expanded && (
             <View>
               {renderDetail(
-                translations.operations.overdueDays,
-                operation.overdueDays
+                translations.operations.portfolio,
+                operation.portfolio
               )}
-              {renderDetail(translations.operations.overduePayments, "1")}
               {renderDetail(
-                translations.operations.totalBalance,
-                operation.totalBalance,
+                translations.operations.nextPaymentDate,
+                operation.nextPaymentDate
+              )}
+              {renderDetail(
+                translations.operations.lastPaymentDate,
+                operation.lastPaymentDate
+              )}
+              {renderDetail(
+                translations.operations.lastPaymentAmount,
+                operation.lastPaymentAmount
+              )}
+              {renderDetail(
+                translations.operations.pendingInstallment,
+                operation.outstanding,
                 true
-              )}
-              {renderDetail(
-                translations.operations.overdueBalance,
-                operation.overdueBalance,
-                true
-              )}
-              {renderDetail(
-                translations.operations.minimumPayment,
-                operation.minimumPayment,
-                true
-              )}
-              {renderDetail(
-                translations.operations.cycle,
-                translations.operations.cycleValue
               )}
             </View>
           )}

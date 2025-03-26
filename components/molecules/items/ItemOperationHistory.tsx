@@ -1,21 +1,21 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/components/itemOperationHistory.styles";
-import { CreditCard } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
 import { useLanguage } from "@/context/LanguageContext";
-import { formatCurrency } from "@/utils/utils";
 
 export interface Management {
   id: string;
-  date: string;
+  dateManagement: string;
   action: string;
   result: string;
   comment: string;
   manager: string;
   portfolio: string;
   contactPhone: string;
+  actionDate: string;
+  reasonDelay: string;
 }
 
 interface HistoryItemProps {
@@ -51,7 +51,10 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
         <Divider orientation="horizontal" color="#E6E6E7" />
 
         <View style={styles.operationDetails}>
-          {renderDetail(translations.history.managementDate, management.date)}
+          {renderDetail(
+            translations.history.managementDate,
+            management.dateManagement
+          )}
           {renderDetail(translations.history.action, management.action)}
           {renderDetail(translations.history.result, management.result)}
           {renderDetail(translations.history.comment, management.comment)}
@@ -60,7 +63,19 @@ export default function ItemOperationHistory({ management }: HistoryItemProps) {
           {expanded && (
             <View>
               {renderDetail(translations.history.manager, management.manager)}
-              {renderDetail(translations.history.portfolio, management.portfolio)}
+              {renderDetail(
+                translations.history.actionDate,
+                management.actionDate
+              )}
+
+              {renderDetail(
+                translations.history.gcPortfolio,
+                management.portfolio
+              )}
+              {renderDetail(
+                translations.history.delinquencyReason,
+                management.reasonDelay
+              )}
             </View>
           )}
         </View>

@@ -6,7 +6,8 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#D0D0D1',
-    padding: 15
+    padding: 15,
+    marginBottom: 22
   },
   cardHeader: {
     flexDirection: "row",

@@ -126,13 +126,13 @@ export const en = {
     },
     info: {
       identification: 'Identification',
+      code: 'Code',
       civilStatus: 'Civil Status',
-      single: 'Single',
-      married: 'Married',
       position: 'Position',
       address: 'Address',
       cycle: 'Cycle',
       mobilePhone: 'Mobile Phone',
+      homePhone: 'Home Phone',
       workPhone: 'Work Phone'
     }
   },
@@ -143,26 +143,31 @@ export const en = {
     { code: '2', label: 'Loans' }
   ],
   operations: {
-    overdueDays: 'Overdue Days',
-    overduePayments: 'Overdue Payments',
-    totalBalance: 'Total Balance',
-    overdueBalance: 'Overdue Balance',
-    minimumPayment: 'Minimum Payment',
-    cycle: 'Cycle',
-    cycleValue: '30 days',
-    currency: 'Colones'
+    overdueDays: "Overdue Days",
+    overduePayments: "Overdue Payments",
+    totalBalance: "Total Balance",
+    overdueBalance: "Overdue Balance",
+    totalBalanceAgain: "Total Balance",
+    cycle: "Cycle",
+    portfolio: "Portfolio",
+    nextPaymentDate: "Next Payment Date",
+    lastPaymentDate: "Last Payment Date",
+    lastPaymentAmount: "Last Payment Amount",
+    pendingInstallment: "Pending Installment"
   },
 
   // History
   history: {
     management: 'Management',
-    managementDate: 'Management Date',
-    action: 'Action',
-    result: 'Result',
-    comment: 'Comment',
-    contact: 'Contact',
-    manager: 'Manager',
-    portfolio: 'Portfolio',
+    managementDate: "Management Date",
+    action: "Action",
+    result: "Result",
+    comment: "Comment",
+    contact: "Contact",
+    manager: "Manager",
+    actionDate: "Action Date",
+    gcPortfolio: "GC Portfolio",
+    delinquencyReason: "Delinquency Reason"
   },
 
   // Gestion Screen

@@ -126,13 +126,13 @@ export const es = {
     },
     info: {
       identification: 'Identificación',
+      code: 'Código',
       civilStatus: 'Estado civil',
-      single: 'Soltero',
-      married: 'Casado',
       position: 'Puesto',
       address: 'Dirección',
       cycle: 'Ciclo',
       mobilePhone: 'Teléfono móvil',
+      homePhone: 'Teléfono casa',
       workPhone: 'Teléfono trabajo'
     }
   },
@@ -142,27 +142,33 @@ export const es = {
     { code: '1', label: 'Tarjetas' },
     { code: '2', label: 'Préstamos' }
   ],
+
   operations: {
-    overdueDays: 'Días vencidos',
-    overduePayments: 'Pagos vencidos',
-    totalBalance: 'Saldo total',
-    overdueBalance: 'Saldo vencido',
-    minimumPayment: 'Pago mínimo',
-    cycle: 'Ciclo',
-    cycleValue: '30 días',
-    currency: 'Colones'
+    overdueDays: "Días vencidos",
+    overduePayments: "Pagos vencidos",
+    totalBalance: "Saldo total",
+    overdueBalance: "Saldo vencido",
+    totalBalanceAgain: "Saldo total",
+    cycle: "Ciclo",
+    portfolio: "Cartera",
+    nextPaymentDate: "Fecha próximo pago",
+    lastPaymentDate: "Fecha último pago",
+    lastPaymentAmount: "Monto último pago",
+    pendingInstallment: "Cuota pendiente"
   },
 
   // History
   history: {
-    management: 'Gestión',
-    managementDate: 'Fecha gestión',
-    action: 'Acción',
-    result: 'Resultado',
-    comment: 'Comentario',
-    contact: 'Contacto',
-    manager: 'Gerente',
-    portfolio: 'Cartera',
+    management: 'Gestion',
+    managementDate: "Fecha gestión",
+    action: "Acción",
+    result: "Resultado",
+    comment: "Comentario",
+    contact: "Contacto",
+    manager: "Gestor",
+    actionDate: "Fecha acción",
+    gcPortfolio: "GC Cartera",
+    delinquencyReason: "Razón mora"
   },
 
   // Gestion Screen

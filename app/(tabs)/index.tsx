@@ -13,10 +13,10 @@ import { getAuth, signOut } from "firebase/auth";
 import { router } from "expo-router";
 import { useLanguage } from "../../context/LanguageContext";
 import TestList from "../../components/organism/list/TestList";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { STORAGE_KEYS } from "@/constants/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useUser } from "@/hooks/useUser";
+import { useGestion } from "@/hooks/useGestion";
 
 interface Operation {
   operationId: number;
@@ -59,126 +59,30 @@ interface Client {
   managements: Management[];
 }
 
-const mockClientData = {
-  success: true,
-  message: "Clients returned succesful",
-  clients: [
-    {
-      clientId: 45421,
-      name: "JUANA ROSAURA LOBOS MAS",
-      id: "2483650531408",
-      personalPhoneNumber: "38342921",
-      workPhoneNumber: null,
-      jobPosition: "Auxiliar de Producción",
-      addressLevel1: "Chimaltenango",
-      addressLevel2: "Chimaltenango",
-      address: "Sin definir,CHIMALTENANGO, ZONA 4, 03 CJ COLONIA SOCOBAL",
-      civilStatus: "S",
-      cycle: "Ciclo 01",
-      status: 1,
-      operations: [
-        {
-          operationId: 12180,
-          description: "MIGRADA - CELULAR",
-          productCode: "10539",
-          lastPaymentDate: "2024-01-10",
-          operationType: "Compra Tienda",
-          overdueDays: 0,
-          minimumPayment: 359.32,
-          overdueBalance: 207.33,
-          totalBalance: 1095.79,
-          currency: "320",
-        },
-      ],
-      managements: [
-        {
-          id: "247812",
-          date: "2025-01-22",
-          action: "28",
-          result: "77",
-          comment:
-            "Que le vallan a recoger el dinero al trabajo que lo tiene en efectivo",
-          manager: "raul.hidalgo",
-          portfolio: "1",
-          contactPhone: "86067979",
-        },
-      ],
-    },
-  ],
-};
-
 export default function HomeScreen() {
-  const [name, setName] = useState<string>("");
   const { language, translations } = useLanguage();
-  const auth = getAuth();
-  const functions = getFunctions();
-  const [loading, setLoading] = useState(true);
+  const { user, clients, loadingUser, errorUser } = useUser();
+  const { fetchActionsResults, fetchReasonsNoPayment, errorGestion } =
+    useGestion();
+
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    isOnline,
-    pendingChanges,
-    addPendingChange,
-    applyPendingChanges,
-    showOfflineAlert,
-  } = useOfflineSync<Client>({
-    storageKey: "clientsCache",
-    language,
-    onSync: async (clientId, data) => {
-      console.log("Syncing client:", clientId, data);
-    },
-  });
-
-  const [clients, setClients] = useState<Client[]>([]);
+  const auth = getAuth();
 
   useEffect(() => {
-    const getCurrentUser = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const idTokenResult = await user.getIdTokenResult();
+    if (user.token) {
+      Promise.all([
+        fetchActionsResults(user.token),
+        fetchReasonsNoPayment(user.token),
+      ]);
+    }
+  }, [user]);
 
-        if (idTokenResult.claims.name) {
-          setName(idTokenResult.claims.name);
-        }
-
-        try {
-          const savedCredentials = await AsyncStorage.getItem(
-            STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-          );
-
-          const savedCredentialsJSON = savedCredentials
-            ? JSON.parse(savedCredentials)
-            : null;
-
-          console.log("token: ", savedCredentialsJSON?.token);
-
-          const getClientsFn = httpsCallable(functions, "getClients");
-          const result = await getClientsFn({
-            token: savedCredentialsJSON?.token,
-          });
-
-          if (result.data.success) {
-            // If API returns empty data, use mock data
-            const clientsData =
-              result.data.data?.length > 0
-                ? result.data.data
-                : mockClientData.clients;
-            setClients(applyPendingChanges(clientsData));
-          } else {
-            setError(translations.clients.errors.loading);
-          }
-        } catch (error: any) {
-          console.error("Error fetching clients:", error);
-          const errorCode = error.details?.code || "007";
-          setError(getErrorMessage(errorCode));
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    getCurrentUser();
-  }, []);
+  useEffect(() => {
+    if (errorUser || errorGestion) {
+      setError(errorUser || errorGestion);
+    }
+  }, [errorUser, errorGestion]);
 
   const handleLogout = () => {
     signOut(auth)
@@ -195,19 +99,6 @@ export default function HomeScreen() {
           [{ text: "OK" }]
         );
       });
-  };
-
-  const getErrorMessage = (code: string): string => {
-    const errorMessages = {
-      "001": translations.clients.errors.invalidParams,
-      "002": translations.clients.errors.unauthorized,
-      "007": translations.clients.errors.general,
-    };
-
-    return (
-      errorMessages[code as keyof typeof errorMessages] ||
-      translations.clients.errors.general
-    );
   };
 
   const handleClientPress = (client: Client) => {
@@ -228,14 +119,14 @@ export default function HomeScreen() {
       <View style={styles.clientCard}>
         <View style={styles.clientHeader}>
           <Text style={styles.clientName}>{item.name}</Text>
-          <View
+          {/* <View
             style={[
               styles.statusIndicator,
               item.status === 1 ? styles.statusPending : styles.statusVisited,
             ]}
-          />
+          /> */}
         </View>
-        <View style={styles.clientInfo}>
+        {/* <View style={styles.clientInfo}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Region:</Text>
             <Text style={styles.infoValue}>{item.addressLevel1}</Text>
@@ -250,7 +141,7 @@ export default function HomeScreen() {
               {item.operations[0]?.operationType || "N/A"}
             </Text>
           </View>
-        </View>
+        </View> */}
       </View>
     </TouchableOpacity>
   );
@@ -258,7 +149,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hello{name ? `, ${name}` : ""}</Text>
+        <Text style={styles.greeting}>Hello {user.name}</Text>
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogout}
@@ -274,6 +165,25 @@ export default function HomeScreen() {
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
+      {loadingUser ? (
+        <View style={styles.centerContainer}>
+          <Text style={styles.loadingText}>{translations.clients.loading}</Text>
+        </View>
+      ) : clients.length > 0 ? (
+        <FlatList
+          data={clients}
+          renderItem={renderClient}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.clientList}
+        />
+      ) : (
+        <View style={styles.centerContainer}>
+          <Text style={styles.noDataText}>
+            {translations.clients.noClients}
+          </Text>
         </View>
       )}
 

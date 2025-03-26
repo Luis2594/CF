@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, useRef } from "react";
 import {
   View,
   Text,
@@ -7,188 +7,52 @@ import {
   SafeAreaView,
   ScrollView,
 } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import Dropdown from "@/components/organism/Dropdown";
 import { styles } from "@/styles/gestion.styles";
 import BackButton from "@/components/molecules/buttons/BackButton";
 import Button from "@/components/molecules/buttons/Button";
-import * as DataHarcode from "@/data/dataHarcode";
-import TagOperation from "@/components/atoms/TagOperation";
-import CustomInput from "@/components/organism/CustomInput";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { STORAGE_KEYS } from "@/constants/storage";
-import { getFunctions, httpsCallable } from "firebase/functions";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { useLanguage } from "@/context/LanguageContext";
-import { Client } from "@/components/molecules/items/ItemInfoClient";
 import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import { SVG } from "@/constants/assets";
-import { encryptText } from "@/utils/encryption";
-import { auth } from "@/config/firebase";
-
-interface ResultCodes {
-  id: string;
-  codeResult: string;
-  description: string;
-  promise: boolean;
-}
-
-interface ActionResult {
-  id: string;
-  actionCode: string;
-  description: string;
-  resultCodes: Array<ResultCodes>;
-}
-
-interface ReasonNoPayment {
-  id: string;
-  reason: string;
-}
+import { useClient } from "@/hooks/useClient";
+import { ResultCodes, useGestion } from "@/hooks/useGestion";
+import { Operation } from "@/components/molecules/items/ItemOperationDetail";
+import OperationItem from "./OperationItem";
+import TextError from "@/components/atoms/TextError";
 
 interface ErrorsInput {
   action?: string;
   result?: string;
   reason?: string;
-  montoLocal?: string;
-  montoExt?: string;
-  date?: string;
 }
 
 export default function GestionScreen() {
   const { id } = useLocalSearchParams();
-  const [client, setClient] = useState<Client | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { translations } = useLanguage();
+  const { client } = useClient(id.toString());
+  const {
+    actionItems,
+    resultsItems,
+    reasonItems,
+    updateActionSelected,
+    actionsResults,
+    errorGestion,
+    setError,
+  } = useGestion();
+
   const [action, setAction] = useState("");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState<ResultCodes>();
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
-  const [montoLocal, setMontoLocal] = useState("");
-  const [montoExt, setMontoExt] = useState("");
-  const [date, setDate] = useState("");
-  const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
-  const [reasonsNoPayment, setReasonsNoPayment] = useState<
-    Array<ReasonNoPayment>
-  >([]);
-  const { translations, setLanguage } = useLanguage();
+
+  const [errorSomePromise, setErrorSomePromise] = useState<string | null>(null);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
 
-  const functions = getFunctions();
+  const operationsRefs = useRef<{ [key: string]: any }>({});
 
-  const {
-    isOnline,
-    pendingChanges,
-    addPendingChange,
-    applyPendingChanges,
-    showOfflineAlert,
-  } = useOfflineSync<ActionResult | ReasonNoPayment>({
-    storageKey: "gestionsCache",
-    language: "es",
-    onSync: async () => {
-      await Promise.all([fetchActionsResults(), fetchReasonsNoPayment()]);
-    },
-  });
-
-  useEffect(() => {
-    const loadClientData = async () => {
-      try {
-        const storedClient = await AsyncStorage.getItem(
-          STORAGE_KEYS.SELECTED_CLIENT
-        );
-        if (storedClient) {
-          const parsedClient = JSON.parse(storedClient);
-          if (parsedClient.clientId.toString() === id) {
-            setClient(parsedClient);
-          } else {
-            setError(translations.clients.errors.notFound);
-          }
-        } else {
-          setError(translations.clients.errors.noData);
-        }
-      } catch (error) {
-        console.error("Error loading client data:", error);
-        setError(translations.clients.errors.loading);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadClientData();
-  }, [id, translations]);
-
-  const fetchActionsResults = async () => {
-    try {
-      const savedCredentials = await AsyncStorage.getItem(
-        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-      );
-      const savedCredentialsJSON = savedCredentials
-        ? JSON.parse(savedCredentials)
-        : null;
-
-      const getActionsResultsFn = httpsCallable(functions, "getActionsResults");
-      const result = await getActionsResultsFn({
-        token: savedCredentialsJSON?.token,
-      });
-
-      if (result?.data?.success) {
-        const actionsResultsData = (result.data.data.result ||
-          []) as Array<ActionResult>;
-
-        setActionsResults(actionsResultsData);
-        await AsyncStorage.setItem(
-          "actionsResults",
-          JSON.stringify(actionsResultsData)
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching actions-results:", error);
-      const cachedData = await AsyncStorage.getItem("actionsResults");
-      if (cachedData) {
-        setActionsResults(JSON.parse(cachedData) as Array<ActionResult>);
-      }
-    }
-  };
-
-  const fetchReasonsNoPayment = async () => {
-    try {
-      const savedCredentials = await AsyncStorage.getItem(
-        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-      );
-      const savedCredentialsJSON = savedCredentials
-        ? JSON.parse(savedCredentials)
-        : null;
-
-      const getReasonsNoPaymentFn = httpsCallable(
-        functions,
-        "getReasonsNoPayment"
-      );
-      const result = await getReasonsNoPaymentFn({
-        token: savedCredentialsJSON?.token,
-      });
-
-      if (result?.data?.success) {
-        const reasonsData = result.data.data.result || [];
-        console.log("reasonsData: ", reasonsData);
-        setReasonsNoPayment(
-          applyPendingChanges(reasonsData) as ReasonNoPayment[]
-        );
-        await AsyncStorage.setItem(
-          "reasonsNoPayment",
-          JSON.stringify(reasonsData)
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching reasons-no-payment:", error);
-      const cachedData = await AsyncStorage.getItem("reasonsNoPayment");
-      if (cachedData) {
-        setReasonsNoPayment(JSON.parse(cachedData));
-      }
-    }
-  };
-
-  useEffect(() => {
-    Promise.all([fetchActionsResults(), fetchReasonsNoPayment()]);
-  }, []);
+  const operations = client?.operations || ([] as Array<Operation>);
 
   useEffect(() => {
     if (action && result) {
@@ -197,184 +61,153 @@ export default function GestionScreen() {
   }, [action, result]);
 
   const handleSave = async () => {
-  if (validateInputs()) return;
+    console.log("currentErrorsInput: ", currentErrorsInput());
+    if (currentErrorsInput()) return;
 
-  try {
-    const savedCredentials = await AsyncStorage.getItem(
-      STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-    );
-    const savedCredentialsJSON = savedCredentials
-      ? JSON.parse(savedCredentials)
-      : null;
+    // try {
+    //   const savedCredentials = await AsyncStorage.getItem(
+    //     STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
+    //   );
+    //   const savedCredentialsJSON = savedCredentials
+    //     ? JSON.parse(savedCredentials)
+    //     : null;
 
-    const user = auth.currentUser;
-    if (!user) {
-      setError(translations.clients.errors.unauthorized);
-      return;
-    }
+    //   const user = auth.currentUser;
+    //   if (!user) {
+    //     setError(translations.clients.errors.unauthorized);
+    //     return;
+    //   }
 
-    const gestionData = {
-      userId: user.uid,
-      clientId: encryptText(client?.clientId.toString() || ''),
-      portfolioId: encryptText('1'), // Replace with actual portfolio ID
-      actionCodeId: encryptText(action),
-      resultCodeId: encryptText(result),
-      reasonNoPaymentId: encryptText(reason),
-      comments: encryptText(comment),
-      latitude: encryptText('0'), // Replace with actual location
-      longitude: encryptText('0'), // Replace with actual location
-      isRealTime: encryptText('true'),
-      detail: client?.operations.map(operation => ({
-        operationId: encryptText(operation.operationId.toString()),
-        localCurrency: encryptText(montoLocal),
-        foreignCurrency: encryptText(montoExt),
-        promiseDate: encryptText(date),
-        existPromise: encryptText('true')
-      })) || [],
-      token: savedCredentialsJSON?.token
-    };
+    //   const gestionData = {
+    //     userId: user.uid,
+    //     clientId: encryptText(client?.clientId.toString() || ""),
+    //     portfolioId: encryptText("1"), // Replace with actual portfolio ID
+    //     actionCodeId: encryptText(action),
+    //     resultCodeId: encryptText(result),
+    //     reasonNoPaymentId: encryptText(reason),
+    //     comments: encryptText(comment),
+    //     latitude: encryptText("0"), // Replace with actual location
+    //     longitude: encryptText("0"), // Replace with actual location
+    //     isRealTime: encryptText("true"),
+    //     detail:
+    //       client?.operations.map((operation) => ({
+    //         operationId: encryptText(operation.operationId.toString()),
+    //         localCurrency: encryptText(montoLocal),
+    //         foreignCurrency: encryptText(montoExt),
+    //         promiseDate: encryptText(date),
+    //         existPromise: encryptText("true"),
+    //       })) || [],
+    //     token: savedCredentialsJSON?.token,
+    //   };
 
-    if (!isOnline) {
-      // Store for offline sync
-      addPendingChange(client?.clientId.toString() || '', gestionData);
-      showOfflineAlert();
-      router.back();
-      return;
-    }
+    //   if (!isOnline) {
+    //     // Store for offline sync
+    //     addPendingChange(client?.clientId.toString() || "", gestionData);
+    //     showOfflineAlert();
+    //     router.back();
+    //     return;
+    //   }
 
-    const functions = getFunctions();
-    const postGestorFn = httpsCallable(functions, 'postGestor');
-    const response = await postGestorFn(gestionData);
+    //   const functions = getFunctions();
+    //   const postGestorFn = httpsCallable(functions, "postGestor");
+    //   const response = await postGestorFn(gestionData);
 
-    if (response.data.success) {
-      router.back();
-    } else {
-      setError(translations.gestion.errors.saveFailed);
-    }
-  } catch (error) {
-    console.error('Error saving gestion:', error);
-    setError(translations.gestion.errors.saveFailed);
-  }
-};
+    //   if (response.data.success) {
+    //     router.back();
+    //   } else {
+    //     setError(translations.gestion.errors.saveFailed);
+    //   }
+    // } catch (error) {
+    //   console.error("Error saving gestion:", error);
+    //   setError(translations.gestion.errors.saveFailed);
+    // }
+  };
 
-  const validateInputs = (): boolean => {
+  const validateOperation = (
+    operationId: string,
+    type: "errors" | "promise"
+  ) => {
+    const ref = operationsRefs.current[operationId];
+    return ref
+      ? type === "errors"
+        ? ref.currentErrorsInput()
+        : ref.isPromise()
+      : false;
+  };
+
+  const currentErrorsInput = (): boolean => {
     setErrorsInput({});
+    setErrorSomePromise(null);
+
+    const hasSomePromise = operations.some((op, index) =>
+      validateOperation(`${op.operationId} - ${index}`, "promise")
+    );
+
+    if (!hasSomePromise) {
+      setErrorSomePromise(
+        "Result code requires promise of payment in the detail array"
+      );
+      return true;
+    }
+
+    const reviewOperationsFlat = operations
+      .map((op, index) =>
+        validateOperation(`${op.operationId} - ${index}`, "errors")
+      )
+      .some((isInvalid) => isInvalid);
 
     const currentErrorsInput: ErrorsInput = {
-      action: !action ? translations.gestion.errors.action : undefined,
-      result: !result ? translations.gestion.errors.result : undefined,
-      reason: !reason ? translations.gestion.errors.reason : undefined,
-      montoLocal: !montoLocal
-        ? translations.gestion.errors.localAmount
-        : undefined,
-      montoExt: !montoExt ? translations.gestion.errors.extAmount : undefined,
-      date: !date ? translations.gestion.errors.paymentDate : undefined,
+      action: action ? undefined : translations.gestion.errors.action,
+      result: result ? undefined : translations.gestion.errors.result,
+      reason: reason ? undefined : translations.gestion.errors.reason,
     };
 
     setErrorsInput(currentErrorsInput);
 
-    // Verifica si hay algún error en currentErrorsInput
-    return Object.values(currentErrorsInput).some(
-      (error) => error !== undefined
+    return (
+      Object.values(currentErrorsInput).some(Boolean) || reviewOperationsFlat
     );
   };
 
   const clearInputError = (key: keyof ErrorsInput) => {
     setErrorsInput((prevErrors) => ({
       ...prevErrors,
-      [key]: undefined, // Elimina el error específico
+      [key]: undefined,
     }));
   };
 
   const renderOperations = () => {
     return (
       <View>
-        {client?.operations.map((operationDetail) => (
-          <Fragment key={operationDetail.operationId}>
-            <View>
-              <TagOperation
-                text={operationDetail.operationType}
-                customContainerStyle={styles.spacingTagOperation}
-              />
-              <Dropdown
-                label={translations.gestion.result}
-                items={DataHarcode.results}
-                selectedValue={result}
-                onSelect={(item) => setResult(item.value)}
-                required
-                containerStyle={styles.spacing}
-                labelStyle={styles.label}
-                disable
-              />
-
-              <CustomInput
-                label={translations.gestion.localAmount}
-                value={montoLocal}
-                onChangeText={(text) => {
-                  setMontoLocal(text);
-                  clearInputError("montoLocal");
-                }}
-                placeholder="0.00"
-                isRequired
-                currency={operationDetail.currency}
-                errorMessage={errorsInput?.montoLocal}
-              />
-
-              <CustomInput
-                label={translations.gestion.extAmount}
-                value={montoExt}
-                onChangeText={(text) => {
-                  setMontoExt(text);
-                  clearInputError("montoExt");
-                }}
-                placeholder="0.00"
-                isRequired
-                currency={operationDetail.currency}
-                errorMessage={errorsInput?.montoExt}
-              />
-
-              <CustomInput
-                label={translations.gestion.paymentDate}
-                value={date}
-                onChangeText={(text) => {
-                  setDate(text);
-                  clearInputError("date");
-                }}
-                placeholder="00/00/0000"
-                isRequired
-                isDate
-                errorMessage={errorsInput?.date}
-              />
-            </View>
+        {operations.map((operation, index) => (
+          <Fragment key={`${operation.operationId} - ${index}`}>
+            <OperationItem
+              ref={(el) =>
+                (operationsRefs.current[`${operation.operationId} - ${index}`] =
+                  el)
+              }
+              operation={operation}
+              resultCodes={
+                actionsResults.find((a) => a.actionCode === action)
+                  ?.resultCodes || []
+              }
+              resultsItems={resultsItems}
+            />
           </Fragment>
         ))}
       </View>
     );
   };
 
-  const actionItems = actionsResults.map((item) => ({
-    value: item.actionCode,
-    label: `${item.actionCode} - ${item.description}`,
-  }));
-
-  const actionSelected = actionsResults.find(
-    (item) => item.actionCode === action
-  );
-
-  const resultsItems =
-    actionSelected?.resultCodes?.map((item: ResultCodes) => ({
-      value: item.codeResult,
-      label: `${item.codeResult} - ${item.description}`,
-    })) ?? [];
-
-  const reasonItems = reasonsNoPayment.map((item) => ({
-    value: item.id,
-    label: `${item.reason}`,
-  }));
-
   return (
     <SafeAreaView style={styles.container}>
-      <AlertErrorMessage error={error} onClose={() => setError(null)} />
+      <AlertErrorMessage
+        error={errorGestion || errorSomePromise}
+        onClose={() => {
+          setError(null);
+          setErrorSomePromise(null);
+        }}
+      />
       <ScrollView style={styles.scrollView}>
         <BackButton />
 
@@ -387,6 +220,7 @@ export default function GestionScreen() {
             selectedValue={action}
             onSelect={(item) => {
               setAction(item.value);
+              updateActionSelected(item.value);
               clearInputError("action");
             }}
             required
@@ -398,9 +232,12 @@ export default function GestionScreen() {
           <Dropdown
             label={translations.gestion.result}
             items={resultsItems}
-            selectedValue={result}
+            selectedValue={result?.codeResult || ""}
             onSelect={(item) => {
-              setResult(item.value);
+              const findeResultSelected = actionsResults
+                .find((a) => a.actionCode === action)
+                ?.resultCodes.find((rc) => rc.codeResult === item.value);
+              setResult(findeResultSelected);
               clearInputError("result");
             }}
             required
@@ -434,7 +271,7 @@ export default function GestionScreen() {
             placeholderTextColor="#D0D0D1"
           />
 
-          {result === "PRP" && renderOperations()}
+          {result?.promise && renderOperations()}
 
           <TouchableOpacity style={styles.photoButton}>
             <Text style={styles.photoButtonText}>
