@@ -57,7 +57,6 @@ export const useClient = () => {
         });
 
         if (result?.data?.success) {
-          // If API returns empty data, use mock data
           const clientsData = decryptClientsData(result.data.data.clients);
           setClients(clientsData);
           await saveDataInCache(STORAGE_KEYS.CLIENTS, clientsData);
@@ -129,6 +128,40 @@ export const useClient = () => {
     })
   };
 
+  const updateClientStatus = async (clientId: string) => {
+    try {
+      getDataFromCache({
+        key: STORAGE_KEYS.CLIENTS,
+        onSuccess: async (data) => {
+          const parsedClients = data as Client[];
+          
+          // Update status for the specific client
+          const updatedClients = parsedClients.map(client => 
+            client.clientId === clientId 
+              ? { ...client, status: 2 }
+              : client
+          );
+
+          // Save updated clients back to cache
+          await saveDataInCache(STORAGE_KEYS.CLIENTS, updatedClients);
+          setClients(updatedClients);
+
+          // If this is the currently selected client, update it too
+          if (client && client.clientId === clientId) {
+            const updatedClient = { ...client, status: 2 };
+            await saveDataInCache(STORAGE_KEYS.SELECTED_CLIENT, updatedClient);
+            setClient(updatedClient);
+          }
+        },
+        onError: (error) => {
+          console.error('Error updating client status:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Error updating client status:', error);
+    }
+  };
+
   /**
  * Decrypts all encrypted fields in clientsData
  * @param clients - Array of encrypted clients
@@ -192,6 +225,7 @@ export const useClient = () => {
     saveClient,
     getClient,
     getClients,
+    updateClientStatus,
     clearClientData
   };
 };

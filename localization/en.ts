@@ -198,6 +198,9 @@ export const en = {
     paymentDate: 'Payment Date',
     takePhoto: 'Take Photo',
     save: 'Save',
+    success: 'Management has been saved successfully',
+    successTitle: 'Successful Management',
+    errorTitle: 'Error',
     errors: {
       action: "Action is required",
       result: "Result is required",

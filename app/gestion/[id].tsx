@@ -24,6 +24,7 @@ import CameraModal from "@/components/organism/CameraModal";
 import { CameraCapturedPicture } from "expo-camera";
 import { encryptText } from "@/utils/encryption";
 import { useUser } from "@/hooks/useUser";
+import FeedbackModal from "@/components/molecules/modals/FeedbackModal";
 
 interface ErrorsInput {
   action?: string;
@@ -43,7 +44,7 @@ export default function GestionScreen() {
   const { id } = useLocalSearchParams();
   const { translations } = useLanguage();
   const { user } = useUser();
-  const { client, getClient } = useClient();
+  const { client, getClient, updateClientStatus } = useClient();
   const {
     actionItems,
     resultsItems,
@@ -62,6 +63,9 @@ export default function GestionScreen() {
   const [comment, setComment] = useState("");
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'success' | 'error'>('success');
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const [errorSomePromise, setErrorSomePromise] = useState<string | null>(null);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
@@ -85,7 +89,9 @@ export default function GestionScreen() {
 
     try {
       if (!user) {
-        setError(translations.clients.errors.unauthorized);
+        setFeedbackType('error');
+        setFeedbackMessage(translations.clients.errors.unauthorized);
+        setShowFeedbackModal(true);
         return;
       }
 
@@ -131,17 +137,27 @@ export default function GestionScreen() {
 
       createGestion({
         gestion: gestionData,
-        onSuccess: () => {
-          console.log("Se han guardado en cache");
+        onSuccess: async () => {
+          // Update client status after successful gestion
+          if (client) {
+            await updateClientStatus(client.clientId);
+          }
+          setFeedbackType('success');
+          setFeedbackMessage(translations.gestion.success);
+          setShowFeedbackModal(true);
         },
         onError: () => {
-          setError(translations.gestion.errors.saveFailed);
+          setFeedbackType('error');
+          setFeedbackMessage(translations.gestion.errors.saveFailed);
+          setShowFeedbackModal(true);
         },
       });
     } catch (error) {
       console.log("error: ", error);
       console.error("Error saving gestion:", error);
-      setError(translations.gestion.errors.saveFailed);
+      setFeedbackType('error');
+      setFeedbackMessage(translations.gestion.errors.saveFailed);
+      setShowFeedbackModal(true);
     }
   };
 
@@ -168,9 +184,9 @@ export default function GestionScreen() {
       );
 
       if (!hasSomePromise) {
-        setErrorSomePromise(
-          "Result code requires promise of payment in the detail array"
-        );
+        setFeedbackType('error');
+        setFeedbackMessage("Result code requires promise of payment in the detail array");
+        setShowFeedbackModal(true);
         return true;
       }
 
@@ -209,6 +225,13 @@ export default function GestionScreen() {
   const getDataByOperationSin = (operationId: string): RequestOperationData => {
     const ref = operationsRefs.current[operationId];
     return ref.getDataToSendSin();
+  };
+
+  const handleModalContinue = () => {
+    setShowFeedbackModal(false);
+    if (feedbackType === 'success') {
+      router.replace('/(tabs)');
+    }
   };
 
   const renderOperations = () => {
@@ -328,6 +351,15 @@ export default function GestionScreen() {
         onCapture={handleCapture}
         type={type}
         toggleType={toggleCameraType}
+      />
+
+      <FeedbackModal
+        visible={showFeedbackModal}
+        type={feedbackType}
+        title={feedbackType === 'success' ? translations.gestion.successTitle : translations.gestion.errorTitle}
+        message={feedbackMessage}
+        onClose={() => setShowFeedbackModal(false)}
+        onContinue={handleModalContinue}
       />
     </SafeAreaView>
   );
