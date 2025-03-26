@@ -13,59 +13,19 @@ import { getAuth, signOut } from "firebase/auth";
 import { router } from "expo-router";
 import { useLanguage } from "../../context/LanguageContext";
 import TestList from "../../components/organism/list/TestList";
-import { STORAGE_KEYS } from "@/constants/storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "@/hooks/useUser";
 import { useGestion } from "@/hooks/useGestion";
 import { useLocationPermissions } from "@/hooks/useLocationPermissions";
-
-interface Operation {
-  operationId: number;
-  description: string;
-  productCode: string;
-  lastPaymentDate: string;
-  operationType: string;
-  overdueDays: number;
-  minimumPayment: number;
-  overdueBalance: number;
-  totalBalance: number;
-  currency: string;
-}
-
-interface Management {
-  id: string;
-  date: string;
-  action: string;
-  result: string;
-  comment: string;
-  manager: string;
-  portfolio: string;
-  contactPhone: string;
-}
-
-interface Client {
-  clientId: number;
-  name: string;
-  id: string;
-  personalPhoneNumber: string;
-  workPhoneNumber: string | null;
-  jobPosition: string;
-  addressLevel1: string;
-  addressLevel2: string;
-  address: string;
-  civilStatus: string;
-  cycle: string;
-  status: number;
-  operations: Operation[];
-  managements: Management[];
-}
+import { Client, useClient } from "@/hooks/useClient";
 
 export default function HomeScreen() {
   const { language, translations } = useLanguage();
-  const { user, clients, loadingUser, errorUser } = useUser();
-  const { fetchActionsResults, fetchReasonsNoPayment, errorGestion } =
+  const { user, loadingUser, errorUser } = useUser();
+  const { clients, loadingClient, getClients, saveClient, clearClientData } =
+    useClient();
+  const { getDataToUseInGestion, clearDataGestion, errorGestion } =
     useGestion();
-  const { status, errorMsg, requestPermissions } = useLocationPermissions();
+  const { status, requestPermissions } = useLocationPermissions();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -73,10 +33,8 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user.token) {
-      Promise.all([
-        fetchActionsResults(user.token),
-        fetchReasonsNoPayment(user.token),
-      ]);
+      getClients(user.token);
+      getDataToUseInGestion(user.token);
     }
   }, [user]);
 
@@ -109,6 +67,8 @@ export default function HomeScreen() {
     signOut(auth)
       .then(() => {
         router.replace("/login");
+        clearClientData();
+        clearDataGestion();
       })
       .catch((error) => {
         console.error("Logout error:", error);
@@ -118,17 +78,9 @@ export default function HomeScreen() {
       });
   };
 
-  const handleClientPress = (client: Client) => {
-    // Store the selected client in AsyncStorage before navigation
-    AsyncStorage.setItem(STORAGE_KEYS.SELECTED_CLIENT, JSON.stringify(client))
-      .then(() => {
-        router.push(`/info-client/${client.clientId}`);
-      })
-      .catch((error) => {
-        console.error("Error storing client data:", error);
-        // Navigate anyway even if storage fails
-        router.push(`/info-client/${client.clientId}`);
-      });
+  const handleClientPress = async (client: Client) => {
+    await saveClient(client);
+    router.push(`/info-client/${client.clientId}`);
   };
 
   const renderClient = ({ item }: { item: Client }) => (
@@ -163,7 +115,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {loadingUser ? (
+      {loadingUser || loadingClient ? (
         <View style={styles.centerContainer}>
           <Text style={styles.loadingText}>{translations.clients.loading}</Text>
         </View>

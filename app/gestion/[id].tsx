@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment, useRef } from "react";
+import React, { useState, Fragment, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,12 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Image,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Dropdown from "@/components/organism/Dropdown";
 import { styles } from "@/styles/gestion.styles";
 import BackButton from "@/components/molecules/buttons/BackButton";
 import Button from "@/components/molecules/buttons/Button";
-import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { useLanguage } from "@/context/LanguageContext";
 import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import { SVG } from "@/constants/assets";
@@ -24,6 +22,8 @@ import OperationItem from "./OperationItem";
 import { useCamera } from "@/hooks/useCamera";
 import CameraModal from "@/components/organism/CameraModal";
 import { CameraCapturedPicture } from "expo-camera";
+import { encryptText } from "@/utils/encryption";
+import { useUser } from "@/hooks/useUser";
 
 interface ErrorsInput {
   action?: string;
@@ -31,10 +31,19 @@ interface ErrorsInput {
   reason?: string;
 }
 
+export interface RequestOperationData {
+  operationId: string;
+  localCurrency: string;
+  foreignCurrency: string;
+  promiseDate: string;
+  existPromise: string;
+}
+
 export default function GestionScreen() {
   const { id } = useLocalSearchParams();
   const { translations } = useLanguage();
-  const { client } = useClient(id.toString());
+  const { user } = useUser();
+  const { client, getClient } = useClient();
   const {
     actionItems,
     resultsItems,
@@ -43,8 +52,9 @@ export default function GestionScreen() {
     actionsResults,
     errorGestion,
     setError,
+    createGestion,
   } = useGestion();
-  const { type, toggleCameraType, clearPhoto } = useCamera();
+  const { type, toggleCameraType } = useCamera();
 
   const [action, setAction] = useState("");
   const [result, setResult] = useState<ResultCodes>();
@@ -60,13 +70,79 @@ export default function GestionScreen() {
 
   const operations = client?.operations || ([] as Array<Operation>);
 
+  useEffect(() => {
+    getClient(id.toString());
+  }, []);
+
   const handleCapture = (capturedPhoto: CameraCapturedPicture | null) => {
     setPhoto(capturedPhoto);
     setShowCamera(false);
   };
 
   const handleSave = async () => {
+    console.log("currentErrorsInput: ", currentErrorsInput());
     if (currentErrorsInput()) return;
+
+    try {
+      if (!user) {
+        setError(translations.clients.errors.unauthorized);
+        return;
+      }
+
+      const gestionDataSin = {
+        userId: user.uid,
+        clientId: client?.clientId.toString() || "",
+        portfolioId: client?.portfolioId || "",
+        actionCodeId: action,
+        resultCodeId: result?.codeResult || "",
+        reasonNoPaymentId: reason,
+        comments: comment,
+        latitude: "0", // Replace with actual location
+        longitude: "0", // Replace with actual location
+        detail: result?.promise
+          ? client?.operations?.map((op: Operation, index) =>
+              getDataByOperationSin(`${op.operationId} - ${index}`)
+            ) || []
+          : [],
+        token: user?.token,
+      };
+
+      console.log("gestionDataSin: ", gestionDataSin);
+
+      const gestionData = {
+        userId: user.uid,
+        clientId: encryptText(client?.clientId.toString() || ""),
+        portfolioId: encryptText(client?.portfolioId || ""),
+        actionCodeId: encryptText(action),
+        resultCodeId: encryptText(result?.codeResult || ""),
+        reasonNoPaymentId: encryptText(reason),
+        comments: encryptText(comment),
+        latitude: encryptText("0"), // Replace with actual location
+        longitude: encryptText("0"), // Replace with actual location
+        detail: result?.promise
+          ? client?.operations?.map((op: Operation, index) =>
+              getDataByOperation(`${op.operationId} - ${index}`)
+            ) || []
+          : [],
+        token: user?.token,
+      };
+
+      console.log("gestionData: ", gestionData);
+
+      createGestion({
+        gestion: gestionData,
+        onSuccess: () => {
+          console.log("Se han guardado en cache");
+        },
+        onError: () => {
+          setError(translations.gestion.errors.saveFailed);
+        },
+      });
+    } catch (error) {
+      console.log("error: ", error);
+      console.error("Error saving gestion:", error);
+      setError(translations.gestion.errors.saveFailed);
+    }
   };
 
   const validateOperation = (
@@ -84,23 +160,26 @@ export default function GestionScreen() {
   const currentErrorsInput = (): boolean => {
     setErrorsInput({});
     setErrorSomePromise(null);
+    let reviewOperationsFlat = false;
 
-    const hasSomePromise = operations.some((op, index) =>
-      validateOperation(`${op.operationId} - ${index}`, "promise")
-    );
-
-    if (!hasSomePromise) {
-      setErrorSomePromise(
-        "Result code requires promise of payment in the detail array"
+    if (result?.promise) {
+      const hasSomePromise = operations.some((op, index) =>
+        validateOperation(`${op.operationId} - ${index}`, "promise")
       );
-      return true;
-    }
 
-    const reviewOperationsFlat = operations
-      .map((op, index) =>
-        validateOperation(`${op.operationId} - ${index}`, "errors")
-      )
-      .some((isInvalid) => isInvalid);
+      if (!hasSomePromise) {
+        setErrorSomePromise(
+          "Result code requires promise of payment in the detail array"
+        );
+        return true;
+      }
+
+      reviewOperationsFlat = operations
+        .map((op, index) =>
+          validateOperation(`${op.operationId} - ${index}`, "errors")
+        )
+        .some((isInvalid) => isInvalid);
+    }
 
     const currentErrorsInput: ErrorsInput = {
       action: action ? undefined : translations.gestion.errors.action,
@@ -120,6 +199,16 @@ export default function GestionScreen() {
       ...prevErrors,
       [key]: undefined,
     }));
+  };
+
+  const getDataByOperation = (operationId: string): RequestOperationData => {
+    const ref = operationsRefs.current[operationId];
+    return ref.getDataToSend();
+  };
+
+  const getDataByOperationSin = (operationId: string): RequestOperationData => {
+    const ref = operationsRefs.current[operationId];
+    return ref.getDataToSendSin();
   };
 
   const renderOperations = () => {

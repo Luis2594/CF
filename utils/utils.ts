@@ -27,3 +27,20 @@ export function formatCurrency(value: number | string, currency: string, returnT
         return currencyNames[currency] || "Unknown";
     }
 }
+
+export const formatDate = (date: string): string => {
+    const parts = date.split('/'); // Separa la fecha en partes [dd, mm, yyyy]
+
+    if (parts.length === 3) {
+        const [day, month, year] = parts;
+        return `${year}/${month}/${day}`; // Reorganiza en formato 'yyyy/mm/dd'
+    }
+
+    return date; // Si la fecha no tiene el formato esperado, retorna el valor original
+};
+
+export const formatToTwoDecimals = (value: string): string => {
+    const number = parseFloat(value); // Convierte el string a número
+    if (isNaN(number)) return '0.00'; // Si el valor no es un número válido, retorna '0.00'
+    return number.toFixed(2); // Formatea a dos decimales
+};

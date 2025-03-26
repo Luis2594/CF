@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storage';
-import { useLanguage } from '@/context/LanguageContext';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useOfflineSync } from './useOfflineSync';
 import { DropdownItem } from '@/components/organism/Dropdown';
+import { encryptText } from '@/utils/encryption';
 
 export interface ResultCodes {
   id: string;
@@ -26,9 +26,7 @@ export interface ReasonNoPayment {
 }
 
 export const useGestion = () => {
-  const { language } = useLanguage();
   const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
-  const [resultCode, setResultCodes] = useState<Array<ResultCodes>>([]);
   const [reasonsNoPayment, setReasonsNoPayment] = useState<
     Array<ReasonNoPayment>
   >([]);
@@ -42,20 +40,39 @@ export const useGestion = () => {
 
   const {
     isOnline,
-    pendingChanges,
     addPendingChange,
-    applyPendingChanges,
-    showOfflineAlert,
+    saveDataInCache,
+    getDataFromCache,
+    clearDataInCache,
   } = useOfflineSync({
-    storageKey: "clientsCache",
-    language,
-    onSync: async () => {
+    storageKey: STORAGE_KEYS.GESTIONS_CACHE,
+    onSync: async (id, data) => {
+      createGestion({
+        gestion: data,
+        onSuccess: () => {
+          console.log('Ya lo ejecute en cache');
+        },
+        onError: () => {
+        },
+      })
     },
   });
 
   useEffect(() => {
-    getActionsFromCache();
-    getReasonFromCache();
+    getDataFromCache({
+      key: STORAGE_KEYS.ACTIONS_RESULT,
+      onSuccess: (data) => {
+        const actions = data as Array<ActionResult>;
+        setActionsResults(actions)
+      },
+    })
+    getDataFromCache({
+      key: STORAGE_KEYS.REASON_NO_PAYMENT,
+      onSuccess: (data) => {
+        const reasons = data as Array<ReasonNoPayment>;
+        setReasonsNoPayment(reasons);
+      },
+    })
   }, []);
 
   useEffect(() => {
@@ -81,88 +98,69 @@ export const useGestion = () => {
     }
   }, [actionsResults, actionSelected, reasonsNoPayment]);
 
-  const fetchActionsResults = async (token: string) => {
-    try {
-      if (!isOnline) {
-        return getActionsFromCache();
-      }
+  const getDataToUseInGestion = async (token: string) => {
+    fetchData({
+      token,
+      functionName: "getActionsResults",
+      storageKey: STORAGE_KEYS.ACTIONS_RESULT,
+      setState: setActionsResults,
+    });
 
-      const getActionsResultsFn = httpsCallable(functions, "getActionsResults");
-      const result = await getActionsResultsFn({
-        token,
-      });
-
-      if (result?.data?.success) {
-        const actionsResultsData = result.data.data.result || [];
-
-        setActionsResults(actionsResultsData);
-
-        await AsyncStorage.setItem(
-          STORAGE_KEYS.ACTIONS_RESULT,
-          JSON.stringify(actionsResultsData)
-        );
-      } else {
-        getActionsFromCache(result);
-      }
-    } catch (error) {
-      getActionsFromCache(error);
-    }
+    fetchData({
+      token,
+      functionName: "getReasonsNoPayment",
+      storageKey: STORAGE_KEYS.REASON_NO_PAYMENT,
+      setState: setReasonsNoPayment,
+    });
   };
 
-  const fetchReasonsNoPayment = async (token: string) => {
-    try {
-      if (!isOnline) {
-        return getReasonFromCache();
-      }
+  const fetchData = async <T>({
+    token,
+    functionName,
+    storageKey,
+    setState,
+  }: {
+    token: string;
+    functionName: string;
+    storageKey: string;
+    setState: (data: T[]) => void;
+  }) => {
+    if (isOnline) {
+      try {
+        const callableFn = httpsCallable(functions, functionName);
+        const result = await callableFn({ token });
 
-      const getReasonsNoPaymentFn = httpsCallable(
-        functions,
-        "getReasonsNoPayment"
-      );
-      const result = await getReasonsNoPaymentFn({
-        token,
+        if (result?.data?.success) {
+          const data = result.data.data.result || [];
+          setState(data);
+          saveDataInCache(storageKey, data);
+        } else {
+          getDataFromCache({
+            key: storageKey,
+            onSuccess: (data) => setState(data as T[]),
+            onError: (error: Error) => {
+              const errorMsj = result?.data?.message || error.message;
+              setError(errorMsj);
+            }
+          });
+        }
+      } catch (error) {
+        console.log('token: ', token);
+        console.error(`Error fetching ${functionName}:`, error);
+        getDataFromCache({
+          key: storageKey,
+          onSuccess: (data) => setState(data as T[]),
+          onError: () => setError(error instanceof Error ? error.message : "An error occurred"),
+        });
+      }
+    } else {
+      getDataFromCache({
+        key: storageKey,
+        onSuccess: (data) => setState(data as T[]),
+        onError: (error) => setError(error.message),
       });
-
-      if (result?.data?.success) {
-        const reasonsData = result.data.data.result || [];
-
-        setReasonsNoPayment(reasonsData);
-
-        await AsyncStorage.setItem(
-          STORAGE_KEYS.REASON_NO_PAYMENT,
-          JSON.stringify(reasonsData)
-        );
-      } else {
-        getReasonFromCache(result);
-      }
-    } catch (error) {
-      getReasonFromCache(error);
     }
   };
-
-  const getActionsFromCache = async (error?: any) => {
-    const cachedData = await AsyncStorage.getItem(STORAGE_KEYS.ACTIONS_RESULT);
-    if (cachedData) {
-      setActionsResults(JSON.parse(cachedData));
-    } else {
-      if (error) {
-        console.error("Error fetching actions:", error);
-        setError(error.details?.message);
-      }
-    }
-  }
-
-  const getReasonFromCache = async (error?: any) => {
-    const cachedData = await AsyncStorage.getItem(STORAGE_KEYS.REASON_NO_PAYMENT);
-    if (cachedData) {
-      setReasonsNoPayment(JSON.parse(cachedData));
-    } else {
-      if (error) {
-        console.error("Error fetching actions:", error);
-        setError(error.details?.message);
-      }
-    }
-  }
 
   const updateActionSelected = (action: string) => {
     setActionSelected(actionsResults.find(
@@ -170,9 +168,36 @@ export const useGestion = () => {
     ) as ActionResult);
   }
 
+  const createGestion = async ({ gestion, onSuccess, onError }: { gestion: any, onSuccess: () => void, onError: () => void }) => {
+    gestion = {
+      ...gestion,
+      isRealTime: encryptText(isOnline ? "1" : "0"),
+    }
+
+    if (isOnline) {
+      const functions = getFunctions();
+      const postGestorFn = httpsCallable(functions, "postGestor");
+      const response = await postGestorFn(gestion);
+
+      if (response?.data?.success) {
+        onSuccess();
+      } else {
+        onError();
+      }
+    } else {
+      // Store for offline sync
+      addPendingChange(`${gestion?.clientId} - ${gestion?.portfolioId}`, gestion);
+      onSuccess();
+    }
+  }
+
+  const clearDataGestion = () => {
+    clearDataInCache(STORAGE_KEYS.ACTIONS_RESULT);
+    clearDataInCache(STORAGE_KEYS.REASON_NO_PAYMENT);
+  }
+
   return {
-    fetchActionsResults,
-    fetchReasonsNoPayment,
+    getDataToUseInGestion,
     actionItems,
     actionSelected,
     resultsItems,
@@ -180,6 +205,8 @@ export const useGestion = () => {
     updateActionSelected,
     actionsResults,
     errorGestion,
-    setError
+    setError,
+    createGestion,
+    clearDataGestion
   };
 };

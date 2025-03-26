@@ -31,10 +31,8 @@ export default function TestList({ language }: TestListProps) {
     pendingChanges,
     addPendingChange,
     applyPendingChanges,
-    showOfflineAlert
   } = useOfflineSync<Test>({
     storageKey: 'pendingTestChanges',
-    language,
     onSync: async (testId, newName) => {
       const testRef = doc(db, 'tests', testId);
       await updateDoc(testRef, {
@@ -111,7 +109,6 @@ export default function TestList({ language }: TestListProps) {
 
     if (Platform.OS !== 'web' && !isOnline) {
       addPendingChange(testId, { name: newName });
-      showOfflineAlert();
     } else {
       try {
         const testRef = doc(db, 'tests', testId);

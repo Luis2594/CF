@@ -37,7 +37,7 @@ export const encryptText = (text: string): string => {
     return encrypted.toString();
   } catch (error) {
     console.error('Encryption error:', error);
-    throw new Error('Failed to encrypt text');
+    return text
   }
 };
 

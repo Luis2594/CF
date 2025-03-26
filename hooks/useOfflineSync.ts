@@ -1,21 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Platform, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface OfflineSyncOptions {
   storageKey: string;
-  language: 'en' | 'es';
   onSync: (id: string, data: any) => Promise<void>;
 }
 
-export function useOfflineSync<T extends { id: string }>({ 
-  storageKey, 
-  language,
-  onSync 
+interface CacheOptions<T> {
+  key: string;
+  onSuccess: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
+export function useOfflineSync<T extends { id: string }>({
+  storageKey,
+  onSync
 }: OfflineSyncOptions) {
+
+  const { language } = useLanguage()
   const [isOnline, setIsOnline] = useState(true);
-  const [pendingChanges, setPendingChanges] = useState<{[key: string]: any}>({});
+  const [pendingChanges, setPendingChanges] = useState<{ [key: string]: any }>({});
 
   // Load pending changes from storage on mount
   useEffect(() => {
@@ -60,7 +67,7 @@ export function useOfflineSync<T extends { id: string }>({
       const unsubscribe = NetInfo.addEventListener(state => {
         const newOnlineState = state.isConnected ?? true;
         setIsOnline(newOnlineState);
-        
+
         if (newOnlineState && Object.keys(pendingChanges).length > 0) {
           syncPendingChanges();
         }
@@ -72,12 +79,12 @@ export function useOfflineSync<T extends { id: string }>({
 
   const syncPendingChanges = async () => {
     const changes = { ...pendingChanges };
-    const failedChanges: {[key: string]: any} = {};
+    const failedChanges: { [key: string]: any } = {};
 
     for (const [id, data] of Object.entries(changes)) {
       try {
         await onSync(id, data);
-        
+
         const updatedChanges = { ...pendingChanges };
         delete updatedChanges[id];
         setPendingChanges(updatedChanges);
@@ -112,21 +119,60 @@ export function useOfflineSync<T extends { id: string }>({
     }));
   };
 
-  const showOfflineAlert = () => {
-    Alert.alert(
-      language === 'es' ? 'Modo sin conexión' : 'Offline Mode',
-      language === 'es'
-        ? 'Los cambios se sincronizarán cuando vuelva la conexión'
-        : 'Changes will sync when connection is restored'
-    );
+  const saveDataInCache = async (key: string, data: any) => {
+    try {
+      await AsyncStorage.setItem(
+        key,
+        JSON.stringify(data)
+      );
+    } catch (error) {
+      console.error('Error saving cache:', error);
+    }
+  }
+
+  const getDataFromCache = async <T>({ key, onSuccess, onError }: CacheOptions<T>): Promise<void> => {
+    try {
+      const cachedData = await AsyncStorage.getItem(key);
+      if (cachedData) {
+        try {
+          const parsedData: T = JSON.parse(cachedData);
+          onSuccess(parsedData);
+        } catch (error) {
+          // Error de parseo JSON
+          if (onError) {
+            onError(new Error('Error parsing cached data'));
+          }
+        }
+      } else {
+        // No se encontraron datos en cache
+        if (onError) {
+          onError(new Error('No cached data found'));
+        }
+      }
+    } catch (error) {
+      // Error de AsyncStorage
+      if (onError) {
+        onError(new Error('Error accessing AsyncStorage'));
+      }
+    }
   };
+
+  const clearDataInCache = async (key: string) => {
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+    }
+  }
 
   return {
     isOnline,
     pendingChanges,
     addPendingChange,
     applyPendingChanges,
-    showOfflineAlert,
+    saveDataInCache,
+    getDataFromCache,
+    clearDataInCache,
     hasPendingChanges: Object.keys(pendingChanges).length > 0
   };
 }

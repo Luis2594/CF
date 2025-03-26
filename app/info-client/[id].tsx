@@ -6,7 +6,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react-native";
 import { useLanguage } from "../../context/LanguageContext";
 import { styles } from "@/styles/info-client.styles";
@@ -21,11 +21,15 @@ import { useClient } from "@/hooks/useClient";
 
 export default function InfoClientScreen() {
   const { id } = useLocalSearchParams();
-  const { client, loadingClient, errorClient, setError } = useClient(
-    id.toString()
-  );
+  const { client, loadingClient, errorClient, setError, getClient } =
+    useClient();
   const { translations } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<TabType>("information");
+
+  useEffect(() => {
+    getClient(id.toString());
+  }, []);
 
   if (loadingClient) {
     return (

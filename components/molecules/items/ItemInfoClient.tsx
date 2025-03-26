@@ -1,31 +1,9 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { styles } from "@/styles/components/itemInfoClient.styles";
-import { Operation } from "./ItemOperationDetail";
-import { Management } from "./ItemOperationHistory";
 import { useLanguage } from "@/context/LanguageContext";
+import { Client } from "@/hooks/useClient";
 
-export interface Client {
-  clientId: string;
-  name: string;
-  shortName: string;
-  id: string;
-  personalPhoneNumber: string;
-  homePhoneNumber: string;
-  workPhoneNumber: string | null;
-  workPhoneNumber2: string;
-  jobPosition: string;
-  addressLevel1: string;
-  addressLevel2: string;
-  address: string;
-  civilStatus: string;
-  cycle: number;
-  status: number;
-  portfolio: string;
-  portfolioId: string;
-  operations: Operation[];
-  managements: Management[];
-}
 
 export default function ItemInfoClient({ client }: { client: Client | null }) {
   const { translations } = useLanguage();

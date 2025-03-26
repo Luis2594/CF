@@ -20,7 +20,6 @@ import { getDeviceId } from "../utils/deviceId";
 import { getLoginErrorMessage } from "../constants/loginErrors";
 import { useBiometrics } from "../hooks/useBiometrics";
 import BiometricPrompt from "../components/organism/BiometricPrompt";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { STORAGE_KEYS } from "../constants/storage";
 import { encryptLoginCredentials, encryptText } from "../utils/encryption";
 import { TouchableWithoutFeedback } from "react-native";
@@ -28,12 +27,22 @@ import { styles } from "@/styles/login.styles";
 import Button from "@/components/molecules/buttons/Button";
 import CustomInput from "@/components/organism/CustomInput";
 import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 
 type ErrorsInput = {
   institution?: string;
   username?: string;
   password?: string;
 };
+
+export interface LoginCredentials {
+  institution: string;
+  username: string;
+  password: string;
+  token: string;
+  deviceId: string;
+  useBiometric: boolean;
+}
 
 export default function Login() {
   const { translations, language } = useLanguage();
@@ -66,29 +75,36 @@ export default function Login() {
     setBiometricEnabled,
   } = useBiometrics();
 
+  const { saveDataInCache, getDataFromCache, clearDataInCache } =
+    useOfflineSync({
+      storageKey: STORAGE_KEYS.LOGIN_CACHE,
+      onSync: async () => {},
+    });
+
   useEffect(() => {
     // Get device ID and last login credentials on component mount
     const initialize = async () => {
       // COMENTAR
-      // await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
+      // await clearDataInCache(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
 
       const id = await getDeviceId();
       setDeviceId(id);
 
       // Load last login credentials
-      const savedCredentials = await AsyncStorage.getItem(
-        STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-      );
-
-      if (savedCredentials) {
-        const credentials = JSON.parse(savedCredentials);
-        setLastLoginCredentials(credentials);
-        setPreviousUsername(credentials.username);
-        // Pre-fill the form with saved credentials
-        setInstitution(credentials.institution);
-        setUsername(credentials.username);
-        setPassword(credentials.password);
-      }
+      getDataFromCache({
+        key: STORAGE_KEYS.LAST_LOGIN_CREDENTIALS,
+        onSuccess: (data) => {
+          const credentials = data as LoginCredentials;
+          if (credentials) {
+            setLastLoginCredentials(credentials);
+            setPreviousUsername(credentials.username);
+            // Pre-fill the form with saved credentials
+            setInstitution(credentials.institution);
+            setUsername(credentials.username);
+            setPassword(credentials.password);
+          }
+        },
+      });
     };
 
     initialize();
@@ -162,7 +178,7 @@ export default function Login() {
 
       if (shouldDisableBiometric) {
         await setBiometricEnabled(false);
-        await AsyncStorage.removeItem(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
+        await clearDataInCache(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
       }
 
       if (!deviceId) {
@@ -199,12 +215,12 @@ export default function Login() {
         return;
       }
 
-      await saveLoginCredentials({
+      await saveDataInCache(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS, {
         institution,
         username,
         password,
         token: claims.token,
-        deviceId,
+        deviceId: encryptText(deviceId),
         useBiometric,
       });
       await signInWithCustomToken(auth, token);
@@ -218,34 +234,6 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const saveLoginCredentials = async ({
-    institution,
-    username,
-    password,
-    token,
-    deviceId,
-    useBiometric,
-  }: {
-    institution: string;
-    username: string;
-    password: string;
-    token: string;
-    deviceId: string;
-    useBiometric?: boolean;
-  }) => {
-    await AsyncStorage.setItem(
-      STORAGE_KEYS.LAST_LOGIN_CREDENTIALS,
-      JSON.stringify({
-        institution,
-        username,
-        password,
-        token,
-        deviceId: encryptText(deviceId),
-        useBiometric,
-      })
-    );
   };
 
   const handleBiometricLogin = async () => {

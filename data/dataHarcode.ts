@@ -80,3 +80,39 @@ export const reasons = [
   { value: "ENF", label: "Enfermedad" },
   { value: "ING", label: "Ingresos insuficientes" },
 ];
+
+
+const actionResponse = [
+  {
+    "id": "Kn/ygC34j9Z4G69TUHgO5Q==",
+    "actionCode": "VISOK",
+    "description": "VISITA FINALIZADA",
+    "resultCodes": [
+      {
+        "id": "K6ihMmFPiwnJ2mftKxF8aA==",
+        "codeResult": "VISO1",
+        "description": "COBRO AL CLIENTE",
+        "promise": false
+      }
+    ]
+  },
+  {
+    "id": "RbtwhiF05pLbVg54qj/y6w==",
+    "actionCode": "VISNO",
+    "description": "VISITA CANCELADA",
+    "resultCodes": []
+  },
+  {
+    "id": "gFCzuKWcsHY6qSbzDKxQIg==",
+    "actionCode": "13",
+    "description": "COBRANZA_DOMICILIAR",
+    "resultCodes": [
+      {
+        "id": "poAuUl1O1Ha73yzv8RAMWg==",
+        "codeResult": "CFP",
+        "description": "CLIENTE FUERA DEL PAIS",
+        "promise": true
+      }
+    ]
+  }
+]

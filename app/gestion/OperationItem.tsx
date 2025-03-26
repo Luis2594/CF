@@ -7,6 +7,9 @@ import Dropdown, { DropdownItem } from "@/components/organism/Dropdown";
 import CustomInput from "@/components/organism/CustomInput";
 import { styles } from "@/styles/gestion.styles";
 import { ResultCodes } from "@/hooks/useGestion";
+import { RequestOperationData } from "./[id]";
+import { encryptText } from "@/utils/encryption";
+import { formatDate, formatToTwoDecimals } from "@/utils/utils";
 
 interface ErrorsInput {
   result?: string;
@@ -67,14 +70,47 @@ const OperationItem = React.forwardRef(
       );
     };
 
+    const getDataToSend = (): RequestOperationData => {
+      const formattedMontoLocal = formatToTwoDecimals(montoLocal);
+      const formattedMontoExt = formatToTwoDecimals(montoExt);
+
+      const encryptedLocalCurrency = encryptText(formattedMontoLocal);
+      const encryptedForeignCurrency = encryptText(formattedMontoExt);
+
+      return {
+        operationId: encryptText(operation.operationId),
+        existPromise: encryptText((result?.promise || false).toString()),
+        foreignCurrency: encryptedForeignCurrency,
+        localCurrency: encryptedLocalCurrency,
+        promiseDate: encryptText(formatDate(date)),
+      };
+    };
+
+    const getDataToSendSin = (): RequestOperationData => {
+      const formattedMontoLocal = formatToTwoDecimals(montoLocal);
+      const formattedMontoExt = formatToTwoDecimals(montoExt);
+
+      return {
+        operationId: operation.operationId, // Sin encriptar
+        existPromise: (result?.promise || false).toString(),
+        foreignCurrency: formattedMontoExt, // Sin encriptar
+        localCurrency: formattedMontoLocal, // Sin encriptar
+        promiseDate: formatDate(date), // Sin encriptar
+      };
+    };
+
     React.useImperativeHandle(ref, () => ({
       currentErrorsInput,
       isPromise,
+      getDataToSend,
+      getDataToSendSin,
     }));
 
     return (
       <View>
-        <TagOperation text={`${translations.gestion.operation} ${operation.operationId} - ${operation.operationType}`} />
+        <TagOperation
+          text={`${translations.gestion.operation} ${operation.operationId} - ${operation.operationType}`}
+        />
         <View style={styles.containerInputs}>
           <Dropdown
             label={translations.gestion.result}
