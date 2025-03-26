@@ -21,9 +21,9 @@ import { useClient } from "@/hooks/useClient";
 import { ResultCodes, useGestion } from "@/hooks/useGestion";
 import { Operation } from "@/components/molecules/items/ItemOperationDetail";
 import OperationItem from "./OperationItem";
-import TextError from "@/components/atoms/TextError";
 import { useCamera } from "@/hooks/useCamera";
 import CameraModal from "@/components/organism/CameraModal";
+import { CameraCapturedPicture } from "expo-camera";
 
 interface ErrorsInput {
   action?: string;
@@ -44,13 +44,14 @@ export default function GestionScreen() {
     errorGestion,
     setError,
   } = useGestion();
-  const { type, photo, toggleCameraType, clearPhoto } = useCamera();
+  const { type, toggleCameraType, clearPhoto } = useCamera();
 
   const [action, setAction] = useState("");
   const [result, setResult] = useState<ResultCodes>();
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
   const [showCamera, setShowCamera] = useState(false);
+  const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
 
   const [errorSomePromise, setErrorSomePromise] = useState<string | null>(null);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
@@ -59,18 +60,12 @@ export default function GestionScreen() {
 
   const operations = client?.operations || ([] as Array<Operation>);
 
-  useEffect(() => {
-    if (action && result) {
-      console.log("Consultar operaciones");
-    }
-  }, [action, result]);
-
-  const handleCapture = (capturedPhoto: any) => {
+  const handleCapture = (capturedPhoto: CameraCapturedPicture | null) => {
+    setPhoto(capturedPhoto);
     setShowCamera(false);
   };
 
   const handleSave = async () => {
-    console.log("currentErrorsInput: ", currentErrorsInput());
     if (currentErrorsInput()) return;
   };
 
@@ -224,13 +219,7 @@ export default function GestionScreen() {
 
           {result?.promise && renderOperations()}
 
-          {photo && (
-            <View style={styles.photoPreview}>
-              <Image source={{ uri: photo.uri }} style={styles.photoImage} />
-            </View>
-          )}
-
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.photoButton}
             onPress={() => setShowCamera(true)}
           >

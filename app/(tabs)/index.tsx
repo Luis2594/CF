@@ -87,19 +87,19 @@ export default function HomeScreen() {
   }, [errorUser, errorGestion]);
 
   useEffect(() => {
-    if (status === 'denied') {
+    if (status === "denied" || status === "undetermined") {
       Alert.alert(
         translations.locationPermissions.title,
         translations.locationPermissions.message,
         [
           {
             text: translations.locationPermissions.allow,
-            onPress: requestPermissions
+            onPress: requestPermissions,
           },
           {
             text: translations.locationPermissions.cancel,
-            style: 'cancel'
-          }
+            style: "cancel",
+          },
         ]
       );
     }
@@ -112,11 +112,9 @@ export default function HomeScreen() {
       })
       .catch((error) => {
         console.error("Logout error:", error);
-        Alert.alert(
-          translations.errors.title,
-          translations.errors.logout,
-          [{ text: translations.ok }]
-        );
+        Alert.alert(translations.errors.title, translations.errors.logout, [
+          { text: translations.ok },
+        ]);
       });
   };
 

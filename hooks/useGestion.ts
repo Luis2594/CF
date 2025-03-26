@@ -59,11 +59,6 @@ export const useGestion = () => {
   }, []);
 
   useEffect(() => {
-    console.log({
-      actionsResults,
-      reasonsNoPayment,
-      actionSelected
-    });
     if (actionsResults) {
       setActionItems(actionsResults.map((item) => ({
         value: item.actionCode,

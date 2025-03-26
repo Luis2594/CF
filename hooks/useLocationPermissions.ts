@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import * as Location from 'expo-location';
-import { Platform } from 'react-native';
 
 export const useLocationPermissions = () => {
   const [status, setStatus] = useState<Location.PermissionStatus | null>(null);
@@ -12,13 +11,8 @@ export const useLocationPermissions = () => {
 
   const checkPermissions = async () => {
     try {
-      if (Platform.OS === 'web') {
-        const { state } = await navigator.permissions.query({ name: 'geolocation' });
-        setStatus(state === 'granted' ? Location.PermissionStatus.GRANTED : Location.PermissionStatus.DENIED);
-        return;
-      }
-
-      let { status } = await Location.getForegroundPermissionsAsync();
+      const { status, canAskAgain } = await Location.getForegroundPermissionsAsync();
+      console.log('Current Permission Status:', status, 'Can Ask Again:', canAskAgain);
       setStatus(status);
     } catch (error) {
       setErrorMsg('Error checking location permissions');
@@ -28,17 +22,17 @@ export const useLocationPermissions = () => {
 
   const requestPermissions = async () => {
     try {
-      if (Platform.OS === 'web') {
-        const result = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-        setStatus(Location.PermissionStatus.GRANTED);
+      const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
+      console.log('Permission Request Status:', status);
+      setStatus(status);
+
+      if (status === Location.PermissionStatus.GRANTED) {
         return true;
+      } else if (status === Location.PermissionStatus.DENIED && !canAskAgain) {
+        setErrorMsg('Permissions permanently denied. Enable them in settings.');
       }
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      setStatus(status);
-      return status === Location.PermissionStatus.GRANTED;
+      return false;
     } catch (error) {
       setErrorMsg('Error requesting location permissions');
       console.error('Error requesting permissions:', error);
@@ -50,6 +44,6 @@ export const useLocationPermissions = () => {
     status,
     errorMsg,
     requestPermissions,
-    checkPermissions
+    checkPermissions,
   };
 };

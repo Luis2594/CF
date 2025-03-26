@@ -81,6 +81,7 @@ export const styles = StyleSheet.create({
     marginVertical: 20,
     borderRadius: 10,
     overflow: 'hidden',
+    resizeMode: 'contain'
   },
   photoImage: {
     width: '100%',

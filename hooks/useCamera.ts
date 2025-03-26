@@ -34,12 +34,12 @@ export const useCamera = () => {
   const takePicture = async (camera: any) => {
     try {
       if (!camera) return;
-      
+
       const photo = await camera.takePictureAsync({
         quality: 0.8,
         base64: true,
       });
-      
+
       setPhoto(photo);
       return photo;
     } catch (err) {
