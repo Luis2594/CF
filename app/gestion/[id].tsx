@@ -64,11 +64,15 @@ export default function GestionScreen() {
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackType, setFeedbackType] = useState<'success' | 'error'>('success');
+  const [feedbackType, setFeedbackType] = useState<"success" | "error">(
+    "success"
+  );
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const [errorSomePromise, setErrorSomePromise] = useState<string | null>(null);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
+
+  const [loading, setLoading] = useState(false);
 
   const operationsRefs = useRef<{ [key: string]: any }>({});
 
@@ -84,14 +88,18 @@ export default function GestionScreen() {
   };
 
   const handleSave = async () => {
-    console.log("currentErrorsInput: ", currentErrorsInput());
-    if (currentErrorsInput()) return;
+    setLoading(true);
+    if (currentErrorsInput()) {
+      setLoading(false);
+      return;
+    }
 
     try {
       if (!user) {
-        setFeedbackType('error');
+        setFeedbackType("error");
         setFeedbackMessage(translations.clients.errors.unauthorized);
         setShowFeedbackModal(true);
+        setLoading(false);
         return;
       }
 
@@ -105,11 +113,12 @@ export default function GestionScreen() {
         comments: comment,
         latitude: "0", // Replace with actual location
         longitude: "0", // Replace with actual location
+        photo: photo?.base64,
         detail: result?.promise
           ? client?.operations?.map((op: Operation, index) =>
-              getDataByOperationSin(`${op.operationId} - ${index}`)
+              getDataByOperation(`${op.operationId} - ${index}`)
             ) || []
-          : [],
+          : undefined,
         token: user?.token,
       };
 
@@ -125,6 +134,7 @@ export default function GestionScreen() {
         comments: encryptText(comment),
         latitude: encryptText("0"), // Replace with actual location
         longitude: encryptText("0"), // Replace with actual location
+        photo: photo?.base64,
         detail: result?.promise
           ? client?.operations?.map((op: Operation, index) =>
               getDataByOperation(`${op.operationId} - ${index}`)
@@ -142,22 +152,25 @@ export default function GestionScreen() {
           if (client) {
             await updateClientStatus(client.clientId);
           }
-          setFeedbackType('success');
+          setFeedbackType("success");
           setFeedbackMessage(translations.gestion.success);
           setShowFeedbackModal(true);
+          setLoading(false);
         },
-        onError: () => {
-          setFeedbackType('error');
-          setFeedbackMessage(translations.gestion.errors.saveFailed);
+        onError: async (error) => {
+          setFeedbackType("error");
+          setFeedbackMessage(error);
           setShowFeedbackModal(true);
+          setLoading(false);
         },
       });
     } catch (error) {
       console.log("error: ", error);
       console.error("Error saving gestion:", error);
-      setFeedbackType('error');
+      setFeedbackType("error");
       setFeedbackMessage(translations.gestion.errors.saveFailed);
       setShowFeedbackModal(true);
+      setLoading(false);
     }
   };
 
@@ -184,8 +197,10 @@ export default function GestionScreen() {
       );
 
       if (!hasSomePromise) {
-        setFeedbackType('error');
-        setFeedbackMessage("Result code requires promise of payment in the detail array");
+        setFeedbackType("error");
+        setFeedbackMessage(
+          "Result code requires promise of payment in the detail array"
+        );
         setShowFeedbackModal(true);
         return true;
       }
@@ -228,10 +243,11 @@ export default function GestionScreen() {
   };
 
   const handleModalContinue = () => {
-    setShowFeedbackModal(false);
-    if (feedbackType === 'success') {
-      router.replace('/(tabs)');
+    if (feedbackType === "success") {
+      router.replace("/(tabs)");
     }
+
+    setShowFeedbackModal(false);
   };
 
   const renderOperations = () => {
@@ -341,7 +357,11 @@ export default function GestionScreen() {
             <SVG.CAMERA width={20} height={20} />
           </TouchableOpacity>
 
-          <Button text={translations.gestion.save} onPress={handleSave} />
+          <Button
+            text={translations.gestion.save}
+            onPress={handleSave}
+            isLoading={loading}
+          />
         </View>
       </ScrollView>
 
@@ -356,9 +376,13 @@ export default function GestionScreen() {
       <FeedbackModal
         visible={showFeedbackModal}
         type={feedbackType}
-        title={feedbackType === 'success' ? translations.gestion.successTitle : translations.gestion.errorTitle}
+        title={
+          feedbackType === "success"
+            ? translations.gestion.successTitle
+            : translations.gestion.errorTitle
+        }
         message={feedbackMessage}
-        onClose={() => setShowFeedbackModal(false)}
+        onClose={handleModalContinue}
         onContinue={handleModalContinue}
       />
     </SafeAreaView>

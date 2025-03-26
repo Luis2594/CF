@@ -88,6 +88,12 @@ export default function HomeScreen() {
       <View style={styles.clientCard}>
         <View style={styles.clientHeader}>
           <Text style={styles.clientName}>{item.name}</Text>
+          <View
+            style={[
+              styles.statusIndicator,
+              item.status === 1 ? styles.statusPending : styles.statusVisited,
+            ]}
+          />
         </View>
       </View>
     </TouchableOpacity>

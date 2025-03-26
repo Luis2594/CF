@@ -5,6 +5,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useOfflineSync } from './useOfflineSync';
 import { DropdownItem } from '@/components/organism/Dropdown';
 import { encryptText } from '@/utils/encryption';
+import { useUser } from './useUser';
 
 export interface ResultCodes {
   id: string;
@@ -26,6 +27,7 @@ export interface ReasonNoPayment {
 }
 
 export const useGestion = () => {
+  const { user } = useUser();
   const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
   const [reasonsNoPayment, setReasonsNoPayment] = useState<
     Array<ReasonNoPayment>
@@ -48,7 +50,7 @@ export const useGestion = () => {
     storageKey: STORAGE_KEYS.GESTIONS_CACHE,
     onSync: async (id, data) => {
       createGestion({
-        gestion: data,
+        gestion: { ...data, token: user.token },
         onSuccess: () => {
           console.log('Ya lo ejecute en cache');
         },
@@ -147,6 +149,7 @@ export const useGestion = () => {
       } catch (error) {
         console.log('token: ', token);
         console.error(`Error fetching ${functionName}:`, error);
+        // [FirebaseError: Authentication token is required or invalid]
         getDataFromCache({
           key: storageKey,
           onSuccess: (data) => setState(data as T[]),
@@ -168,26 +171,32 @@ export const useGestion = () => {
     ) as ActionResult);
   }
 
-  const createGestion = async ({ gestion, onSuccess, onError }: { gestion: any, onSuccess: () => void, onError: () => void }) => {
-    gestion = {
-      ...gestion,
-      isRealTime: encryptText(isOnline ? "1" : "0"),
-    }
+  const createGestion = async ({ gestion, onSuccess, onError }: { gestion: any, onSuccess: () => void, onError: (error: string) => void }) => {
 
-    if (isOnline) {
-      const functions = getFunctions();
-      const postGestorFn = httpsCallable(functions, "postGestor");
-      const response = await postGestorFn(gestion);
-
-      if (response?.data?.success) {
-        onSuccess();
-      } else {
-        onError();
+    try {
+      gestion = {
+        ...gestion,
+        isRealTime: encryptText(isOnline ? "1" : "0"),
       }
-    } else {
-      // Store for offline sync
-      addPendingChange(`${gestion?.clientId} - ${gestion?.portfolioId}`, gestion);
-      onSuccess();
+
+      if (isOnline) {
+        const functions = getFunctions();
+        const postGestorFn = httpsCallable(functions, "postGestor");
+        const response = await postGestorFn(gestion);
+        console.log("Error response: ", response);
+        if (response?.data?.success) {
+          onSuccess();
+        } else {
+          onError(response?.data?.message);
+        }
+      } else {
+        // Store for offline sync
+        addPendingChange(`${gestion?.clientId} - ${gestion?.portfolioId}`, gestion);
+        onSuccess();
+      }
+    } catch (error) {
+      console.log("Error in createGestion: ", error);
+      onError(error.message);
     }
   }
 

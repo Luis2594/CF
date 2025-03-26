@@ -199,7 +199,7 @@ export const es = {
     paymentDate: 'Fecha de pago',
     takePhoto: 'Tomar foto',
     save: 'Guardar',
-    success: 'La gestión se ha guardado exitosamente',
+    success: 'Se ha guardado la gestión',
     successTitle: 'Gestión exitosa',
     errorTitle: 'Error',
     errors: {

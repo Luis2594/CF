@@ -134,10 +134,9 @@ export const useClient = () => {
         key: STORAGE_KEYS.CLIENTS,
         onSuccess: async (data) => {
           const parsedClients = data as Client[];
-          
           // Update status for the specific client
-          const updatedClients = parsedClients.map(client => 
-            client.clientId === clientId 
+          const updatedClients = parsedClients.map(client =>
+            client.clientId === clientId
               ? { ...client, status: 2 }
               : client
           );

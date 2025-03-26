@@ -27,7 +27,7 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
     const requiredFields = [
       'userId', 'clientId', 'portfolioId', 'actionCodeId',
       'resultCodeId', 'reasonNoPaymentId', 'comments',
-      'latitude', 'longitude', 'isRealTime', 'detail', 'token'
+      'latitude', 'longitude', 'isRealTime', 'token'
     ];
 
     for (const field of requiredFields) {
@@ -37,14 +37,6 @@ exports.postGestor = functions.https.onCall(async (data, context) => {
           `Missing required field: ${field}`
         );
       }
-    }
-
-    // Validate detail array
-    if (!Array.isArray(data.detail) || data.detail.length === 0) {
-      throw new functions.https.HttpsError(
-        'invalid-argument',
-        'Detail must be a non-empty array'
-      );
     }
 
     const agent = new https.Agent({

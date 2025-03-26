@@ -21,6 +21,8 @@ import Card from '../assets/images/icons/card.svg';
 import Calendar from '../assets/images/icons/calendar.svg';
 import Camera from '../assets/images/icons/camera.svg';
 import Finance from '../assets/images/icons/finance.svg';
+import SuccessModal from '../assets/images/icons/successModal.svg';
+import ErrorModal from '../assets/images/icons/errorModal.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -40,6 +42,8 @@ export const SVG = {
   CALENDAR: Calendar,
   CAMERA: Camera,
   FINANCE: Finance,
+  SUCCESS_MODAL: SuccessModal,
+  ERROR_MODAL: ErrorModal,
 } as const;
 
 export const IMAGES = {
