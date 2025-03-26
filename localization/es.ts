@@ -100,6 +100,20 @@ export const es = {
   // Terms
   lastUpdated: 'Última actualización: 1 de junio de 2025',
 
+  // Location Permissions
+  locationPermissions: {
+    title: 'Permisos de ubicación',
+    message: 'Esta aplicación necesita acceso a la ubicación para funcionar correctamente',
+    allow: 'Permitir',
+    cancel: 'Cancelar'
+  },
+
+  // Error Messages
+  errors: {
+    title: 'Error',
+    logout: 'Error al cerrar sesión. Por favor intente de nuevo.',
+  },
+
   // Client Management
   clients: {
     loading: 'Cargando...',
@@ -194,7 +208,19 @@ export const es = {
       paymentDate: 'Fecha de pago es requerido',
       saveFailed: "Error al guardar el registro de gestión",
       unauthorized: "Acceso no autorizado",
+    }
+  },
 
+  // Camera
+  camera: {
+    notAvailable: "Cámara no disponible en plataforma web",
+    close: "Cerrar",
+    permissionTitle: "Permiso de Cámara",
+    permissionMessage: "Necesitamos su permiso para usar la cámara",
+    grantPermission: "Conceder Permiso",
+    error: {
+      checking: "Error al verificar los permisos de la cámara",
+      taking: "Error al tomar la foto",
     }
   },
 

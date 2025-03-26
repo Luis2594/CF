@@ -77,4 +77,14 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Quicksand_600SemiBold',
   },
+  photoPreview: {
+    marginVertical: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  photoImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+  },
 });

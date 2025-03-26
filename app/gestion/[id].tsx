@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Image,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import Dropdown from "@/components/organism/Dropdown";
@@ -21,6 +22,8 @@ import { ResultCodes, useGestion } from "@/hooks/useGestion";
 import { Operation } from "@/components/molecules/items/ItemOperationDetail";
 import OperationItem from "./OperationItem";
 import TextError from "@/components/atoms/TextError";
+import { useCamera } from "@/hooks/useCamera";
+import CameraModal from "@/components/organism/CameraModal";
 
 interface ErrorsInput {
   action?: string;
@@ -41,11 +44,13 @@ export default function GestionScreen() {
     errorGestion,
     setError,
   } = useGestion();
+  const { type, photo, toggleCameraType, clearPhoto } = useCamera();
 
   const [action, setAction] = useState("");
   const [result, setResult] = useState<ResultCodes>();
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
+  const [showCamera, setShowCamera] = useState(false);
 
   const [errorSomePromise, setErrorSomePromise] = useState<string | null>(null);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
@@ -60,67 +65,13 @@ export default function GestionScreen() {
     }
   }, [action, result]);
 
+  const handleCapture = (capturedPhoto: any) => {
+    setShowCamera(false);
+  };
+
   const handleSave = async () => {
     console.log("currentErrorsInput: ", currentErrorsInput());
     if (currentErrorsInput()) return;
-
-    // try {
-    //   const savedCredentials = await AsyncStorage.getItem(
-    //     STORAGE_KEYS.LAST_LOGIN_CREDENTIALS
-    //   );
-    //   const savedCredentialsJSON = savedCredentials
-    //     ? JSON.parse(savedCredentials)
-    //     : null;
-
-    //   const user = auth.currentUser;
-    //   if (!user) {
-    //     setError(translations.clients.errors.unauthorized);
-    //     return;
-    //   }
-
-    //   const gestionData = {
-    //     userId: user.uid,
-    //     clientId: encryptText(client?.clientId.toString() || ""),
-    //     portfolioId: encryptText("1"), // Replace with actual portfolio ID
-    //     actionCodeId: encryptText(action),
-    //     resultCodeId: encryptText(result),
-    //     reasonNoPaymentId: encryptText(reason),
-    //     comments: encryptText(comment),
-    //     latitude: encryptText("0"), // Replace with actual location
-    //     longitude: encryptText("0"), // Replace with actual location
-    //     isRealTime: encryptText("true"),
-    //     detail:
-    //       client?.operations.map((operation) => ({
-    //         operationId: encryptText(operation.operationId.toString()),
-    //         localCurrency: encryptText(montoLocal),
-    //         foreignCurrency: encryptText(montoExt),
-    //         promiseDate: encryptText(date),
-    //         existPromise: encryptText("true"),
-    //       })) || [],
-    //     token: savedCredentialsJSON?.token,
-    //   };
-
-    //   if (!isOnline) {
-    //     // Store for offline sync
-    //     addPendingChange(client?.clientId.toString() || "", gestionData);
-    //     showOfflineAlert();
-    //     router.back();
-    //     return;
-    //   }
-
-    //   const functions = getFunctions();
-    //   const postGestorFn = httpsCallable(functions, "postGestor");
-    //   const response = await postGestorFn(gestionData);
-
-    //   if (response.data.success) {
-    //     router.back();
-    //   } else {
-    //     setError(translations.gestion.errors.saveFailed);
-    //   }
-    // } catch (error) {
-    //   console.error("Error saving gestion:", error);
-    //   setError(translations.gestion.errors.saveFailed);
-    // }
   };
 
   const validateOperation = (
@@ -273,7 +224,16 @@ export default function GestionScreen() {
 
           {result?.promise && renderOperations()}
 
-          <TouchableOpacity style={styles.photoButton}>
+          {photo && (
+            <View style={styles.photoPreview}>
+              <Image source={{ uri: photo.uri }} style={styles.photoImage} />
+            </View>
+          )}
+
+          <TouchableOpacity 
+            style={styles.photoButton}
+            onPress={() => setShowCamera(true)}
+          >
             <Text style={styles.photoButtonText}>
               {translations.gestion.takePhoto}
             </Text>
@@ -283,6 +243,14 @@ export default function GestionScreen() {
           <Button text={translations.gestion.save} onPress={handleSave} />
         </View>
       </ScrollView>
+
+      <CameraModal
+        visible={showCamera}
+        onClose={() => setShowCamera(false)}
+        onCapture={handleCapture}
+        type={type}
+        toggleType={toggleCameraType}
+      />
     </SafeAreaView>
   );
 }

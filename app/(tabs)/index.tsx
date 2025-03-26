@@ -17,6 +17,7 @@ import { STORAGE_KEYS } from "@/constants/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "@/hooks/useUser";
 import { useGestion } from "@/hooks/useGestion";
+import { useLocationPermissions } from "@/hooks/useLocationPermissions";
 
 interface Operation {
   operationId: number;
@@ -64,6 +65,7 @@ export default function HomeScreen() {
   const { user, clients, loadingUser, errorUser } = useUser();
   const { fetchActionsResults, fetchReasonsNoPayment, errorGestion } =
     useGestion();
+  const { status, errorMsg, requestPermissions } = useLocationPermissions();
 
   const [error, setError] = useState<string | null>(null);
 
@@ -84,6 +86,25 @@ export default function HomeScreen() {
     }
   }, [errorUser, errorGestion]);
 
+  useEffect(() => {
+    if (status === 'denied') {
+      Alert.alert(
+        translations.locationPermissions.title,
+        translations.locationPermissions.message,
+        [
+          {
+            text: translations.locationPermissions.allow,
+            onPress: requestPermissions
+          },
+          {
+            text: translations.locationPermissions.cancel,
+            style: 'cancel'
+          }
+        ]
+      );
+    }
+  }, [status, language]);
+
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
@@ -92,11 +113,9 @@ export default function HomeScreen() {
       .catch((error) => {
         console.error("Logout error:", error);
         Alert.alert(
-          "Error",
-          language === "es"
-            ? "Error al cerrar sesión. Por favor intente de nuevo."
-            : "Error logging out. Please try again.",
-          [{ text: "OK" }]
+          translations.errors.title,
+          translations.errors.logout,
+          [{ text: translations.ok }]
         );
       });
   };
@@ -119,29 +138,7 @@ export default function HomeScreen() {
       <View style={styles.clientCard}>
         <View style={styles.clientHeader}>
           <Text style={styles.clientName}>{item.name}</Text>
-          {/* <View
-            style={[
-              styles.statusIndicator,
-              item.status === 1 ? styles.statusPending : styles.statusVisited,
-            ]}
-          /> */}
         </View>
-        {/* <View style={styles.clientInfo}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Region:</Text>
-            <Text style={styles.infoValue}>{item.addressLevel1}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>City:</Text>
-            <Text style={styles.infoValue}>{item.addressLevel2}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Portfolio:</Text>
-            <Text style={styles.infoValue}>
-              {item.operations[0]?.operationType || "N/A"}
-            </Text>
-          </View>
-        </View> */}
       </View>
     </TouchableOpacity>
   );

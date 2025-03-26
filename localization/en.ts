@@ -100,6 +100,20 @@ export const en = {
   // Terms
   lastUpdated: 'Last Updated: June 1, 2025',
 
+  // Location Permissions
+  locationPermissions: {
+    title: 'Location Permissions',
+    message: 'This app needs location access to work properly',
+    allow: 'Allow',
+    cancel: 'Cancel'
+  },
+
+  // Error Messages
+  errors: {
+    title: 'Error',
+    logout: 'Error logging out. Please try again.',
+  },
+
   // Client Management
   clients: {
     loading: 'Loading...',
@@ -193,6 +207,19 @@ export const en = {
       paymentDate: "Payment date is required",
       saveFailed: "Failed to save management record",
       unauthorized: "Unauthorized access",
+    }
+  },
+
+  // Camera
+  camera: {
+    notAvailable: "Camera not available on web platform",
+    close: "Close",
+    permissionTitle: "Camera Permission",
+    permissionMessage: "We need your permission to use the camera",
+    grantPermission: "Grant Permission",
+    error: {
+      checking: "Error checking camera permissions",
+      taking: "Error taking picture",
     }
   },
 
