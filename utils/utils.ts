@@ -32,7 +32,9 @@ export const formatDate = (date: string): string => {
     const parts = date.split('/'); // Separa la fecha en partes [dd, mm, yyyy]
 
     if (parts.length === 3) {
-        const [day, month, year] = parts;
+        let [day, month, year] = parts;
+        day = day.padStart(2, '0');
+        month = month.padStart(2, '0');
         return `${year}/${month}/${day}`; // Reorganiza en formato 'yyyy/mm/dd'
     }
 

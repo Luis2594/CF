@@ -36,8 +36,8 @@ export interface RequestOperationData {
   operationId: string;
   localCurrency: string;
   foreignCurrency: string;
-  promiseDate: string;
-  existPromise: string;
+  promiseDate?: string;
+  existPromise?: string;
 }
 
 export default function GestionScreen() {
@@ -85,93 +85,6 @@ export default function GestionScreen() {
   const handleCapture = (capturedPhoto: CameraCapturedPicture | null) => {
     setPhoto(capturedPhoto);
     setShowCamera(false);
-  };
-
-  const handleSave = async () => {
-    setLoading(true);
-    if (currentErrorsInput()) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      if (!user) {
-        setFeedbackType("error");
-        setFeedbackMessage(translations.clients.errors.unauthorized);
-        setShowFeedbackModal(true);
-        setLoading(false);
-        return;
-      }
-
-      const gestionDataSin = {
-        userId: user.uid,
-        clientId: client?.clientId.toString() || "",
-        portfolioId: client?.portfolioId || "",
-        actionCodeId: action,
-        resultCodeId: result?.codeResult || "",
-        reasonNoPaymentId: reason,
-        comments: comment,
-        latitude: "0", // Replace with actual location
-        longitude: "0", // Replace with actual location
-        photo: photo?.base64,
-        detail: result?.promise
-          ? client?.operations?.map((op: Operation, index) =>
-              getDataByOperation(`${op.operationId} - ${index}`)
-            ) || []
-          : undefined,
-        token: user?.token,
-      };
-
-      console.log("gestionDataSin: ", gestionDataSin);
-
-      const gestionData = {
-        userId: user.uid,
-        clientId: encryptText(client?.clientId.toString() || ""),
-        portfolioId: encryptText(client?.portfolioId || ""),
-        actionCodeId: encryptText(action),
-        resultCodeId: encryptText(result?.codeResult || ""),
-        reasonNoPaymentId: encryptText(reason),
-        comments: encryptText(comment),
-        latitude: encryptText("0"), // Replace with actual location
-        longitude: encryptText("0"), // Replace with actual location
-        photo: photo?.base64,
-        detail: result?.promise
-          ? client?.operations?.map((op: Operation, index) =>
-              getDataByOperation(`${op.operationId} - ${index}`)
-            ) || []
-          : [],
-        token: user?.token,
-      };
-
-      console.log("gestionData: ", gestionData);
-
-      createGestion({
-        gestion: gestionData,
-        onSuccess: async () => {
-          // Update client status after successful gestion
-          if (client) {
-            await updateClientStatus(client.clientId);
-          }
-          setFeedbackType("success");
-          setFeedbackMessage(translations.gestion.success);
-          setShowFeedbackModal(true);
-          setLoading(false);
-        },
-        onError: async (error) => {
-          setFeedbackType("error");
-          setFeedbackMessage(error);
-          setShowFeedbackModal(true);
-          setLoading(false);
-        },
-      });
-    } catch (error) {
-      console.log("error: ", error);
-      console.error("Error saving gestion:", error);
-      setFeedbackType("error");
-      setFeedbackMessage(translations.gestion.errors.saveFailed);
-      setShowFeedbackModal(true);
-      setLoading(false);
-    }
   };
 
   const validateOperation = (
@@ -248,6 +161,93 @@ export default function GestionScreen() {
     }
 
     setShowFeedbackModal(false);
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    if (currentErrorsInput()) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (!user) {
+        setFeedbackType("error");
+        setFeedbackMessage(translations.clients.errors.unauthorized);
+        setShowFeedbackModal(true);
+        setLoading(false);
+        return;
+      }
+
+      const gestionDataSin = {
+        userId: user.uid,
+        clientId: client?.clientId.toString() || "",
+        portfolioId: client?.portfolioId || "",
+        actionCodeId: action,
+        resultCodeId: result?.codeResult || "",
+        reasonNoPaymentId: reason,
+        comments: comment,
+        latitude: "0", // Replace with actual location
+        longitude: "0", // Replace with actual location
+        photo: photo?.base64,
+        detail: result?.promise
+          ? client?.operations?.map((op: Operation, index) =>
+              getDataByOperationSin(`${op.operationId} - ${index}`)
+            ) || []
+          : undefined,
+        token: user?.token,
+      };
+
+      console.log("gestionDataSin: ", gestionDataSin);
+
+      const gestionData = {
+        userId: user.uid,
+        clientId: encryptText(client?.clientId.toString() || ""),
+        portfolioId: encryptText(client?.portfolioId || ""),
+        actionCodeId: encryptText(action),
+        resultCodeId: encryptText(result?.codeResult || ""),
+        reasonNoPaymentId: encryptText(reason),
+        comments: encryptText(comment),
+        latitude: encryptText("0"), // Replace with actual location
+        longitude: encryptText("0"), // Replace with actual location
+        photo: photo?.base64,
+        detail: result?.promise
+          ? client?.operations?.map((op: Operation, index) =>
+              getDataByOperation(`${op.operationId} - ${index}`)
+            ) || []
+          : [],
+        token: user?.token,
+      };
+
+      console.log("gestionData: ", gestionData);
+
+      createGestion({
+        gestion: gestionData,
+        onSuccess: async () => {
+          // Update client status after successful gestion
+          if (client) {
+            await updateClientStatus(client.clientId);
+          }
+          setFeedbackType("success");
+          setFeedbackMessage(translations.gestion.success);
+          setShowFeedbackModal(true);
+          setLoading(false);
+        },
+        onError: async (error) => {
+          setFeedbackType("error");
+          setFeedbackMessage(error);
+          setShowFeedbackModal(true);
+          setLoading(false);
+        },
+      });
+    } catch (error) {
+      console.log("Error saving gestion:: ", error);
+      console.error("Error saving gestion:", error);
+      setFeedbackType("error");
+      setFeedbackMessage(translations.gestion.errors.saveFailed);
+      setShowFeedbackModal(true);
+      setLoading(false);
+    }
   };
 
   const renderOperations = () => {

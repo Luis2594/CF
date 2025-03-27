@@ -38,7 +38,6 @@ export default function CustomInput({
 
   // Manejar selección de fecha
   const onChangeDate = (date: Date) => {
-    console.log("HIIII: ", date);
     setShowDatePicker(false);
     if (date) {
       onChangeText &&

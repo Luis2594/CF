@@ -6,6 +6,7 @@ import { useOfflineSync } from './useOfflineSync';
 import { DropdownItem } from '@/components/organism/Dropdown';
 import { encryptText } from '@/utils/encryption';
 import { useUser } from './useUser';
+import { Alert } from 'react-native';
 
 export interface ResultCodes {
   id: string;
@@ -52,9 +53,10 @@ export const useGestion = () => {
       createGestion({
         gestion: { ...data, token: user.token },
         onSuccess: () => {
-          console.log('Ya lo ejecute en cache');
+          Alert.alert("Sincronización", 'Se ha sincronizado las gestiones');
         },
-        onError: () => {
+        onError: (error) => {
+          Alert.alert("Error en sincronización", error);
         },
       })
     },
@@ -183,11 +185,11 @@ export const useGestion = () => {
         const functions = getFunctions();
         const postGestorFn = httpsCallable(functions, "postGestor");
         const response = await postGestorFn(gestion);
-        console.log("Error response: ", response);
-        if (response?.data?.success) {
+        console.log("RESPONSE CREATE GESTION: ", response);
+        if (response?.data?.data?.success) {
           onSuccess();
         } else {
-          onError(response?.data?.message);
+          onError(response?.data?.data?.message);
         }
       } else {
         // Store for offline sync

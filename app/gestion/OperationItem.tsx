@@ -79,23 +79,31 @@ const OperationItem = React.forwardRef(
 
       return {
         operationId: encryptText(operation.operationId),
-        existPromise: encryptText((result?.promise || false).toString()),
+        existPromise: result?.promise ? encryptText("1") : encryptText("0"),
         foreignCurrency: encryptedForeignCurrency,
         localCurrency: encryptedLocalCurrency,
-        promiseDate: encryptText(formatDate(date)),
+        promiseDate: result?.promise
+          ? encryptText(formatDate(date))
+          : undefined,
       };
     };
 
     const getDataToSendSin = (): RequestOperationData => {
       const formattedMontoLocal = formatToTwoDecimals(montoLocal);
       const formattedMontoExt = formatToTwoDecimals(montoExt);
-
+      console.log("data detail: ", {
+        operationId: operation.operationId,
+        existPromise: result?.promise ? "1" : "0",
+        foreignCurrency: formattedMontoExt,
+        localCurrency: formattedMontoLocal,
+        promiseDate: result?.promise ? formatDate(date) : undefined,
+      });
       return {
-        operationId: operation.operationId, // Sin encriptar
+        operationId: operation.operationId,
         existPromise: (result?.promise || false).toString(),
-        foreignCurrency: formattedMontoExt, // Sin encriptar
-        localCurrency: formattedMontoLocal, // Sin encriptar
-        promiseDate: formatDate(date), // Sin encriptar
+        foreignCurrency: formattedMontoExt,
+        localCurrency: formattedMontoLocal,
+        promiseDate: formatDate(date),
       };
     };
 
