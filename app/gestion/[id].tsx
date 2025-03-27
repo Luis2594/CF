@@ -25,6 +25,7 @@ import { CameraCapturedPicture } from "expo-camera";
 import { encryptText } from "@/utils/encryption";
 import { useUser } from "@/hooks/useUser";
 import FeedbackModal from "@/components/molecules/modals/FeedbackModal";
+import { useLocation } from "@/hooks/useLocation";
 
 interface ErrorsInput {
   action?: string;
@@ -56,6 +57,7 @@ export default function GestionScreen() {
     createGestion,
   } = useGestion();
   const { type, toggleCameraType } = useCamera();
+  const { location } = useLocation();
 
   const [action, setAction] = useState("");
   const [result, setResult] = useState<ResultCodes>();
@@ -187,8 +189,8 @@ export default function GestionScreen() {
         resultCodeId: result?.codeResult || "",
         reasonNoPaymentId: reason,
         comments: comment,
-        latitude: "0", // Replace with actual location
-        longitude: "0", // Replace with actual location
+        latitude: location.latitude,
+        longitude: location.longitude,
         photo: photo?.base64,
         detail: result?.promise
           ? client?.operations?.map((op: Operation, index) =>
@@ -208,8 +210,8 @@ export default function GestionScreen() {
         resultCodeId: encryptText(result?.codeResult || ""),
         reasonNoPaymentId: encryptText(reason),
         comments: encryptText(comment),
-        latitude: encryptText("0"), // Replace with actual location
-        longitude: encryptText("0"), // Replace with actual location
+        latitude: encryptText(location.latitude),
+        longitude: encryptText(location.longitude),
         photo: photo?.base64,
         detail: result?.promise
           ? client?.operations?.map((op: Operation, index) =>
