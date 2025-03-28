@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   PanResponder,
+  TouchableWithoutFeedback,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Eye, EyeOff, Info } from "lucide-react-native"; // Icons
@@ -77,10 +78,12 @@ export default function CustomInput({
   const onChangeDate = (date: Date) => {
     setShowDatePicker(false);
     if (date) {
-      onChangeText &&
-        onChangeText(
-          date.toLocaleDateString() // Format dd/mm/yyyy
-        );
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses en JavaScript empiezan desde 0
+      const year = date.getFullYear();
+
+      const formattedDate = `${day}/${month}/${year}`;
+      onChangeText && onChangeText(formattedDate);
     }
   };
 
@@ -137,92 +140,96 @@ export default function CustomInput({
     }
   };
 
+  const onPressIsDate = () => {
+    if (isDate) {
+      setShowDatePicker(true);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Input label */}
-      <View style={styles.labelContainer}>
-        <Text style={styles.label}>
-          {label} {isRequired && <Text style={styles.asterisk}>*</Text>}
-        </Text>
-        {showTooltip && (
-          <TouchableOpacity>
-            <Info size={16} color="#666" />
-          </TouchableOpacity>
-        )}
-      </View>
+    <TouchableWithoutFeedback onPress={onPressIsDate}>
+      <View style={styles.container}>
+        {/* Input label */}
+        <View style={styles.labelContainer}>
+          <Text style={styles.label}>
+            {label} {isRequired && <Text style={styles.asterisk}>*</Text>}
+          </Text>
+          {showTooltip && (
+            <TouchableOpacity>
+              <Info size={16} color="#666" />
+            </TouchableOpacity>
+          )}
+        </View>
 
-      {/* Input container */}
-      <View
-        style={[
-          styles.inputContainer,
-          isDisabled && styles.inputDisabled,
-          { height: inputHeight },
-        ]}
-      >
-        {/* Currency prefix */}
-        {currency && <Text style={styles.prefix}>{currency}</Text>}
-
-        {/* Input */}
-        <TextInput
+        {/* Input container */}
+        <View
           style={[
-            styles.input,
-            isDisabled && styles.inputDisabledText,
-            currency && styles.inputWithPrefix,
-            isTextarea && styles.textarea,
-            isTextarea && { height: inputHeight },
+            styles.inputContainer,
+            isDisabled && styles.inputDisabled,
+            { height: inputHeight },
           ]}
-          placeholder={placeholder}
-          value={value}
-          onChangeText={handleChange}
-          editable={!isDisabled && !isDate}
-          onPress={() => {
-            if (isDate) {
-              setShowDatePicker(true);
-            }
-          }}
-          placeholderTextColor="#D0D0D1"
-          secureTextEntry={secureText}
-          keyboardType={currency ? "numeric" : "default"}
-          multiline={isTextarea}
-          numberOfLines={isTextarea ? 4 : 1}
-          textAlignVertical={isTextarea ? "top" : "center"}
+        >
+          {/* Currency prefix */}
+          {currency && <Text style={styles.prefix}>{currency}</Text>}
+
+          {/* Input */}
+          <TextInput
+            style={[
+              styles.input,
+              isDisabled && styles.inputDisabledText,
+              currency && styles.inputWithPrefix,
+              isTextarea && styles.textarea,
+              isTextarea && { height: inputHeight },
+            ]}
+            placeholder={placeholder}
+            value={value}
+            onChangeText={handleChange}
+            editable={!isDisabled && !isDate}
+            onPress={onPressIsDate}
+            placeholderTextColor="#D0D0D1"
+            secureTextEntry={secureText}
+            keyboardType={currency ? "numeric" : "default"}
+            multiline={isTextarea}
+            numberOfLines={isTextarea ? 4 : 1}
+            textAlignVertical={isTextarea ? "top" : "center"}
+          />
+
+          {/* Resize handle icon */}
+          {isTextarea && (
+            <View {...panResponder.panHandlers} style={styles.resizeHandle}>
+              <SVG.EXPAND width={12} height={12} />
+            </View>
+          )}
+
+          {/* Show/Hide password button */}
+          {isPassword && (
+            <TouchableOpacity
+              onPress={() => setSecureText(!secureText)}
+              style={styles.eyeIcon}
+            >
+              {secureText ? (
+                <Eye size={20} color="#666" />
+              ) : (
+                <EyeOff size={20} color="#666" />
+              )}
+            </TouchableOpacity>
+          )}
+
+          {/* Calendar button */}
+          {isDate && <SVG.CALENDAR width={20} height={20} />}
+        </View>
+
+        {/* DateTimePicker to select date */}
+        <DateTimePickerModal
+          isVisible={isDate && showDatePicker}
+          mode="date"
+          onConfirm={onChangeDate}
+          onCancel={() => setShowDatePicker(false)}
         />
 
-        {/* Resize handle icon */}
-        {isTextarea && (
-          <View {...panResponder.panHandlers} style={styles.resizeHandle}>
-            <SVG.EXPAND width={12} height={12} />
-          </View>
-        )}
-
-        {/* Show/Hide password button */}
-        {isPassword && (
-          <TouchableOpacity
-            onPress={() => setSecureText(!secureText)}
-            style={styles.eyeIcon}
-          >
-            {secureText ? (
-              <Eye size={20} color="#666" />
-            ) : (
-              <EyeOff size={20} color="#666" />
-            )}
-          </TouchableOpacity>
-        )}
-
-        {/* Calendar button */}
-        {isDate && <SVG.CALENDAR width={20} height={20} />}
+        {/* Error message */}
+        {errorMessage && <TextError error={errorMessage} />}
       </View>
-
-      {/* DateTimePicker to select date */}
-      <DateTimePickerModal
-        isVisible={isDate && showDatePicker}
-        mode="date"
-        onConfirm={onChangeDate}
-        onCancel={() => setShowDatePicker(false)}
-      />
-
-      {/* Error message */}
-      {errorMessage && <TextError error={errorMessage} />}
-    </View>
+    </TouchableWithoutFeedback>
   );
 }

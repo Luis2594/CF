@@ -157,25 +157,12 @@ export const useGestion = () => {
       } catch (error) {
         console.log('token: ', token);
         console.error(`Error fetching ${functionName}:`, error);
-        if (error.message.includes(ERROR_EXP_SESION)) {
-          signOut(auth)
-            .then(() => {
-              Alert.alert(
-                translations.exp_title,
-                translations.exp_description,
-                [
-                  { text: translations.ok, onPress: () => router.replace("/login") }
-                ]
-              );
-            })
-            .catch(console.error);
-        } else {
-          getDataFromCache({
-            key: storageKey,
-            onSuccess: (data) => setState(data as T[]),
-            onError: () => setError(error instanceof Error ? error.message : "An error occurred"),
-          });
-        }
+
+        getDataFromCache({
+          key: storageKey,
+          onSuccess: (data) => setState(data as T[]),
+          onError: () => setError(error instanceof Error ? error.message : "An error occurred"),
+        });
       }
     } else {
       getDataFromCache({

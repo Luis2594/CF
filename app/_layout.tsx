@@ -115,14 +115,8 @@ export default function RootLayout() {
 
   return (
     <LanguageProvider>
-      <>
-        <Stack screenOptions={{ headerShown: false, gestureEnabled: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </>
+      <Stack screenOptions={{ headerShown: false, gestureEnabled: false }} />
+      <StatusBar style="auto" />
     </LanguageProvider>
   );
 }

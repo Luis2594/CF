@@ -10,7 +10,6 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 }, // Sombra solo abajo
     shadowOpacity: 0.1,
     shadowRadius: 1,
-    elevation: 4, // Para Android
   },
   infoRow: {
     flexDirection: 'row',
