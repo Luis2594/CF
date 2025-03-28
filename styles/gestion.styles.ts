@@ -31,19 +31,6 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#717275',
   },
-  commentInput: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#D0D0D1',
-    padding: 16,
-    height: 120,
-    textAlignVertical: 'top',
-    fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
-    marginBottom: 20
-  },
   keyboardAvoid: {
   },
   photoButton: {

@@ -51,7 +51,7 @@ export const LOGIN_ERROR_CODES: Record<string, { en: string; es: string }> = {
   }
 } as const;
 
-
+export const ERROR_EXP_SESION = 'Authentication token is required or invalid'
 
 /**
  * Get error message based on code and language

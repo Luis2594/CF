@@ -87,11 +87,6 @@ export default function ItemOperationDetail({
             operation.overdueBalance,
             true
           )}
-          {renderDetail(
-            translations.operations.totalBalance,
-            operation.totalBalance,
-            true
-          )}
           {renderDetail(translations.operations.cycle, operation.cycle)}
 
           {expanded && (
@@ -110,7 +105,8 @@ export default function ItemOperationDetail({
               )}
               {renderDetail(
                 translations.operations.lastPaymentAmount,
-                operation.lastPaymentAmount
+                operation.lastPaymentAmount,
+                true
               )}
               {renderDetail(
                 translations.operations.pendingInstallment,

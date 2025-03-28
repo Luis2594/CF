@@ -10,6 +10,7 @@ import {
   Alert,
   Keyboard,
   BackHandler,
+  ActivityIndicator,
 } from "react-native";
 import { useLanguage } from "../context/LanguageContext";
 import { SVG } from "../constants/assets";
@@ -17,7 +18,6 @@ import { auth } from "../config/firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { getDeviceId } from "../utils/deviceId";
-import { getLoginErrorMessage } from "../constants/loginErrors";
 import { useBiometrics } from "../hooks/useBiometrics";
 import BiometricPrompt from "../components/organism/BiometricPrompt";
 import { STORAGE_KEYS } from "../constants/storage";
@@ -45,7 +45,7 @@ export interface LoginCredentials {
 }
 
 export default function Login() {
-  const { translations, language } = useLanguage();
+  const { translations } = useLanguage();
   const [institution, setInstitution] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -84,7 +84,7 @@ export default function Login() {
   useEffect(() => {
     // Get device ID and last login credentials on component mount
     const initialize = async () => {
-      // COMENTAR
+      // TODO DELETE
       // await clearDataInCache(STORAGE_KEYS.LAST_LOGIN_CREDENTIALS);
 
       const id = await getDeviceId();
@@ -170,6 +170,7 @@ export default function Login() {
     useBiometric = lastLoginCredentials?.useBiometric
   ) => {
     setIsLoading(true);
+    setError(null);
 
     try {
       const isNewUser = username !== previousUsername;
@@ -228,15 +229,14 @@ export default function Login() {
       console.log("Login error code:", error.details?.code);
       console.log("Login error:", error.message);
 
-      const errorCode =
-        error.response?.data?.code || error.details?.code || "007";
-      setError(getLoginErrorMessage(errorCode, language || "es"));
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleBiometricLogin = async () => {
+    if (isLoading) return;
     if (!lastLoginCredentials) {
       setError(translations.loginErrors.emptyBiometric);
       return;
@@ -392,13 +392,17 @@ export default function Login() {
                             <SVG.FINGERPRINT width={24} height={24} />
                           )}
                         </View>
-                        {biometricType === "facial" ? (
+                        {isLoading ? (
+                          <ActivityIndicator size="large" color={"#F04E23"} />
+                        ) : biometricType === "facial" ? (
                           <SVG.FACE_ID_CIRCLE width={60} height={60} />
                         ) : (
                           <SVG.FINGERPRINT_CIRCLE width={60} height={60} />
                         )}
+
                         <TouchableOpacity
                           onPress={() => {
+                            if (isLoading) return;
                             setOptionLoginWithBiometrics("option");
                           }}
                         >
@@ -437,6 +441,7 @@ export default function Login() {
                   optionLoginWithBiometrics === "option" && (
                     <TouchableOpacity
                       onPress={() => {
+                        if (isLoading) return;
                         setOptionLoginWithBiometrics("biometrics");
                       }}
                     >

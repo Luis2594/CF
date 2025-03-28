@@ -9,27 +9,26 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react-native";
-import { getAuth, signOut } from "firebase/auth";
 import { router } from "expo-router";
 import { useLanguage } from "../../context/LanguageContext";
-import TestList from "../../components/organism/list/TestList";
 import { useUser } from "@/hooks/useUser";
 import { useGestion } from "@/hooks/useGestion";
 import { useLocationPermissions } from "@/hooks/useLocationPermissions";
 import { Client, useClient } from "@/hooks/useClient";
+import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
+import { signOut } from "firebase/auth";
+import { auth } from "@/config/firebase";
 
 export default function HomeScreen() {
   const { language, translations } = useLanguage();
   const { user, loadingUser, errorUser } = useUser();
   const { clients, loadingClient, getClients, saveClient, clearClientData } =
     useClient();
-  const { getDataToUseInGestion, clearDataGestion, errorGestion } =
+  const { getDataToUseInGestion, errorGestion } =
     useGestion();
-  const { status, requestPermissions } = useLocationPermissions();
+  const { status, requestPermissions, errorMsg } = useLocationPermissions();
 
   const [error, setError] = useState<string | null>(null);
-
-  const auth = getAuth();
 
   useEffect(() => {
     if (user.token) {
@@ -39,10 +38,10 @@ export default function HomeScreen() {
   }, [user]);
 
   useEffect(() => {
-    if (errorUser || errorGestion) {
-      setError(errorUser || errorGestion);
+    if (errorUser || errorGestion || errorMsg) {
+      setError(errorUser || errorGestion || errorMsg);
     }
-  }, [errorUser, errorGestion]);
+  }, [errorUser, errorGestion, errorMsg]);
 
   useEffect(() => {
     if (status === "denied" || status === "undetermined") {
@@ -62,21 +61,6 @@ export default function HomeScreen() {
       );
     }
   }, [status, language]);
-
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        router.replace("/login");
-        clearClientData();
-        clearDataGestion();
-      })
-      .catch((error) => {
-        console.error("Logout error:", error);
-        Alert.alert(translations.errors.title, translations.errors.logout, [
-          { text: translations.ok },
-        ]);
-      });
-  };
 
   const handleClientPress = async (client: Client) => {
     await saveClient(client);
@@ -101,11 +85,16 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AlertErrorMessage error={error} onClose={() => setError(null)} />
       <View style={styles.header}>
         <Text style={styles.greeting}>Hello {user.name}</Text>
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={handleLogout}
+          onPress={() => {
+            signOut(auth)
+              .then(() => router.replace("/login"))
+              .catch(console.error);
+          }}
           activeOpacity={0.7}
         >
           <LogOut size={20} color="#FF3B30" />
@@ -139,8 +128,6 @@ export default function HomeScreen() {
           </Text>
         </View>
       )}
-
-      <TestList language={language} />
     </SafeAreaView>
   );
 }

@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useOfflineSync } from './useOfflineSync';
 import { DropdownItem } from '@/components/organism/Dropdown';
 import { encryptText } from '@/utils/encryption';
 import { useUser } from './useUser';
+import { router } from 'expo-router';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 import { Alert } from 'react-native';
+import { useLanguage } from '@/context/LanguageContext';
+import { ERROR_EXP_SESION } from '@/constants/loginErrors';
 
 export interface ResultCodes {
   id: string;
@@ -29,6 +33,7 @@ export interface ReasonNoPayment {
 
 export const useGestion = () => {
   const { user } = useUser();
+  const { translations } = useLanguage();
   const [actionsResults, setActionsResults] = useState<Array<ActionResult>>([]);
   const [reasonsNoPayment, setReasonsNoPayment] = useState<
     Array<ReasonNoPayment>
@@ -50,13 +55,14 @@ export const useGestion = () => {
   } = useOfflineSync({
     storageKey: STORAGE_KEYS.GESTIONS_CACHE,
     onSync: async (id, data) => {
-      createGestion({
+      await createGestion({
         gestion: { ...data, token: user.token },
+        fromSync: true,
         onSuccess: () => {
-          Alert.alert("Sincronización", 'Se ha sincronizado las gestiones');
+          // Alert.alert("Sincronización", `Se ha sincronizado las gestion: ${id}`);
         },
         onError: (error) => {
-          Alert.alert("Error en sincronización", error);
+          // Alert.alert("Error en sincronización", `${error}: ${id}`);
         },
       })
     },
@@ -82,14 +88,14 @@ export const useGestion = () => {
   useEffect(() => {
     if (actionsResults) {
       setActionItems(actionsResults.map((item) => ({
-        value: item.actionCode,
+        value: item.id,
         label: `${item.actionCode} - ${item.description}`,
       })));
     }
 
     if (actionSelected) {
       setResultsItems(actionSelected?.resultCodes?.map((item: ResultCodes) => ({
-        value: item.codeResult,
+        value: item.id,
         label: `${item.codeResult} - ${item.description}`,
       })) ?? [])
     }
@@ -151,12 +157,25 @@ export const useGestion = () => {
       } catch (error) {
         console.log('token: ', token);
         console.error(`Error fetching ${functionName}:`, error);
-        // [FirebaseError: Authentication token is required or invalid]
-        getDataFromCache({
-          key: storageKey,
-          onSuccess: (data) => setState(data as T[]),
-          onError: () => setError(error instanceof Error ? error.message : "An error occurred"),
-        });
+        if (error.message.includes(ERROR_EXP_SESION)) {
+          signOut(auth)
+            .then(() => {
+              Alert.alert(
+                translations.exp_title,
+                translations.exp_description,
+                [
+                  { text: translations.ok, onPress: () => router.replace("/login") }
+                ]
+              );
+            })
+            .catch(console.error);
+        } else {
+          getDataFromCache({
+            key: storageKey,
+            onSuccess: (data) => setState(data as T[]),
+            onError: () => setError(error instanceof Error ? error.message : "An error occurred"),
+          });
+        }
       }
     } else {
       getDataFromCache({
@@ -169,11 +188,16 @@ export const useGestion = () => {
 
   const updateActionSelected = (action: string) => {
     setActionSelected(actionsResults.find(
-      (item) => item.actionCode === action
+      (item) => item.id === action
     ) as ActionResult);
   }
 
-  const createGestion = async ({ gestion, onSuccess, onError }: { gestion: any, onSuccess: () => void, onError: (error: string) => void }) => {
+  const createGestion = async ({ gestion, fromSync = false, onSuccess, onError }: {
+    gestion: any,
+    fromSync?: boolean,
+    onSuccess: () => void,
+    onError: (error: string) => void
+  }) => {
 
     try {
       gestion = {
@@ -181,24 +205,39 @@ export const useGestion = () => {
         isRealTime: encryptText(isOnline ? "1" : "0"),
       }
 
-      if (isOnline) {
+      if (isOnline || fromSync) {
         const functions = getFunctions();
         const postGestorFn = httpsCallable(functions, "postGestor");
         const response = await postGestorFn(gestion);
-        console.log("RESPONSE CREATE GESTION: ", response);
         if (response?.data?.data?.success) {
           onSuccess();
         } else {
           onError(response?.data?.data?.message);
         }
       } else {
-        // Store for offline sync
-        addPendingChange(`${gestion?.clientId} - ${gestion?.portfolioId}`, gestion);
-        onSuccess();
+        if (!fromSync) {
+          // Store for offline sync
+          addPendingChange(`${gestion?.clientId} - ${gestion?.portfolioId}`, gestion);
+          onSuccess();
+        }
       }
     } catch (error) {
       console.log("Error in createGestion: ", error);
-      onError(error.message);
+      if (error.message.includes(ERROR_EXP_SESION)) {
+        signOut(auth)
+          .then(() => {
+            Alert.alert(
+              translations.exp_title,
+              translations.exp_description,
+              [
+                { text: translations.ok, onPress: () => router.replace("/login") }
+              ]
+            );
+          })
+          .catch(console.error);
+      } else {
+        onError(error.message);
+      }
     }
   }
 

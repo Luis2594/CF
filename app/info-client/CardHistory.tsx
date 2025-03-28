@@ -1,7 +1,6 @@
 import { View } from "react-native";
-import { styles } from "@/styles/info-client.styles";
-import { Client } from "@/components/molecules/items/ItemInfoClient";
 import ItemOperationHistory from "@/components/molecules/items/ItemOperationHistory";
+import { Client } from "@/hooks/useClient";
 
 export default function CardHistory({ client }: { client: Client | null }) {
   return (

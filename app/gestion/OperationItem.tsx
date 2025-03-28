@@ -88,6 +88,8 @@ const OperationItem = React.forwardRef(
       };
     };
 
+
+    // TODO DELETE It's to show data decrypt
     const getDataToSendSin = (): RequestOperationData => {
       const formattedMontoLocal = formatToTwoDecimals(montoLocal);
       const formattedMontoExt = formatToTwoDecimals(montoExt);
@@ -123,10 +125,10 @@ const OperationItem = React.forwardRef(
           <Dropdown
             label={translations.gestion.result}
             items={resultsItems}
-            selectedValue={result?.codeResult || ""}
+            selectedValue={result?.id || ""}
             onSelect={(item) => {
               const findResultSelected = resultCodes.find(
-                (rc) => rc.codeResult === item.value
+                (rc) => rc.id === item.value
               );
               setResult(findResultSelected);
             }}
@@ -146,7 +148,7 @@ const OperationItem = React.forwardRef(
                 }}
                 placeholder="0.00"
                 isRequired
-                currency={operation.currency}
+                currency={operation.currencySymbol}
                 errorMessage={errorsInput?.montoLocal}
               />
 
@@ -159,7 +161,7 @@ const OperationItem = React.forwardRef(
                 }}
                 placeholder="0.00"
                 isRequired
-                currency={operation.currency}
+                currency={operation.currencySymbol}
                 errorMessage={errorsInput?.montoExt}
               />
 

@@ -1,48 +1,35 @@
 export const getInitials = (name?: string) => {
     if (!name) return "";
 
-    const words = name.trim().split(/\s+/); // Divide el nombre por espacios múltiples
+    const words = name.trim().split(/\s+/); // Split the name by multiple spaces
     if (words.length === 1) {
-        // Si solo hay una palabra, tomar las primeras 2 letras
+        // If there is only one word, take the first 2 letters
         return words[0].slice(0, 2).toUpperCase();
     }
 
-    // Tomar la primera letra del primer y segundo nombre
+    // Take the first letter of the first and second name
     return (words[0][0] + words[1][0]).toUpperCase();
 };
 
-export function formatCurrency(value: number | string, currency: string, returnType: "symbol" | "name", currencyNames: Record<string, string>): string {
-    const currencySymbols: Record<string, string> = {
-        "320": "₡",
-        "840": "$",
-        "978": "€",
-        "826": "£",
-        "484": "MX$",
-        "392": "¥",
-    };
-
-    if (returnType === "symbol") {
-        return `${currencySymbols[currency] || currency}${value.toLocaleString()}`;
-    } else {
-        return currencyNames[currency] || "Unknown";
-    }
-}
-
 export const formatDate = (date: string): string => {
-    const parts = date.split('/'); // Separa la fecha en partes [dd, mm, yyyy]
+    const parts = date.split('/'); // Split the date into parts [dd, mm, yyyy]
 
     if (parts.length === 3) {
         let [day, month, year] = parts;
         day = day.padStart(2, '0');
         month = month.padStart(2, '0');
-        return `${year}/${month}/${day}`; // Reorganiza en formato 'yyyy/mm/dd'
+        return `${year}/${month}/${day}`; // Reorganize in 'yyyy/mm/dd' format
     }
 
-    return date; // Si la fecha no tiene el formato esperado, retorna el valor original
+    return date; // If the date doesn't have the expected format, return the original value
 };
 
 export const formatToTwoDecimals = (value: string): string => {
-    const number = parseFloat(value); // Convierte el string a número
-    if (isNaN(number)) return '0.00'; // Si el valor no es un número válido, retorna '0.00'
-    return number.toFixed(2); // Formatea a dos decimales
+    // Convert the string to a number, removing commas if any
+    const number = parseFloat(value.replace(/,/g, ''));
+
+    if (isNaN(number)) return '0.00'; // If the value is not a valid number, return '0.00'
+
+    // Format the number with two decimals
+    return number.toFixed(2);
 };

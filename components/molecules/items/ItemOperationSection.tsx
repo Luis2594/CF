@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styles } from "@/styles/components/itemOperationSection.styles";
-import { ChevronDown, ChevronUp } from "lucide-react-native";
 import Divider from "@/components/atoms/Divider";
 import { SVG } from "@/constants/assets";
 

@@ -248,5 +248,9 @@ export const en = {
     "826": "Pounds Sterling",
     "484": "Mexican Pesos",
     "392": "Yen",
-  }
+  },
+
+    // SIGN_OUT 
+    exp_title: 'Session Expired',
+    exp_description: 'Your session has expired. Please log in again.',
 };

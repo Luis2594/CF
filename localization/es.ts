@@ -249,5 +249,10 @@ export const es = {
     "826": "Libras Esterlinas",
     "484": "Pesos Mexicanos",
     "392": "Yenes",
-  }
+  },
+
+  // SIGN_OUT 
+  exp_title: 'Sesión expirada',
+  exp_description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+  
 };

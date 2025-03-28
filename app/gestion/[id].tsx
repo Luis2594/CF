@@ -2,7 +2,6 @@ import React, { useState, Fragment, useRef, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
@@ -26,6 +25,7 @@ import { encryptText } from "@/utils/encryption";
 import { useUser } from "@/hooks/useUser";
 import FeedbackModal from "@/components/molecules/modals/FeedbackModal";
 import { useLocation } from "@/hooks/useLocation";
+import CustomInput from "@/components/organism/CustomInput";
 
 interface ErrorsInput {
   action?: string;
@@ -56,7 +56,7 @@ export default function GestionScreen() {
     setError,
     createGestion,
   } = useGestion();
-  const { type, toggleCameraType } = useCamera();
+  const { type, photo, takePicture, toggleCameraType } = useCamera();
   const { location } = useLocation();
 
   const [action, setAction] = useState("");
@@ -64,7 +64,6 @@ export default function GestionScreen() {
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
   const [showCamera, setShowCamera] = useState(false);
-  const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackType, setFeedbackType] = useState<"success" | "error">(
     "success"
@@ -75,6 +74,7 @@ export default function GestionScreen() {
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
 
   const [loading, setLoading] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const operationsRefs = useRef<{ [key: string]: any }>({});
 
@@ -85,7 +85,7 @@ export default function GestionScreen() {
   }, []);
 
   const handleCapture = (capturedPhoto: CameraCapturedPicture | null) => {
-    setPhoto(capturedPhoto);
+    takePicture(capturedPhoto);
     setShowCamera(false);
   };
 
@@ -181,17 +181,18 @@ export default function GestionScreen() {
         return;
       }
 
+      // TODO DELETE It's to show data decript
       const gestionDataSin = {
         userId: user.uid,
         clientId: client?.clientId.toString() || "",
         portfolioId: client?.portfolioId || "",
         actionCodeId: action,
-        resultCodeId: result?.codeResult || "",
+        resultCodeId: result?.id,
         reasonNoPaymentId: reason,
         comments: comment,
         latitude: location.latitude,
         longitude: location.longitude,
-        photo: photo?.base64,
+        files: photo ? [photo?.base64] : undefined,
         detail: result?.promise
           ? client?.operations?.map((op: Operation, index) =>
               getDataByOperationSin(`${op.operationId} - ${index}`)
@@ -200,19 +201,19 @@ export default function GestionScreen() {
         token: user?.token,
       };
 
-      console.log("gestionDataSin: ", gestionDataSin);
+      console.log("gestionDataSin: ", photo?.base64);
 
       const gestionData = {
         userId: user.uid,
         clientId: encryptText(client?.clientId.toString() || ""),
         portfolioId: encryptText(client?.portfolioId || ""),
-        actionCodeId: encryptText(action),
-        resultCodeId: encryptText(result?.codeResult || ""),
-        reasonNoPaymentId: encryptText(reason),
+        actionCodeId: action,
+        resultCodeId: result?.id,
+        reasonNoPaymentId: reason,
         comments: encryptText(comment),
         latitude: encryptText(location.latitude),
         longitude: encryptText(location.longitude),
-        photo: photo?.base64,
+        files: photo ? [photo?.base64] : undefined,
         detail: result?.promise
           ? client?.operations?.map((op: Operation, index) =>
               getDataByOperation(`${op.operationId} - ${index}`)
@@ -221,8 +222,7 @@ export default function GestionScreen() {
         token: user?.token,
       };
 
-      console.log("gestionData: ", gestionData);
-
+      // console.log("gestionData: ", gestionData);
       createGestion({
         gestion: gestionData,
         onSuccess: async () => {
@@ -264,8 +264,7 @@ export default function GestionScreen() {
               }
               operation={operation}
               resultCodes={
-                actionsResults.find((a) => a.actionCode === action)
-                  ?.resultCodes || []
+                actionsResults.find((a) => a.id === action)?.resultCodes || []
               }
               resultsItems={resultsItems}
             />
@@ -284,7 +283,7 @@ export default function GestionScreen() {
           setErrorSomePromise(null);
         }}
       />
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} scrollEnabled={scrollEnabled}>
         <BackButton />
 
         <Text style={styles.title}>{translations.gestion.title}</Text>
@@ -308,11 +307,11 @@ export default function GestionScreen() {
           <Dropdown
             label={translations.gestion.result}
             items={resultsItems}
-            selectedValue={result?.codeResult || ""}
+            selectedValue={result?.id || ""}
             onSelect={(item) => {
               const findeResultSelected = actionsResults
-                .find((a) => a.actionCode === action)
-                ?.resultCodes.find((rc) => rc.codeResult === item.value);
+                .find((a) => a.id === action)
+                ?.resultCodes.find((rc) => rc.id === item.value);
               setResult(findeResultSelected);
               clearInputError("result");
             }}
@@ -336,15 +335,13 @@ export default function GestionScreen() {
             error={errorsInput?.reason}
           />
 
-          <Text style={styles.label}>{translations.gestion.comment}</Text>
-          <TextInput
-            style={styles.commentInput}
+          <CustomInput
+            label={translations.gestion.comment}
             value={comment}
             onChangeText={setComment}
             placeholder={translations.gestion.commentPlaceholder}
-            multiline
-            numberOfLines={4}
-            placeholderTextColor="#D0D0D1"
+            isTextarea
+            setScrollEnabled={setScrollEnabled}
           />
 
           {result?.promise && renderOperations()}

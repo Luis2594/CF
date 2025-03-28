@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storage';
 import { useLanguage } from '@/context/LanguageContext';
 import { useOfflineSync } from './useOfflineSync';
@@ -7,6 +6,11 @@ import { Operation } from '@/components/molecules/items/ItemOperationDetail';
 import { Management } from '@/components/molecules/items/ItemOperationHistory';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { decryptText } from '@/utils/encryption';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/config/firebase';
+import { router } from 'expo-router';
+import { Alert } from 'react-native';
+import { ERROR_EXP_SESION } from '@/constants/loginErrors';
 
 export interface Client {
   clientId: string;
@@ -88,18 +92,33 @@ export const useClient = () => {
         });
       }
     } catch (error: any) {
-      getDataFromCache({
-        key: STORAGE_KEYS.CLIENTS,
-        onSuccess: (data) => {
-          setClients(data as Array<Client>);
-        },
-        onError: (error: Error) => {
-          if (error) {
-            console.error("Error fetching clients from cache:", error);
-            setError(error.message);
+      if (error.message.includes(ERROR_EXP_SESION)) {
+        signOut(auth)
+          .then(() => {
+            Alert.alert(
+              translations.exp_title,
+              translations.exp_description,
+              [
+                { text: translations.ok, onPress: () => router.replace("/login") }
+              ]
+            );
+          })
+          .catch(console.error);
+      } else {
+        getDataFromCache({
+          key: STORAGE_KEYS.CLIENTS,
+          onSuccess: (data) => {
+            setClients(data as Array<Client>);
+          },
+          onError: (error: Error) => {
+            if (error) {
+              console.error("Error fetching clients from cache:", error);
+              setError(error.message);
+            }
           }
-        }
-      });
+        });
+      }
+
     } finally {
       setLoading(false);
     }
@@ -170,6 +189,7 @@ export const useClient = () => {
     return clients.map((client) => ({
       ...client,
       clientId: decryptText(client.clientId),
+      action: decryptText(client.action),
       name: decryptText(client.name),
       shortName: decryptText(client.shortName),
       id: decryptText(client.id),

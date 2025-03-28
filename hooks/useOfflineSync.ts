@@ -3,6 +3,7 @@ import { Platform, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { useLanguage } from '@/context/LanguageContext';
+import { GLOBAL } from '@/utils/global';
 
 interface OfflineSyncOptions {
   storageKey: string;
@@ -80,14 +81,16 @@ export function useOfflineSync<T extends { id: string }>({
   const syncPendingChanges = async () => {
     const changes = { ...pendingChanges };
     const failedChanges: { [key: string]: any } = {};
+    const updatedChanges = { ...pendingChanges };
 
     for (const [id, data] of Object.entries(changes)) {
+      if (GLOBAL.syncingIds.has(id)) continue;
+
+      GLOBAL.syncingIds.add(id);
+      delete updatedChanges[id];
+      setPendingChanges(updatedChanges);
       try {
         await onSync(id, data);
-
-        const updatedChanges = { ...pendingChanges };
-        delete updatedChanges[id];
-        setPendingChanges(updatedChanges);
       } catch (error) {
         console.error(`Error syncing changes for id ${id}:`, error);
         failedChanges[id] = data;

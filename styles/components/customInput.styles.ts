@@ -53,4 +53,17 @@ export const styles = StyleSheet.create({
     color: "#717275",
     marginRight: 5,
   },
+  resizeHandle: {
+    position: "absolute",
+    right: 5,
+    bottom: 5,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  textarea: {
+    textAlignVertical: "top",
+    paddingVertical: 10,
+  },
 });

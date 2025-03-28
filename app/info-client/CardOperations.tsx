@@ -1,6 +1,5 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import { Fragment } from "react";
-import { CreditCard } from "lucide-react-native";
 import { useLanguage } from "../../context/LanguageContext";
 import { styles } from "@/styles/info-client.styles";
 import ItemOperationSection from "@/components/molecules/items/ItemOperationSection";
@@ -8,10 +7,10 @@ import ItemOperationDetail, {
   Operation,
 } from "@/components/molecules/items/ItemOperationDetail";
 import Divider from "@/components/atoms/Divider";
-import { Client } from "@/components/molecules/items/ItemInfoClient";
 import { router } from "expo-router";
 import Button from "@/components/molecules/buttons/Button";
 import { SVG } from "@/constants/assets";
+import { Client } from "@/hooks/useClient";
 
 export default function CardOperations({ client }: { client: Client | null }) {
   const { translations } = useLanguage();
@@ -31,7 +30,6 @@ export default function CardOperations({ client }: { client: Client | null }) {
     }, {} as Record<string, { operationType: string; operationId: string; operations: Operation[] }>)
   );
 
-  console.log("groupedOperations: ", groupedOperations);
   const handleManage = () => {
     if (client) {
       router.push(`/gestion/${client.clientId}`);

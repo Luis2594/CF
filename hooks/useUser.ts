@@ -6,6 +6,7 @@ import { LoginCredentials } from '@/app/login';
 import { Client } from './useClient';
 
 export const useUser = () => {
+
   const [user, setUser] = useState({});
   const [loadingUser, setLoading] = useState<boolean>(true);
   const [errorUser, setError] = useState<string | null>(null);
