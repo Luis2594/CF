@@ -10,13 +10,16 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   greeting: {
     fontSize: 24,
     fontFamily: 'Quicksand_700Bold',
     color: '#333',
+  },
+  subtitle: {
+    fontSize: 14,
+    fontFamily: 'Quicksand_400Regular',
+    color: '#666',
   },
   logoutButton: {
     flexDirection: 'row',
@@ -32,16 +35,27 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Quicksand_600SemiBold',
   },
-  errorContainer: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
-    padding: 16,
-    margin: 16,
-    borderRadius: 8,
+  searchContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    gap: 12,
   },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 14,
-    fontFamily: 'Quicksand_500Medium',
+  searchInputContainer: {
+    flex: 1,
+  },
+  filterButton: {
+    width: 48,
+    height: 48,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   centerContainer: {
     flex: 1,
@@ -59,7 +73,27 @@ export const styles = StyleSheet.create({
     color: '#666',
   },
   clientList: {
-    padding: 16,
+    paddingHorizontal: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Quicksand_700Bold',
+    color: '#333',
+  },
+  sectionCount: {
+    fontSize: 14,
+    fontFamily: 'Quicksand_500Medium',
+    color: '#666',
   },
   clientCard: {
     backgroundColor: 'white',
@@ -68,7 +102,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -114,5 +148,11 @@ export const styles = StyleSheet.create({
     fontFamily: 'Quicksand_400Regular',
     color: '#333',
     flex: 1,
+  },
+  pendingText: {
+    color: '#FF3B30',
+  },
+  visitedText: {
+    color: '#34C759',
   },
 });

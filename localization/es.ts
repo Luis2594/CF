@@ -116,15 +116,16 @@ export const es = {
 
   // Client Management
   clients: {
-    loading: 'Cargando...',
-    noClients: 'No hay clientes disponibles',
+    loading: "Cargando...",
+    noClients: "No hay clientes disponibles",
+    noSearchResults: "No se encontraron clientes que coincidan con tu búsqueda",
     errors: {
-      loading: 'Error al cargar los datos del cliente',
-      invalidParams: 'Parámetros de solicitud inválidos',
-      unauthorized: 'Acceso no autorizado',
-      general: 'Ocurrió un error al cargar los clientes',
-      notFound: 'Cliente no encontrado',
-      noData: 'Datos del cliente no disponibles'
+      loading: "Error al cargar los datos del cliente",
+      invalidParams: "Parámetros de solicitud inválidos",
+      unauthorized: "Acceso no autorizado",
+      general: "Ocurrió un error al cargar los clientes",
+      notFound: "Cliente no encontrado",
+      noData: "Datos del cliente no disponibles"
     }
   },
 
@@ -254,5 +255,27 @@ export const es = {
   // SIGN_OUT 
   exp_title: 'Sesión expirada',
   exp_description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
-  
+
+  // Home Screen
+  home: {
+    greeting: "Hola",
+    subtitle: "Aquí está tu lista de clientes para hoy",
+    search: {
+      placeholder: "Buscar clientes...",
+    },
+    client: {
+      portfolio: "Cartera",
+      id: "ID",
+      status: "Estado",
+      statusTypes: {
+        pending: "Pendiente",
+        visited: "Visitado"
+      },
+      noRegion: "Sin Región",
+      client: "cliente",
+      clients: "clientes"
+    }
+  },
 };
+
+export { es }

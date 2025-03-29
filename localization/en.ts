@@ -116,15 +116,16 @@ export const en = {
 
   // Client Management
   clients: {
-    loading: 'Loading...',
-    noClients: 'No clients available',
+    loading: "Loading...",
+    noClients: "No clients available",
+    noSearchResults: "No clients found matching your search",
     errors: {
-      loading: 'Error loading client data',
-      invalidParams: 'Invalid request parameters',
-      unauthorized: 'Unauthorized access',
-      general: 'An error occurred while loading clients',
-      notFound: 'Client not found',
-      noData: 'Client data not available'
+      loading: "Error loading client data",
+      invalidParams: "Invalid request parameters",
+      unauthorized: "Unauthorized access",
+      general: "An error occurred while loading clients",
+      notFound: "Client not found",
+      noData: "Client data not available"
     }
   },
 
@@ -250,7 +251,33 @@ export const en = {
     "392": "Yen",
   },
 
-    // SIGN_OUT 
-    exp_title: 'Session Expired',
-    exp_description: 'Your session has expired. Please log in again.',
+  // SIGN_OUT 
+  exp_title: 'Session Expired',
+  exp_description: 'Your session has expired. Please log in again.',
+
+  // Home Screen
+  home: {
+    greeting: "Hello",
+    subtitle: "Here's your client list for today",
+    search: {
+      placeholder: "Search clients...",
+    },
+    filters: {
+      all: "All Clients",
+      pending: "Pending",
+      visited: "Visited"
+    },
+    client: {
+      portfolio: "Portfolio",
+      id: "ID",
+      status: "Status",
+      statusTypes: {
+        pending: "Pending",
+        visited: "Visited"
+      },
+      noRegion: "No Region",
+      client: "client",
+      clients: "clients"
+    }
+  },
 };

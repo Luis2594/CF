@@ -28,6 +28,15 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
   },
+  searchContainer: {
+    borderWidth: 0,
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   input: {
     flex: 1,
     height: 44,
@@ -35,8 +44,14 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "#717275",
   },
+  searchInput: {
+    marginLeft: 8,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
   inputWithPrefix: {
-    marginLeft: 5, // Ajuste para que el texto no toque el $
+    marginLeft: 5,
   },
   inputDisabled: {
     backgroundColor: "#E5E5E5",

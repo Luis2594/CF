@@ -8,11 +8,10 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { Eye, EyeOff, Info } from "lucide-react-native"; // Icons
+import { Eye, EyeOff, Info, Search } from "lucide-react-native";
 import { styles } from "@/styles/components/customInput.styles";
 import TextError from "../atoms/TextError";
 import { SVG } from "@/constants/assets";
-import numeral from "numeral";
 
 type CustomInputProps = {
   label: string;
@@ -27,6 +26,7 @@ type CustomInputProps = {
   currency?: string;
   isDate?: boolean;
   isTextarea?: boolean;
+  isSearch?: boolean;
   setScrollEnabled?: (enabled: boolean) => void;
 };
 
@@ -43,15 +43,14 @@ export default function CustomInput({
   currency,
   isDate = false,
   isTextarea = false,
+  isSearch = false,
   setScrollEnabled,
 }: CustomInputProps) {
   const [secureText, setSecureText] = useState(isPassword);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
   const [inputHeight, setInputHeight] = useState(44);
   const lastHeight = useRef(inputHeight);
 
-  // Detect user's drag to change the size of the textarea
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -60,7 +59,7 @@ export default function CustomInput({
         if (setScrollEnabled) {
           setScrollEnabled(false);
         }
-      }, // Disable scroll when starting drag
+      },
       onPanResponderMove: (_, gestureState) => {
         const newHeight = Math.max(50, lastHeight.current + gestureState.dy);
         setInputHeight(newHeight);
@@ -74,54 +73,41 @@ export default function CustomInput({
     })
   ).current;
 
-  // Handle date selection
   const onChangeDate = (date: Date) => {
     setShowDatePicker(false);
     if (date) {
       const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses en JavaScript empiezan desde 0
+      const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
-
       const formattedDate = `${day}/${month}/${year}`;
       onChangeText && onChangeText(formattedDate);
     }
   };
 
   const formatNumber = (text: string) => {
-    // Replace comma with period only if the comma is at the end
     if (text.endsWith(",")) {
       text = text.slice(0, -1) + ".";
     }
-
-    // Allow only numbers and one decimal point
     let numericValue = text.replace(/[^0-9.]/g, "");
     let parts = numericValue.split(".");
-
     if (parts.length > 2) {
-      parts = [parts[0], parts.slice(1).join("")]; // Join additional decimals
+      parts = [parts[0], parts.slice(1).join("")];
     }
-
     if (parts[1] && parts[1].length > 2) {
-      parts[1] = parts[1].slice(0, 2); // Limit to two decimals without deleting everything
+      parts[1] = parts[1].slice(0, 2);
     }
-
-    // Avoid premature formatting while the user is entering data
     if (numericValue.endsWith(".")) {
-      return numeral(parts[0]).format("0,0") + ".";
+      return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ".";
     }
     if (numericValue.endsWith(".0") || numericValue.endsWith(".00")) {
-      return numeral(parts[0]).format("0,0") + "." + parts[1];
+      return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + parts[1];
     }
-
-    // Format integer part with thousands separators without affecting editing
-    let integerPart = parts[0].replace(/^0+(?=\d)/, ""); // Remove leading zeros
+    let integerPart = parts[0].replace(/^0+(?=\d)/, "");
     let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
     let formattedValue = formattedInteger;
     if (parts.length > 1) {
       formattedValue += "." + parts[1];
     }
-
     return formattedValue;
   };
 
@@ -149,36 +135,37 @@ export default function CustomInput({
   return (
     <TouchableWithoutFeedback onPress={onPressIsDate}>
       <View style={styles.container}>
-        {/* Input label */}
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>
-            {label} {isRequired && <Text style={styles.asterisk}>*</Text>}
-          </Text>
-          {showTooltip && (
-            <TouchableOpacity>
-              <Info size={16} color="#666" />
-            </TouchableOpacity>
-          )}
-        </View>
+        {label && (
+          <View style={styles.labelContainer}>
+            <Text style={styles.label}>
+              {label} {isRequired && <Text style={styles.asterisk}>*</Text>}
+            </Text>
+            {showTooltip && (
+              <TouchableOpacity>
+                <Info size={16} color="#666" />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
-        {/* Input container */}
         <View
           style={[
             styles.inputContainer,
             isDisabled && styles.inputDisabled,
+            isSearch && styles.searchContainer,
             { height: inputHeight },
           ]}
         >
-          {/* Currency prefix */}
+          {isSearch && <Search size={20} color="#666" style={styles.searchIcon} />}
           {currency && <Text style={styles.prefix}>{currency}</Text>}
 
-          {/* Input */}
           <TextInput
             style={[
               styles.input,
               isDisabled && styles.inputDisabledText,
               currency && styles.inputWithPrefix,
               isTextarea && styles.textarea,
+              isSearch && styles.searchInput,
               isTextarea && { height: inputHeight },
             ]}
             placeholder={placeholder}
@@ -194,14 +181,12 @@ export default function CustomInput({
             textAlignVertical={isTextarea ? "top" : "center"}
           />
 
-          {/* Resize handle icon */}
           {isTextarea && (
             <View {...panResponder.panHandlers} style={styles.resizeHandle}>
               <SVG.EXPAND width={12} height={12} />
             </View>
           )}
 
-          {/* Show/Hide password button */}
           {isPassword && (
             <TouchableOpacity
               onPress={() => setSecureText(!secureText)}
@@ -215,11 +200,9 @@ export default function CustomInput({
             </TouchableOpacity>
           )}
 
-          {/* Calendar button */}
           {isDate && <SVG.CALENDAR width={20} height={20} />}
         </View>
 
-        {/* DateTimePicker to select date */}
         <DateTimePickerModal
           isVisible={isDate && showDatePicker}
           mode="date"
@@ -227,7 +210,6 @@ export default function CustomInput({
           onCancel={() => setShowDatePicker(false)}
         />
 
-        {/* Error message */}
         {errorMessage && <TextError error={errorMessage} />}
       </View>
     </TouchableWithoutFeedback>
