@@ -20,6 +20,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/config/firebase";
 import { styles } from "@/styles/home.styles";
 import CustomInput from "@/components/organism/CustomInput";
+import ButtonIcon from "@/components/molecules/buttons/ButtonIcon";
 
 const ClientCard = ({
   client,
@@ -233,19 +234,16 @@ export default function HomeScreen() {
           isSearch
         />
       </View>
-      <TouchableOpacity
+      <ButtonIcon
         ref={anchorRef}
-        style={styles.filterButton}
+        icon={Sliders}
         onPress={onFilterPress}
-      >
-        <Sliders size={20} color="#666" />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.filterButton}
+      />
+
+       <ButtonIcon
+        icon={Sliders}
         onPress={onFilterPress}
-      >
-        <Sliders size={20} color="#666" />
-      </TouchableOpacity>
+      />
     </View>
   );
 
