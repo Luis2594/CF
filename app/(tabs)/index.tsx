@@ -6,7 +6,7 @@ import {
   Alert,
   SectionList,
 } from "react-native";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { LogOut, FileSliders as Sliders } from "lucide-react-native";
 import { router } from "expo-router";
 import { useLanguage } from "../../context/LanguageContext";
@@ -21,8 +21,12 @@ import { auth } from "@/config/firebase";
 import { styles } from "@/styles/home.styles";
 import CustomInput from "@/components/organism/CustomInput";
 
-const ClientCard = ({ client, onPress, translations }: { 
-  client: Client; 
+const ClientCard = ({
+  client,
+  onPress,
+  translations,
+}: {
+  client: Client;
   onPress: () => void;
   translations: any;
 }) => (
@@ -57,42 +61,20 @@ const ClientCard = ({ client, onPress, translations }: {
             <Text>{translations.home.client.status}</Text>
             <Text>: </Text>
           </Text>
-          <Text style={[styles.infoValue, client.status === 1 ? styles.pendingText : styles.visitedText]}>
-            {client.status === 1 
-              ? translations.home.client.statusTypes.pending 
+          <Text
+            style={[
+              styles.infoValue,
+              client.status === 1 ? styles.pendingText : styles.visitedText,
+            ]}
+          >
+            {client.status === 1
+              ? translations.home.client.statusTypes.pending
               : translations.home.client.statusTypes.visited}
           </Text>
         </View>
       </View>
     </View>
   </TouchableOpacity>
-);
-
-const SearchBar = ({ 
-  translations, 
-  onSearch,
-  searchValue, 
-  onFilterPress 
-}: { 
-  translations: any; 
-  onSearch: (text: string) => void;
-  searchValue: string;
-  onFilterPress: () => void;
-}) => (
-  <View style={styles.searchContainer}>
-    <View style={styles.searchInputContainer}>
-      <CustomInput
-        label=""
-        placeholder={translations.home.search.placeholder}
-        onChangeText={onSearch}
-        value={searchValue}
-        isSearch
-      />
-    </View>
-    <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
-      <Sliders size={20} color="#666" />
-    </TouchableOpacity>
-  </View>
 );
 
 interface Section {
@@ -117,28 +99,34 @@ export default function HomeScreen() {
   const filterOptions = useMemo(() => {
     if (!isLanguageLoaded || !translations.home?.filters) return [];
     return [
-      { id: "all", label: translations.home.filters.all },
       { id: "pending", label: translations.home.filters.pending },
       { id: "visited", label: translations.home.filters.visited },
+      { id: "all", label: translations.home.filters.all },
     ];
   }, [isLanguageLoaded, translations]);
 
   const sections = useMemo(() => {
     if (!isLanguageLoaded || !translations.home?.client) return [];
-    
-    const grouped = filteredClients.reduce((acc: { [key: string]: Client[] }, client) => {
-      const region = client.addressLevel2 || translations.home.client.noRegion;
-      if (!acc[region]) {
-        acc[region] = [];
-      }
-      acc[region].push(client);
-      return acc;
-    }, {});
+
+    const grouped = filteredClients.reduce(
+      (acc: { [key: string]: Client[] }, client) => {
+        const region =
+          client.addressLevel2 || translations.home.client.noRegion;
+        if (!acc[region]) {
+          acc[region] = [];
+        }
+        acc[region].push(client);
+        return acc;
+      },
+      {}
+    );
 
     return Object.entries(grouped)
       .map(([title, data]) => ({ title, data }))
       .sort((a, b) => a.title.localeCompare(b.title));
   }, [filteredClients, translations, isLanguageLoaded]);
+
+  const anchorRef = useRef<View>(null);
 
   useEffect(() => {
     if (user.token) {
@@ -158,7 +146,10 @@ export default function HomeScreen() {
   }, [clients]);
 
   useEffect(() => {
-    if (isLanguageLoaded && status === "denied" || status === "undetermined") {
+    if (
+      (isLanguageLoaded && status === "denied") ||
+      status === "undetermined"
+    ) {
       Alert.alert(
         translations.locationPermissions.title,
         translations.locationPermissions.message,
@@ -178,17 +169,18 @@ export default function HomeScreen() {
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
-    const filtered = clients.filter(client => 
-      client.name.toLowerCase().includes(text.toLowerCase()) ||
-      client.id.toLowerCase().includes(text.toLowerCase()) ||
-      client.portfolio.toLowerCase().includes(text.toLowerCase())
+    const filtered = clients.filter(
+      (client) =>
+        client.name.toLowerCase().includes(text.toLowerCase()) ||
+        client.id.toLowerCase().includes(text.toLowerCase()) ||
+        client.portfolio.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredClients(filtered);
   };
 
   const handleFilterSelect = (filterId: string) => {
     setSelectedFilter(filterId);
-    const filtered = clients.filter(client => {
+    const filtered = clients.filter((client) => {
       if (filterId === "all") return true;
       if (filterId === "pending") return client.status === 1;
       if (filterId === "visited") return client.status === 2;
@@ -212,8 +204,48 @@ export default function HomeScreen() {
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{section.title}</Text>
       <Text style={styles.sectionCount}>
-        {section.data.length} {section.data.length === 1 ? translations.home.client.client : translations.home.client.clients}
+        {section.data.length}{" "}
+        {section.data.length === 1
+          ? translations.home.client.client
+          : translations.home.client.clients}
       </Text>
+    </View>
+  );
+
+  const SearchBar = ({
+    translations,
+    onSearch,
+    searchValue,
+    onFilterPress,
+  }: {
+    translations: any;
+    onSearch: (text: string) => void;
+    searchValue: string;
+    onFilterPress: () => void;
+  }) => (
+    <View style={styles.searchContainer}>
+      <View style={styles.searchInputContainer}>
+        <CustomInput
+          label=""
+          placeholder={translations.home.search.placeholder}
+          onChangeText={onSearch}
+          value={searchValue}
+          isSearch
+        />
+      </View>
+      <TouchableOpacity
+        ref={anchorRef}
+        style={styles.filterButton}
+        onPress={onFilterPress}
+      >
+        <Sliders size={20} color="#666" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.filterButton}
+        onPress={onFilterPress}
+      >
+        <Sliders size={20} color="#666" />
+      </TouchableOpacity>
     </View>
   );
 
@@ -229,15 +261,13 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <AlertErrorMessage error={error} onClose={() => setError(null)} />
-      
+
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>
             {translations.home.greeting}, {user.name}
           </Text>
-          <Text style={styles.subtitle}>
-            {translations.home.subtitle}
-          </Text>
+          <Text style={styles.subtitle}>{translations.home.subtitle}</Text>
         </View>
         <TouchableOpacity
           style={styles.logoutButton}
@@ -251,8 +281,8 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <SearchBar 
-        translations={translations} 
+      <SearchBar
+        translations={translations}
         onSearch={handleSearch}
         searchValue={searchQuery}
         onFilterPress={() => setShowFilterModal(true)}
@@ -265,6 +295,7 @@ export default function HomeScreen() {
           onSelect={handleFilterSelect}
           selectedOption={selectedFilter}
           options={filterOptions}
+          anchorRef={anchorRef}
         />
       )}
 
@@ -276,8 +307,8 @@ export default function HomeScreen() {
         <SectionList
           sections={sections}
           renderItem={({ item }) => (
-            <ClientCard 
-              client={item} 
+            <ClientCard
+              client={item}
               onPress={() => handleClientPress(item)}
               translations={translations}
             />
@@ -291,7 +322,9 @@ export default function HomeScreen() {
       ) : (
         <View style={styles.centerContainer}>
           <Text style={styles.noDataText}>
-            {searchQuery ? translations.clients.noSearchResults : translations.clients.noClients}
+            {searchQuery
+              ? translations.clients.noSearchResults
+              : translations.clients.noClients}
           </Text>
         </View>
       )}

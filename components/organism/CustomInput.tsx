@@ -152,7 +152,6 @@ export default function CustomInput({
           style={[
             styles.inputContainer,
             isDisabled && styles.inputDisabled,
-            isSearch && styles.searchContainer,
             { height: inputHeight },
           ]}
         >

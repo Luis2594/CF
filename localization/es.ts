@@ -263,6 +263,11 @@ export const es = {
     search: {
       placeholder: "Buscar clientes...",
     },
+    filters: {
+      all: "Todos",
+      pending: "Pendientes",
+      visited: "Visitado"
+    },
     client: {
       portfolio: "Cartera",
       id: "ID",

@@ -28,15 +28,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
   },
-  searchContainer: {
-    borderWidth: 0,
-    backgroundColor: "white",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
   input: {
     flex: 1,
     height: 44,

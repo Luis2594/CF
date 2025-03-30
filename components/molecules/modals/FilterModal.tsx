@@ -1,7 +1,16 @@
-import React, { useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, TouchableWithoutFeedback, Animated } from 'react-native';
-import { styles } from '@/styles/components/filterModal.styles';
-import { SVG } from '@/constants/assets';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Animated,
+  Dimensions,
+  StatusBar,
+} from "react-native";
+import { styles } from "@/styles/components/filterModal.styles";
+import { Check } from "lucide-react-native";
 
 interface FilterOption {
   id: string;
@@ -14,6 +23,7 @@ interface FilterModalProps {
   onSelect: (option: string) => void;
   selectedOption: string;
   options: FilterOption[];
+  anchorRef: React.RefObject<View>;
 }
 
 export default function FilterModal({
@@ -22,37 +32,53 @@ export default function FilterModal({
   onSelect,
   selectedOption,
   options,
+  anchorRef,
 }: FilterModalProps) {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(-200)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const windowHeight = Dimensions.get("window").height;
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    right: 0,
+    width: 0,
+    height: 0,
+  });
+  const [direction, setDirection] = useState<"down" | "up">("down");
+
+  useEffect(() => {
+    if (visible && anchorRef.current) {
+      anchorRef.current.measure((x, y, width, height, pageX, pageY) => {
+        const screenWidth = Dimensions.get("window").width;
+        const spaceBelow = windowHeight - pageY - height;
+        const spaceNeeded = Math.min(options.length * 50, 200);
+        const shouldOpenUpward =
+          spaceBelow < spaceNeeded && pageY > spaceNeeded;
+
+        setDirection(shouldOpenUpward ? "up" : "down");
+        setDropdownPosition({
+          top: pageY + (shouldOpenUpward ? 0 : height),
+          left: pageX,
+          right: screenWidth - (x + width),
+          width,
+          height,
+        });
+      });
+    }
+  }, [visible]);
 
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } else {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: -200,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     }
   }, [visible]);
 
@@ -68,29 +94,25 @@ export default function FilterModal({
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.content,
                 {
+                  top:
+                    direction === "down"
+                      ? dropdownPosition.top - (StatusBar.currentHeight ?? 0)
+                      : dropdownPosition.top - 200,
+                  right: dropdownPosition.right,
                   opacity: fadeAnim,
-                  transform: [{ translateX: slideAnim }],
-                }
+                  zIndex: 1000,
+                },
               ]}
             >
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <SVG.CLOSE_SECOND width={20} height={20} />
-              </TouchableOpacity>
-              
-              <View style={styles.divider} />
-              
               <View style={styles.optionsContainer}>
                 {options.map((option) => (
                   <TouchableOpacity
                     key={option.id}
-                    style={[
-                      styles.optionButton,
-                      selectedOption === option.id && styles.selectedOption,
-                    ]}
+                    style={styles.optionButton}
                     onPress={() => {
                       onSelect(option.id);
                       onClose();
@@ -99,14 +121,15 @@ export default function FilterModal({
                     <Text
                       style={[
                         styles.optionText,
-                        selectedOption === option.id && styles.selectedOptionText,
+                        selectedOption === option.id &&
+                          styles.selectedOptionText,
                       ]}
                     >
                       {option.label}
                     </Text>
                     {selectedOption === option.id && (
                       <View style={styles.checkIcon}>
-                        <SVG.CHECK width={12} height={12} />
+                        <Check size={20} color="#F04E23" />
                       </View>
                     )}
                   </TouchableOpacity>
