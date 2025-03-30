@@ -1,35 +1,29 @@
-import React from 'react';
-import { TouchableOpacity, ViewStyle } from 'react-native';
-import { Video as LucideIcon } from 'lucide-react-native';
-import { styles } from '@/styles/components/buttonIcon.styles';
+import React, { forwardRef } from "react";
+import { TouchableOpacity, ViewStyle } from "react-native";
+import { styles } from "@/styles/components/buttonIcon.styles";
 
+// Update the Icon type to React.ReactNode to accept JSX elements
 interface ButtonIconProps {
-  icon: LucideIcon;
-  size?: number;
-  color?: string;
+  Icon: React.ReactNode; // Accept any valid JSX element
   style?: ViewStyle;
-  onPress?: () => void;
   disabled?: boolean;
-  ref?: React.RefObject<TouchableOpacity>;
+  onPress?: () => void;
 }
 
-const ButtonIcon: React.FC<ButtonIconProps> = React.forwardRef(({
-  icon: Icon,
-  size = 20,
-  color = "#666",
-  style,
-  onPress,
-  disabled = false
-}, ref) => {
+const ButtonIcon = forwardRef<
+  React.ElementRef<typeof TouchableOpacity>,
+  ButtonIconProps
+>(({ Icon, style, onPress, disabled = false }, ref) => {
   return (
     <TouchableOpacity
-      ref={ref as React.RefObject<TouchableOpacity>}
+      ref={ref}
       style={[styles.button, style]}
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
     >
-      <Icon size={size} color={color} />
+      {/* Directly render the passed Icon element */}
+      {Icon}
     </TouchableOpacity>
   );
 });

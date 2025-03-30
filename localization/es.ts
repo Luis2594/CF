@@ -258,10 +258,10 @@ export const es = {
 
   // Home Screen
   home: {
-    greeting: "Hola",
-    subtitle: "Aquí está tu lista de clientes para hoy",
+    greeting: "Bienvenido,",
+    subtitle: "Te compartimos la ruta domiciliar de hoy.",
     search: {
-      placeholder: "Buscar clientes...",
+      placeholder: "Buscar",
     },
     filters: {
       all: "Todos",
@@ -278,7 +278,12 @@ export const es = {
       },
       noRegion: "Sin Región",
       client: "cliente",
-      clients: "clientes"
+      clients: "clientes",
+      card: {
+        region: 'Región',
+        state: 'Estado',
+        portfolioGroup: 'Grupo de cartera'
+      }
     }
   },
 };

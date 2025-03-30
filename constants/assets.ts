@@ -24,6 +24,14 @@ import Finance from '../assets/images/icons/finance.svg';
 import SuccessModal from '../assets/images/icons/successModal.svg';
 import ErrorModal from '../assets/images/icons/errorModal.svg';
 import Expand from '../assets/images/icons/expand.svg';
+import Filter from '../assets/images/icons/filter.svg';
+import Location from '../assets/images/icons/location.svg';
+import Menu from '../assets/images/icons/menu.svg';
+import Jet from '../assets/images/icons/jet.svg';
+import Search from '../assets/images/icons/search.svg';
+import SignOut from '../assets/images/icons/signOut.svg';
+import User from '../assets/images/icons/user.svg';
+import CalendarGray from '../assets/images/icons/calendar_gray.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -46,6 +54,14 @@ export const SVG = {
   SUCCESS_MODAL: SuccessModal,
   ERROR_MODAL: ErrorModal,
   EXPAND: Expand,
+  FILTER: Filter,
+  LOCATION: Location,
+  MENU: Menu,
+  JET: Jet,
+  SEARCH: Search,
+  SIGN_OUT: SignOut,
+  USER: User,
+  CALENDAR_GRAY: CalendarGray,
 } as const;
 
 export const IMAGES = {

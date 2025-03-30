@@ -16,7 +16,6 @@ import { SVG } from "@/constants/assets";
 type CustomInputProps = {
   label: string;
   value: string;
-  onChangeText?: (text: string) => void;
   placeholder?: string;
   errorMessage?: string;
   isRequired?: boolean;
@@ -27,6 +26,7 @@ type CustomInputProps = {
   isDate?: boolean;
   isTextarea?: boolean;
   isSearch?: boolean;
+  onChangeText?: (text: string) => void;
   setScrollEnabled?: (enabled: boolean) => void;
 };
 
@@ -155,7 +155,7 @@ export default function CustomInput({
             { height: inputHeight },
           ]}
         >
-          {isSearch && <Search size={20} color="#666" style={styles.searchIcon} />}
+          {isSearch && <SVG.SEARCH width={18} height={18} />}
           {currency && <Text style={styles.prefix}>{currency}</Text>}
 
           <TextInput

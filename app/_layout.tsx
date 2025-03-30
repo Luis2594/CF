@@ -80,7 +80,6 @@ export default function RootLayout() {
 
   const handleNavigation = async () => {
     try {
-      return router.replace("/(tabs)");
       console.log("userAuth: ", userAuth);
       const savedCredentials = await AsyncStorage.getItem(
         STORAGE_KEYS.LAST_LOGIN_CREDENTIALS

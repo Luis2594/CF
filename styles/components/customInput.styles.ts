@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   inputContainer: {
     height: 44,
     borderWidth: 1,
-    borderColor: "#D0D0D1",
+    borderColor: "#E6E6E7",
     borderRadius: 25,
     paddingHorizontal: 15,
     flexDirection: "row",
