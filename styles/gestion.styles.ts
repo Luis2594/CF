@@ -1,10 +1,11 @@
 import { StatusBar, StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
+    backgroundColor: colors.common.white,
+    paddingTop: StatusBar.currentHeight,
   },
   scrollView: {
     flex: 1,
@@ -14,7 +15,7 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: 'Quicksand',
     fontWeight: '700',
-    color: '#F04E23',
+    color: colors.primary.main,
     textAlign: 'center',
     marginVertical: 22,
   },
@@ -29,7 +30,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Quicksand',
     fontWeight: '600',
-    color: '#717275',
+    color: colors.gray[500],
   },
   keyboardAvoid: {
   },
@@ -37,22 +38,23 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.common.white,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: '#F04E23',
+    borderColor: colors.primary.main,
     paddingVertical: 12,
     marginTop: 20,
     marginBottom: 12,
   },
   photoButtonText: {
-    color: '#F04E23',
+    color: colors.primary.main,
     fontSize: 16,
-    fontFamily: 'Quicksand_600SemiBold',
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
     marginRight: 8,
   },
   saveButton: {
-    backgroundColor: '#F04E23',
+    backgroundColor: colors.primary.main,
     borderRadius: 30,
     paddingVertical: 12,
     alignItems: 'center',
@@ -60,9 +62,10 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saveButtonText: {
-    color: '#fff',
+    color: colors.common.white,
     fontSize: 16,
-    fontFamily: 'Quicksand_600SemiBold',
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
   },
   photoPreview: {
     marginVertical: 20,

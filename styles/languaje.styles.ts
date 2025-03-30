@@ -1,14 +1,15 @@
 import { StatusBar, StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
+    backgroundColor: colors.common.white,
+    paddingTop: StatusBar.currentHeight,
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: "#F5F5F6",
+    backgroundColor: colors.gray[50],
     borderRadius: 24,
     margin: 22,
   },

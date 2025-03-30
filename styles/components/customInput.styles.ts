@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,28 +13,29 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontFamily: "Quicksand",
-    color: "#717275",
+    color: colors.gray[500],
     fontWeight: "700",
   },
   asterisk: {
-    color: "red",
+    color: colors.error.main,
   },
   inputContainer: {
     height: 44,
     borderWidth: 1,
-    borderColor: "#E6E6E7",
+    borderColor: colors.gray[100],
     borderRadius: 25,
     paddingHorizontal: 15,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: colors.common.white,
   },
   input: {
     flex: 1,
     height: 44,
-    fontFamily: "Quicksand_500Medium",
+    fontFamily: "Quicksand",
+    fontWeight: "500",
     fontSize: 14,
-    color: "#717275",
+    color: colors.gray[500],
   },
   searchInput: {
     marginLeft: 8,
@@ -45,18 +47,18 @@ export const styles = StyleSheet.create({
     marginLeft: 5,
   },
   inputDisabled: {
-    backgroundColor: "#E5E5E5",
+    backgroundColor: colors.gray[50],
   },
   inputDisabledText: {
-    color: "#D0D0D1",
+    color: colors.gray[300],
   },
   eyeIcon: {
     padding: 10,
   },
   prefix: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#717275",
+    fontWeight: "700",
+    color: colors.gray[500],
     marginRight: 5,
   },
   resizeHandle: {

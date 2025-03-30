@@ -1,18 +1,19 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.background.modal,
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
-    backgroundColor: "white",
+    backgroundColor: colors.common.white,
     borderRadius: 20,
     width: "90%",
     maxWidth: 400,
-    shadowColor: "#000",
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -25,8 +26,8 @@ export const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#E0E0E0",
-    shadowColor: "#000",
+    backgroundColor: colors.gray[200],
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -48,32 +49,32 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   successIcon: {
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    backgroundColor: colors.success.background,
   },
   errorIcon: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    backgroundColor: colors.error.background,
   },
   title: {
     fontSize: 20,
     fontFamily: 'Quicksand',
     fontWeight: '600',
-    color: '#18784A',
+    color: colors.success.dark,
     marginBottom: 8,
     textAlign: 'center',
   },
   errorTitle: {
-    color: '#FF3B30',
+    color: colors.error.main,
   },
   message: {
     fontSize: 14,
     fontFamily: 'Quicksand',
     fontWeight: '400',
-    color: '#717275',
+    color: colors.gray[500],
     textAlign: 'center',
     marginBottom: 24,
   },
   button: {
-    backgroundColor: '#F04E23',
+    backgroundColor: colors.primary.main,
     borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 24,
@@ -81,8 +82,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: colors.common.white,
     fontSize: 16,
-    fontFamily: 'Quicksand_600SemiBold',
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
   },
 });

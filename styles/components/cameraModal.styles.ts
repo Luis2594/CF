@@ -1,16 +1,17 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: colors.common.black,
   },
   camera: {
     flex: 1,
   },
   controls: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.common.transparent,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
@@ -24,7 +25,7 @@ export const styles = StyleSheet.create({
   captureButton: {
     padding: 20,
     borderRadius: 50,
-    backgroundColor: '#F04E23',
+    backgroundColor: colors.primary.main,
   },
   flipButton: {
     padding: 15,
@@ -35,15 +36,15 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
   },
   webMessage: {
     fontSize: 16,
     marginBottom: 20,
-    color: '#666',
+    color: colors.text.secondary,
   },
   closeButtonText: {
-    color: '#F04E23',
+    color: colors.primary.main,
     fontSize: 16,
   },
 });

@@ -1,10 +1,11 @@
 import { StatusBar, StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F6",
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
+    backgroundColor: colors.gray[50],
+    paddingTop: StatusBar.currentHeight,
   },
   wrapContainer: {
     flex: 1,
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: colors.common.white,
     borderRadius: 24,
   },
   illustration: {
@@ -36,16 +37,16 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FBC7AD",
+    backgroundColor: colors.primary.light,
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#D9D9D9",
+    backgroundColor: colors.gray[200],
   },
   activeDot: {
-    backgroundColor: "#F34A2D",
+    backgroundColor: colors.primary.dark,
   },
   wrapContentText: {
     flex: 1,
@@ -53,15 +54,17 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: "Quicksand_700Bold",
-    color: "#F04E23",
+    fontFamily: 'Quicksand',
+    fontWeight: '700',
+    color: colors.primary.main,
     marginBottom: 10,
     textAlign: "center",
   },
   description: {
     fontSize: 16,
-    fontFamily: "Quicksand_400Regular",
-    color: "#717275",
+    fontFamily: 'Quicksand',
+    fontWeight: '400',
+    color: colors.gray[500],
     textAlign: "center",
     marginBottom: 20,
   },

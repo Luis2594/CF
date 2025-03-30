@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -8,11 +9,11 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 1,
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     borderRadius: 20,
     width: 253,
     borderWidth: 1,
-    borderColor: '#D0D0D1'
+    borderColor: colors.gray[300]
   },
   optionsContainer: {
     padding: 8,
@@ -34,7 +35,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Quicksand',
     fontWeight: '700',
-    color: '#717275',
+    color: colors.gray[500],
   },
   selectedOptionText: {
     fontWeight: '700',

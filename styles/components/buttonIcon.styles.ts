@@ -1,14 +1,15 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   button: {
     width: 44,
     height: 44,
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E6E6E7'
+    borderColor: colors.gray[100]
   }
 });

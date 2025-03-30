@@ -1,16 +1,17 @@
 import { StatusBar, StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F6',
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
+    backgroundColor: colors.gray[50],
+    paddingTop: StatusBar.currentHeight,
   },
   backButton: {
     width: 28,
     height: 28,
     borderRadius: 10,
-    backgroundColor: '#E6E6E7',
+    backgroundColor: colors.gray[100],
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 22,
@@ -19,7 +20,7 @@ export const styles = StyleSheet.create({
   containerInfo: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
     paddingHorizontal: 22
@@ -30,24 +31,25 @@ export const styles = StyleSheet.create({
   },
   name: {
     fontSize: 22,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#717275',
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
+    color: colors.gray[500],
     marginBottom: 8,
     textAlign: 'center',
   },
   portfolioType: {
     fontSize: 16,
-    fontFamily: 'Quicksand_400Regular',
+    fontFamily: 'Quicksand',
     fontWeight: '400',
-    color: '#F04E23',
+    color: colors.primary.main,
   },
   portfolioValue: {
-    color: '#F04E23',
-    fontFamily: 'Quicksand_700Bold',
+    color: colors.primary.main,
+    fontFamily: 'Quicksand',
     fontWeight: '700',
   },
   shadowWrapper: {
-    shadowColor: "#000",
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
@@ -56,7 +58,7 @@ export const styles = StyleSheet.create({
     marginVertical: 22,
   },
   containerInfoTabs: {
-    backgroundColor: "white",
+    backgroundColor: colors.common.white,
     borderRadius: 60,
     overflow: "hidden",
   },
@@ -70,13 +72,14 @@ export const styles = StyleSheet.create({
   },
   operationsContainer: {
     borderWidth: 1,
-    borderColor: '#E6E6E7',
+    borderColor: colors.gray[100],
     borderRadius: 20,
   },
   loadingText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666',
+    fontFamily: 'Quicksand',
+    fontWeight: '500',
+    color: colors.text.secondary,
     textAlign: 'center',
     marginTop: 20,
   },

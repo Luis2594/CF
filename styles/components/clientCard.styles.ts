@@ -1,13 +1,14 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   clientCard: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     borderRadius: 20,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#F5F5F6',
-    shadowColor: '#000',
+    borderColor: colors.border.light,
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -24,7 +25,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Quicksand',
     fontWeight: '700',
-    color: '#717275',
+    color: colors.gray[500],
     marginLeft: 4
   },
   statusIndicator: {
@@ -34,16 +35,16 @@ export const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   statusPending: {
-    backgroundColor: '#FC4343',
+    backgroundColor: colors.status.pending,
   },
   statusVisited: {
-    backgroundColor: '#15DD7D',
+    backgroundColor: colors.status.visited,
   },
   textStatus: {
     fontSize: 12,
     fontFamily: 'Quicksand',
     fontWeight: '400',
-    color: '#717275',
+    color: colors.gray[500],
   },
   clientInfo: {
     gap: 4,
@@ -58,15 +59,15 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Quicksand',
     fontWeight: '400',
-    color: '#717275',
+    color: colors.gray[500],
   },
   infoValue: {
     fontWeight: '700',
   },
   pendingText: {
-    color: '#FF3B30',
+    color: colors.error.main,
   },
   visitedText: {
-    color: '#34C759',
+    color: colors.success.light,
   },
 });

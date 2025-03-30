@@ -1,29 +1,30 @@
 import { StyleSheet } from "react-native";
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   button: {
     height: 48,
     borderRadius: 50,
     marginBottom: 22,
-    backgroundColor: "#F04E23",
+    backgroundColor: colors.primary.main,
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
     fontSize: 16,
-    color: "white",
-    fontFamily: "Quicksand_600SemiBold",
+    color: colors.common.white,
+    fontFamily: "Quicksand",
     fontWeight: '600'
   },
   buttonDisabled: {
-    backgroundColor: "#D9D9D9",
+    backgroundColor: colors.gray[200],
   },
   buttonDisabledOutline: {
-    backgroundColor: "transparent",
+    backgroundColor: colors.common.transparent,
     borderWidth: 1,
-    borderColor: "#D0D0D1",
+    borderColor: colors.gray[300],
   },
   buttonTextDisabled: {
-    color: "#717275",
+    color: colors.gray[500],
   },
 });

@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   clientList: {
@@ -8,13 +9,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     paddingBottom: 22
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: 'Quicksand_700Bold',
-    color: '#F04E23',
+    fontFamily: 'Quicksand',
+    fontWeight: '700',
+    color: colors.primary.main,
   },
   centerContainer: {
     flex: 1,
@@ -29,6 +31,7 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
+    fontFamily: 'Quicksand',
+    fontWeight: '500',
   },
 });

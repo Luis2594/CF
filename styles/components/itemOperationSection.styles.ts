@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   operationSection: {
@@ -12,13 +13,14 @@ export const styles = StyleSheet.create({
   operationTitle: {
     flex: 1,
     fontSize: 18,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
+    color: colors.text.primary,
     marginLeft: 12,
   },
   dividerH: {
     width: "100%",
     height: 2,
-    backgroundColor: "#E6E6E7"
+    backgroundColor: colors.gray[100]
   },
 });

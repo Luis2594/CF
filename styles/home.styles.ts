@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
   },
   header: {
     margin: 22,
@@ -16,20 +17,22 @@ export const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 22,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: "#F04E23",
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
+    color: colors.primary.main,
     marginLeft: 8,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Quicksand_600SemiBold',
-    color: "#717275",
+    fontFamily: 'Quicksand',
+    fontWeight: '600',
+    color: colors.gray[500],
   },
   textShowFilter: {
     fontSize: 22,
     fontFamily: 'Quicksand',
     fontWeight: '700',
-    color: "#F04E23",
+    color: colors.primary.main,
     textAlign: 'center',
     marginVertical: 22
   },
@@ -43,7 +46,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   buttonLocation: {
-    backgroundColor: '#F04E23',
+    backgroundColor: colors.primary.main,
     borderWidth: 0
   },
   buttonClose: {

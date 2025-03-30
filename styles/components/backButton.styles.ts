@@ -1,20 +1,22 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   backButton: {
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#E6E6E7",
+    backgroundColor: colors.gray[100],
     borderRadius: 12,
-    paddingVertical: 8, // No lo puedo ver en FIGMA, es calculado
-    paddingHorizontal: 12, // No lo puedo ver en FIGMA, es calculado
-    marginBottom: 20, // No lo puedo ver en FIGMA, es calculado
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 20,
   },
   backText: {
     fontSize: 12,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
+    fontFamily: "Quicksand",
+    fontWeight: '700',
+    color: colors.gray[500],
     marginLeft: 4,
   },
 });

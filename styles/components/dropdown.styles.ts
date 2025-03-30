@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,49 +11,51 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
+    fontFamily: 'Quicksand',
+    fontWeight: '500',
+    color: colors.text.secondary,
   },
   required: {
-    color: '#9D2B2B',
+    color: colors.error.dark,
     marginLeft: 4,
   },
   dropdown: {
     height: 44,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 30,
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#D0D0D1',
+    borderColor: colors.gray[300],
   },
   text: {
     flex: 1,
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
+    fontFamily: 'Quicksand',
+    fontWeight: '500',
+    color: colors.text.secondary,
   },
   placeholder: {
-    color: '#D0D0D1',
+    color: colors.gray[300],
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.common.transparent,
   },
   dropdownList: {
     position: 'absolute',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
-    shadowColor: "#000",
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 4,
   },
   containerDropdownList: {
-    backgroundColor: "white",
+    backgroundColor: colors.common.white,
     borderRadius: 60,
     overflow: "hidden",
   },
@@ -65,7 +68,8 @@ export const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_500Medium',
-    color: '#666666',
+    fontFamily: 'Quicksand',
+    fontWeight: '500',
+    color: colors.text.secondary,
   },
 });

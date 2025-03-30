@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   tab: {
@@ -6,18 +7,18 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 10,
     borderBottomWidth: 2,
-    borderBottomColor: "transparent",
+    borderBottomColor: colors.common.transparent,
   },
   activeTab: {
-    borderBottomColor: "#F04E23",
+    borderBottomColor: colors.primary.main,
   },
   tabText: {
     fontSize: 16,
-    fontFamily: 'Quicksand_600Medium',
+    fontFamily: 'Quicksand',
     fontWeight: '600',
-    color: '#717275'
+    color: colors.gray[500]
   },
   activeTabText: {
-    color: "#F04E23",
+    color: colors.primary.main,
   },
 });

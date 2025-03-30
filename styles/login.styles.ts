@@ -1,10 +1,11 @@
 import { StatusBar, StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
+    backgroundColor: colors.common.white,
+    paddingTop: StatusBar.currentHeight,
   },
   keyboardAvoid: {
     flex: 1,
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 22,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    backgroundColor: "#f5f5f6",
+    backgroundColor: colors.gray[50],
   },
   scrollContent: {
     flex: 1,
@@ -24,8 +25,9 @@ export const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 28,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
+    fontFamily: 'Quicksand',
+    fontWeight: '700',
+    color: colors.gray[500],
     textAlign: "center",
     marginBottom: 10,
   },
@@ -39,15 +41,17 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   recoverText: {
-    fontFamily: "Quicksand_400Regular",
+    fontFamily: 'Quicksand',
+    fontWeight: '400',
     fontSize: 16,
-    color: "#F04E23",
+    color: colors.primary.main,
     marginBottom: 10,
   },
   biometricText: {
-    fontFamily: "Quicksand_500Medium",
+    fontFamily: 'Quicksand',
+    fontWeight: '500',
     fontSize: 16,
-    color: "#717275",
+    color: colors.gray[500],
     marginRight: 8,
   },
   radarWavesContainer: {

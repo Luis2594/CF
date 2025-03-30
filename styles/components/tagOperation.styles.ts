@@ -1,12 +1,13 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: colors.common.white,
     borderBottomRightRadius: 20,
-    shadowColor: "#000",
+    shadowColor: colors.common.black,
     shadowOpacity: 0.25,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 4,
@@ -19,7 +20,7 @@ export const styles = StyleSheet.create({
   text: {
     marginVertical: 10,
     marginHorizontal: 12,
-    color: "#717275",
+    color: colors.gray[500],
     fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: '600'

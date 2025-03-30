@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
-
   cardContainer: {
     borderRadius: 10,
     margin: 15,
     borderWidth: 1,
-    borderColor: '#D0D0D1',
+    borderColor: colors.gray[300],
     padding: 15
   },
   cardHeader: {
@@ -24,16 +24,16 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: "700",
-    color: "#717275",
+    color: colors.gray[500],
   },
   cardNumber: {
     fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: "400",
-    color: "#717275",
+    color: colors.gray[500],
   },
   currencyBadge: {
-    backgroundColor: "#F5F5F6",
+    backgroundColor: colors.gray[50],
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 15,
@@ -41,8 +41,8 @@ export const styles = StyleSheet.create({
   currencyText: {
     fontSize: 14,
     fontFamily: "Quicksand",
-    fontWeight: "bold",
-    color: "#1F2937",
+    fontWeight: "700",
+    color: colors.text.primary,
   },
   operationDetails: {
     marginVertical: 10,
@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
   },
   operationLabel: {
     fontSize: 12,
-    color: "#717275",
+    color: colors.gray[500],
     fontFamily: "Quicksand",
     fontWeight: "400",
     marginRight: 20
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
   operationValue: {
     flexShrink: 1,
     fontSize: 12,
-    color: "#717275",
+    color: colors.gray[500],
     fontFamily: "Quicksand",
     fontWeight: "700",
     textAlign: "right"
@@ -72,5 +72,4 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     padding: 5
   },
-
 });

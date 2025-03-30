@@ -1,18 +1,19 @@
 import { StyleSheet } from "react-native";
+import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: colors.background.modal,
     justifyContent: "center",
     alignItems: "center",
   },
   content: {
-    backgroundColor: "white",
+    backgroundColor: colors.common.white,
     borderRadius: 20,
     width: "90%",
     maxWidth: 400,
-    shadowColor: "#000",
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -25,8 +26,8 @@ export const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#E0E0E0",
-    shadowColor: "#000",
+    backgroundColor: colors.gray[200],
+    shadowColor: colors.common.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -37,16 +38,17 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: "Quicksand_700Bold",
-    color: "#717275",
+    fontFamily: "Quicksand",
+    fontWeight: '700',
+    color: colors.gray[500],
     marginBottom: 8,
     textAlign: "center",
-    fontWeight: "700"
   },
   description: {
     fontSize: 16,
-    fontFamily: "Quicksand_400Regular",
-    color: "#666",
+    fontFamily: "Quicksand",
+    fontWeight: '400',
+    color: colors.text.secondary,
     textAlign: "center",
     marginBottom: 24,
     paddingHorizontal: 16,
@@ -63,20 +65,22 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   skipButtonText: {
-    color: "#00AEEF",
+    color: colors.secondary.light,
     fontSize: 16,
-    fontFamily: "Quicksand_600SemiBold",
+    fontFamily: "Quicksand",
+    fontWeight: '600',
   },
   enableButton: {
     flex: 1,
-    backgroundColor: "#F04E23",
+    backgroundColor: colors.primary.main,
     paddingVertical: 14,
     borderRadius: 30,
     alignItems: "center",
   },
   enableButtonText: {
-    color: "#fff",
+    color: colors.common.white,
     fontSize: 16,
-    fontFamily: "Quicksand_600SemiBold",
+    fontFamily: "Quicksand",
+    fontWeight: '600',
   },
 });
