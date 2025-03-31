@@ -19,6 +19,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="map"
+        options={{
+          title: 'Map',
+          tabBarIcon: ({ size, color }) => (
+            <Home size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

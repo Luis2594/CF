@@ -130,6 +130,7 @@ export default function HomeScreen() {
           <ButtonIcon
             Icon={<SVG.LOCATION width={24} height={24} />}
             style={styles.buttonLocation}
+            onPress={() => router.push("/map")}
           />
         )}
       </View>
