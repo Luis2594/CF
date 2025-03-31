@@ -99,7 +99,7 @@ export const en = {
 
   // Map Screen
   map: {
-    title: 'Collection Route',
+    title: 'Unvisited customers',
     suggestedRadius: {
       title: 'Suggested Local Radius',
       description: 'Show me clients in this area'

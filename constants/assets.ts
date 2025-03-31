@@ -73,6 +73,7 @@ export const IMAGES = {
   // Illustrations
   WELCOME_ILLUSTRATION: require('../assets/images/welcome-Illustration.png'),
   TERMS_ILLUSTRATION: require('../assets/images/terms-illustration.png'),
+  THUMB: require('../assets/images/icons/thumb.png'),
 } as const;
 
 export const ANIMATIONS = {

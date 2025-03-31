@@ -150,6 +150,7 @@ const OperationItem = React.forwardRef(
                 isRequired
                 currency={operation.currencySymbol}
                 errorMessage={errorsInput?.montoLocal}
+                keyboardType="numeric"
               />
 
               <CustomInput
@@ -163,6 +164,7 @@ const OperationItem = React.forwardRef(
                 isRequired
                 currency={operation.currencySymbol}
                 errorMessage={errorsInput?.montoExt}
+                keyboardType="numeric"
               />
 
               <CustomInput

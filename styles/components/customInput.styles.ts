@@ -47,10 +47,10 @@ export const styles = StyleSheet.create({
     marginLeft: 5,
   },
   inputDisabled: {
-    backgroundColor: colors.gray[50],
+    // backgroundColor: colors.gray[50],
   },
   inputDisabledText: {
-    color: colors.gray[300],
+    // color: colors.gray[300],
   },
   eyeIcon: {
     padding: 10,

@@ -77,23 +77,11 @@ export const styles = StyleSheet.create({
   customRadioContent: {
     flex: 1,
   },
-  sliderContainer: {
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
-  radiusInputContainer: {
+  containerTextSlider: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginTop: -8,
-  },
-  customInputContainer: {
-    width: 120,
-    marginBottom: 0,
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    marginTop: -10
   },
   map: {
     flex: 1,

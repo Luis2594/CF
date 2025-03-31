@@ -99,7 +99,7 @@ export const es = {
 
   // Map Screen
   map: {
-    title: 'Ruta de Cobro',
+    title: 'Clientes no visitados',
     suggestedRadius: {
       title: 'Radio Local Sugerido',
       description: 'Mostrarme los clientes en esta zona'

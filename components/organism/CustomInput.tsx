@@ -6,9 +6,10 @@ import {
   TouchableOpacity,
   PanResponder,
   TouchableWithoutFeedback,
+  KeyboardTypeOptions,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { Eye, EyeOff, Info, Search } from "lucide-react-native";
+import { Eye, EyeOff, Info } from "lucide-react-native";
 import { styles } from "@/styles/components/customInput.styles";
 import TextError from "../atoms/TextError";
 import { SVG } from "@/constants/assets";
@@ -26,6 +27,7 @@ type CustomInputProps = {
   isDate?: boolean;
   isTextarea?: boolean;
   isSearch?: boolean;
+  keyboardType?: KeyboardTypeOptions;
   onChangeText?: (text: string) => void;
   setScrollEnabled?: (enabled: boolean) => void;
 };
@@ -44,6 +46,7 @@ export default function CustomInput({
   isDate = false,
   isTextarea = false,
   isSearch = false,
+  keyboardType = "default",
   setScrollEnabled,
 }: CustomInputProps) {
   const [secureText, setSecureText] = useState(isPassword);
@@ -174,7 +177,7 @@ export default function CustomInput({
             onPress={onPressIsDate}
             placeholderTextColor="#D0D0D1"
             secureTextEntry={secureText}
-            keyboardType={currency ? "numeric" : "default"}
+            keyboardType={keyboardType}
             multiline={isTextarea}
             numberOfLines={isTextarea ? 4 : 1}
             textAlignVertical={isTextarea ? "top" : "center"}
