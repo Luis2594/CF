@@ -217,7 +217,7 @@ export const useGestion = () => {
               translations.exp_title,
               translations.exp_description,
               [
-                { text: translations.ok, onPress: () => router.replace("/login") }
+                { text: translations.ok }
               ]
             );
           })
