@@ -10,6 +10,7 @@ export const useLocation = () => {
     latitude: "0",
     longitude: "0"
   });
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export const useLocation = () => {
         }
 
         const { status } = await Location.requestForegroundPermissionsAsync();
-        
+
         if (status !== 'granted') {
           setError('Permission to access location was denied');
           return;
@@ -67,8 +68,13 @@ export const useLocation = () => {
             });
           }
         );
+        setLoading(false);
       } catch (err) {
         setError('Error getting location: ' + (err instanceof Error ? err.message : String(err)));
+        setLoading(false);
+      }
+      finally {
+        setLoading(false);
       }
     };
 
@@ -81,5 +87,5 @@ export const useLocation = () => {
     };
   }, []);
 
-  return { location, error };
+  return { location, error, loading };
 };

@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocation } from "@/hooks/useLocation";
 import { useLanguage } from "@/context/LanguageContext";
@@ -28,7 +34,7 @@ if (Platform.OS !== "web") {
 type RadioType = "suggested" | "custom";
 
 export default function MapScreen() {
-  const { location } = useLocation();
+  const { location, loading } = useLocation();
   const { translations } = useLanguage();
   const { pendingClients } = useClient();
   const [selectedRadio, setSelectedRadio] = useState<RadioType>("suggested");
@@ -90,7 +96,7 @@ export default function MapScreen() {
   }, [pendingClients, selectedRadio, customRadius, latitude, longitude]);
 
   useEffect(() => {
-    if (filteredClients.length === 0) {
+    if (filteredClients.length === 0 && !loading) {
       setError("No hay clientes disponibles en el radio de la zona");
     } else {
       setError(null);
@@ -272,7 +278,13 @@ export default function MapScreen() {
             onPress={filterClientsByRadius}
           />
         </View>
-        {renderMap()}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={"#F04E23"} />
+          </View>
+        ) : (
+          renderMap()
+        )}
       </View>
     </SafeAreaView>
   );
