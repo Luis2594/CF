@@ -259,6 +259,7 @@ export const en = {
   home: {
     greeting: "Welcome,",
     subtitle: "We share today's home route with you.",
+    titleFilter: 'Home collection route',
     search: {
       placeholder: "Search",
     },

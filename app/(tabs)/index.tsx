@@ -143,7 +143,9 @@ export default function HomeScreen() {
       {selectedFilter === "all" ? (
         renderHeader(user.name)
       ) : (
-        <Text style={styles.textShowFilter}>Ruta de cobro domiciliar</Text>
+        <Text style={styles.textShowFilter}>
+          {translations.home.titleFilter}
+        </Text>
       )}
 
       {SearchBar()}

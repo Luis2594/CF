@@ -260,6 +260,7 @@ export const es = {
   home: {
     greeting: "Bienvenido,",
     subtitle: "Te compartimos la ruta domiciliar de hoy.",
+    titleFilter: 'Ruta de cobro domiciliar',
     search: {
       placeholder: "Buscar",
     },
