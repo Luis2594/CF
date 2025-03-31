@@ -32,11 +32,14 @@ export interface Client {
   portfolioId: string;
   operations: Operation[];
   managements: Management[];
+  latitude?: string;
+  longitude?: string;
 }
 
 export const useClient = () => {
   const { translations } = useLanguage();
   const [clients, setClients] = useState<Array<Client>>([]);
+  const [pendingClients, setPendingClients] = useState<Array<Client>>([]);
   const [client, setClient] = useState<Client | null>(null);
   const [loadingClient, setLoading] = useState<boolean>(true);
   const [errorClient, setError] = useState<string | null>(null);
@@ -51,6 +54,12 @@ export const useClient = () => {
     storageKey: STORAGE_KEYS.CLIENTS_CACHE,
     onSync: async () => { },
   });
+
+  useEffect(() => {
+    // Filter pending clients whenever clients array changes
+    const filtered = clients.filter(client => client.status === 1);
+    setPendingClients(filtered);
+  }, [clients]);
 
   const getClients = async (token: string) => {
     try {
@@ -180,11 +189,6 @@ export const useClient = () => {
     }
   };
 
-  /**
- * Decrypts all encrypted fields in clientsData
- * @param clients - Array of encrypted clients
- * @returns Decrypted clients array
- */
   const decryptClientsData = (clients: any[]) => {
     return clients.map((client) => ({
       ...client,
@@ -204,6 +208,8 @@ export const useClient = () => {
       civilStatus: decryptText(client.civilStatus),
       portfolio: decryptText(client.portfolio),
       portfolioId: decryptText(client.portfolioId),
+      latitude: decryptText(client.latitude || ''),
+      longitude: decryptText(client.longitude || ''),
       operations: client.operations.map((operation: Operation) => ({
         ...operation,
         operationId: decryptText(operation.operationId),
@@ -237,6 +243,7 @@ export const useClient = () => {
 
   return {
     clients,
+    pendingClients,
     client,
     loadingClient,
     errorClient,

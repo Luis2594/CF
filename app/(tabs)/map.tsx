@@ -8,6 +8,10 @@ import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import { styles } from "@/styles/map.styles";
 import Button from "@/components/molecules/buttons/Button";
+import Slider from "@react-native-community/slider";
+import CustomInput from "@/components/organism/CustomInput";
+import { useClient } from "@/hooks/useClient";
+import { useUser } from "@/hooks/useUser";
 
 // Only import MapView components when not on web
 let MapView: any;
@@ -25,7 +29,12 @@ type RadioType = "suggested" | "custom";
 export default function MapScreen() {
   const { location } = useLocation();
   const { translations } = useLanguage();
+  const { user } = useUser();
+  const { pendingClients, getClients } = useClient();
   const [selectedRadio, setSelectedRadio] = useState<RadioType>("suggested");
+  const [customRadius, setCustomRadius] = useState("1");
+  const [sliderValue, setSliderValue] = useState(1);
+  const [filteredClients, setFilteredClients] = useState(pendingClients);
 
   const [latitude, setLatitude] = useState(parseFloat(location.latitude));
   const [longitude, setLongitude] = useState(parseFloat(location.longitude));
@@ -35,12 +44,48 @@ export default function MapScreen() {
     setLongitude(parseFloat(location.longitude));
   }, [location]);
 
-  // Mock data for client locations
-  const clientLocations = [
-    { id: "1", latitude: latitude + 0.002, longitude: longitude + 0.001 },
-    { id: "2", latitude: latitude - 0.001, longitude: longitude + 0.002 },
-    { id: "3", latitude: latitude + 0.001, longitude: longitude - 0.001 },
-  ];
+  useEffect(() => {
+    if (user.token) {
+      getClients(user.token);
+    }
+  }, [user]);
+
+  // Calculate distance between two points using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in kilometers
+  };
+
+  // Filter clients based on radius
+  const filterClientsByRadius = () => {
+    const radius = selectedRadio === "suggested" ? 1 : parseFloat(customRadius);
+    
+    const filtered = pendingClients.filter(client => {
+      if (!client.latitude || !client.longitude) return false;
+      
+      const distance = calculateDistance(
+        latitude,
+        longitude,
+        parseFloat(client.latitude),
+        parseFloat(client.longitude)
+      );
+      
+      return distance <= radius;
+    });
+
+    setFilteredClients(filtered);
+  };
+
+  useEffect(() => {
+    filterClientsByRadius();
+  }, [pendingClients, selectedRadio, customRadius, latitude, longitude]);
 
   const getDeltaFromRadius = (radiusInKm: number) => {
     const radiusInMeters = radiusInKm * 1000;
@@ -49,7 +94,7 @@ export default function MapScreen() {
   };
 
   const renderMap = () => {
-    const radius = 1;
+    const radius = selectedRadio === "suggested" ? 1 : parseFloat(customRadius);
     const delta = getDeltaFromRadius(radius) * 3;
 
     return (
@@ -84,18 +129,37 @@ export default function MapScreen() {
         />
 
         {/* Client markers */}
-        {clientLocations.map((client) => (
-          <Marker
-            key={client.id}
-            coordinate={{
-              latitude: client.latitude,
-              longitude: client.longitude,
-            }}
-            pinColor={colors.error.main}
-          />
-        ))}
+        {filteredClients.map((client) => {
+          if (client.latitude && client.longitude) {
+            return (
+              <Marker
+                key={client.clientId}
+                coordinate={{
+                  latitude: parseFloat(client.latitude),
+                  longitude: parseFloat(client.longitude),
+                }}
+                pinColor={colors.error.main}
+                onPress={() => router.push(`/info-client/${client.clientId}`)}
+              />
+            );
+          }
+          return null;
+        })}
       </MapView>
     );
+  };
+
+  const handleRadiusChange = (value: number) => {
+    setSliderValue(value);
+    setCustomRadius(value.toString());
+  };
+
+  const handleRadiusInputChange = (text: string) => {
+    const value = parseFloat(text);
+    if (!isNaN(value) && value >= 1 && value <= 100) {
+      setCustomRadius(text);
+      setSliderValue(value);
+    }
   };
 
   return (
@@ -109,9 +173,7 @@ export default function MapScreen() {
           >
             <ChevronLeft size={20} color="#666" />
           </TouchableOpacity>
-          <Text style={styles.title}>
-            {translations.home.client.statusTypes.pending}
-          </Text>
+          <Text style={styles.title}>{translations.map.title}</Text>
         </View>
 
         {/* RADIOS */}
@@ -136,9 +198,11 @@ export default function MapScreen() {
               />
             </View>
             <View>
-              <Text style={styles.radioTitle}>Radio local sugerido</Text>
+              <Text style={styles.radioTitle}>
+                {translations.map.suggestedRadius.title}
+              </Text>
               <Text style={styles.radioSubtitle}>
-                Mostrarme los de esta zona
+                {translations.map.suggestedRadius.description}
               </Text>
             </View>
           </TouchableOpacity>
@@ -162,16 +226,45 @@ export default function MapScreen() {
                 }
               />
             </View>
-            <View>
-              <Text style={styles.radioTitle}>Radio local personalizado</Text>
-              <Text style={styles.radioSubtitle}>
-                Mostrarme ubicaciones dentro de una distacia específica.
-              </Text>
+            <View style={styles.customRadioContent}>
+              <View>
+                <Text style={styles.radioTitle}>
+                  {translations.map.customRadius.title}
+                </Text>
+                <Text style={styles.radioSubtitle}>
+                  {translations.map.customRadius.description}
+                </Text>
+              </View>
+              
+              {selectedRadio === "custom" && (
+                <View style={styles.sliderContainer}>
+                  <Slider
+                    style={styles.slider}
+                    minimumValue={1}
+                    maximumValue={100}
+                    value={sliderValue}
+                    onValueChange={handleRadiusChange}
+                    minimumTrackTintColor={colors.primary.main}
+                    maximumTrackTintColor={colors.gray[200]}
+                    thumbTintColor={colors.primary.main}
+                  />
+                  <View style={styles.radiusInputContainer}>
+                    <CustomInput
+                      label=""
+                      value={customRadius}
+                      onChangeText={handleRadiusInputChange}
+                      placeholder="0"
+                      currency="km"
+                      customStyleContainer={styles.customInputContainer}
+                    />
+                  </View>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
 
           {/* BUTTON  */}
-          <Button text="Aplicar" onPress={() => {}} />
+          <Button text={translations.map.apply} onPress={filterClientsByRadius} />
         </View>
         {renderMap()}
       </View>

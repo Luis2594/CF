@@ -70,7 +70,7 @@ export const en = {
     emptyBiometric: 'No saved credentials for biometric login',
     failBiometric: 'Biometric authentication failed',
     errorTitleBiometric: 'Authentication Error',
-    errorDescriptionBiometric: 'Could not verify your biometric identity. You can try again later from settings.',
+    errorDescriptionBiometric: 'Could not verify your biometric identity. You can try again later.',
     errorConfigTitleBiometric: 'Error',
     errorConfigDescriptionBiometric: 'An error occurred while setting up biometric authentication. Please try again later.'
   },
@@ -96,6 +96,20 @@ export const en = {
   },
   disableBiometrics: 'Not now',
   enableBiometrics: 'Enable',
+
+  // Map Screen
+  map: {
+    title: 'Collection Route',
+    suggestedRadius: {
+      title: 'Suggested Local Radius',
+      description: 'Show me clients in this area'
+    },
+    customRadius: {
+      title: 'Custom Local Radius',
+      description: 'Show me locations within a specific distance'
+    },
+    apply: 'Apply'
+  },
 
   // Terms
   lastUpdated: 'Last Updated: June 1, 2025',

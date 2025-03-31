@@ -97,6 +97,20 @@ export const es = {
   disableBiometrics: 'Ahora no',
   enableBiometrics: 'Habilitar',
 
+  // Map Screen
+  map: {
+    title: 'Ruta de Cobro',
+    suggestedRadius: {
+      title: 'Radio Local Sugerido',
+      description: 'Mostrarme los clientes en esta zona'
+    },
+    customRadius: {
+      title: 'Radio Local Personalizado',
+      description: 'Mostrarme ubicaciones dentro de una distancia específica'
+    },
+    apply: 'Aplicar'
+  },
+
   // Terms
   lastUpdated: 'Última actualización: 1 de junio de 2025',
 
@@ -288,5 +302,3 @@ export const es = {
     }
   },
 };
-
-export { es }

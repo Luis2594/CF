@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
   },
   radioOption: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 8,
   },
   radio: {
@@ -50,6 +50,7 @@ export const styles = StyleSheet.create({
     marginRight: 12,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 4,
   },
   radioCircleSelected: {
     borderColor: colors.primary.main,
@@ -73,10 +74,32 @@ export const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.text.primary,
   },
+  customRadioContent: {
+    flex: 1,
+  },
+  sliderContainer: {
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
+  },
+  radiusInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: -8,
+  },
+  customInputContainer: {
+    width: 120,
+    marginBottom: 0,
+  },
   map: {
     flex: 1,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.gray[300],
+    marginTop: 16,
   },
 });
