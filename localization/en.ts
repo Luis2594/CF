@@ -102,7 +102,7 @@ export const en = {
     title: 'Unvisited customers',
     suggestedRadius: {
       title: 'Suggested Local Radius',
-      description: 'Show me clients in this area'
+      description: 'Show me in this area'
     },
     customRadius: {
       title: 'Custom Local Radius',

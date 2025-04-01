@@ -159,6 +159,11 @@ export const styles = StyleSheet.create({
     color: colors.text.primary,
     marginLeft: 6
   },
+  wrapAddress: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'center'
+  },
   clientAddress: {
     fontSize: 14,
     fontFamily: "Quicksand",

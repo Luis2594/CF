@@ -102,7 +102,7 @@ export const es = {
     title: 'Clientes no visitados',
     suggestedRadius: {
       title: 'Radio Local Sugerido',
-      description: 'Mostrarme los clientes en esta zona'
+      description: 'Mostrarme los de esta zona'
     },
     customRadius: {
       title: 'Radio Local Personalizado',

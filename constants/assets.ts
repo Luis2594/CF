@@ -33,6 +33,7 @@ import SignOut from '../assets/images/icons/signOut.svg';
 import User from '../assets/images/icons/user.svg';
 import CalendarGray from '../assets/images/icons/calendar_gray.svg';
 import Moto from '../assets/images/icons/moto.svg';
+import Copy from '../assets/images/icons/copy.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -64,6 +65,7 @@ export const SVG = {
   USER: User,
   CALENDAR_GRAY: CalendarGray,
   MOTO: Moto,
+  COPY: Copy,
 } as const;
 
 export const IMAGES = {

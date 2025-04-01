@@ -28,6 +28,7 @@ import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import { Client } from "@/hooks/useClient";
 import { useUser } from "@/hooks/useUser";
 import { calculateDistance } from "@/utils/utils";
+import * as Clipboard from "expo-clipboard";
 
 // Only import MapView components when not on web
 let MapView: any;
@@ -96,8 +97,6 @@ export default function MapScreen() {
       if (filteredClients.length === 0) {
         setError(translations.map.noClients);
       }
-
-      console.log("location flat: ", location);
 
       if (location.latitude === "0" || location.longitude === "0") {
         setError(translations.map.noLocation);
@@ -254,6 +253,12 @@ export default function MapScreen() {
     setCustomRadius(slider);
   };
 
+  const copyToClipboard = async () => {
+    await Clipboard.setStringAsync(
+      `${selectedClient?.addressLevel1}, ${selectedClient?.addressLevel2}, ${selectedClient?.address}`
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <AlertErrorMessage error={error} onClose={() => setError(null)} />
@@ -393,10 +398,15 @@ export default function MapScreen() {
                       km
                     </Text>
                   </View>
+                  <TouchableOpacity onPress={copyToClipboard}>
+                    <View style={styles.wrapAddress}>
+                      <Text style={styles.clientAddress}>
+                        {selectedClient.address}
+                      </Text>
+                      <SVG.COPY width={18} height={18} />
+                    </View>
+                  </TouchableOpacity>
 
-                  <Text style={styles.clientAddress}>
-                    {selectedClient.address}
-                  </Text>
                   <Button
                     text={translations.map.goTo}
                     onPress={handleNavigation}
