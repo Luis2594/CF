@@ -113,7 +113,13 @@ export const es = {
     noLocation: "No se puede determinar su ubicación actual. Asegúrese de que el GPS esté activado y de que los permisos de ubicación estén disponibles en la configuración de su dispositivo.",
     kilometers: 'Kilómetros',
     selectedClient: 'Cliente seleccionado',
-    goTo: 'Gestionar'
+    goTo: 'Gestionar',
+    navigationOptions: {
+      title: 'Opciones de Navegación',
+      message: 'Elija su aplicación de navegación preferida',
+      maps: 'Mapas',
+      cancel: 'Cancelar'
+    }
   },
 
   // Terms

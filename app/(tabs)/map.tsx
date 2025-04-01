@@ -9,8 +9,10 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   Modal,
+  Alert,
+  Linking,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocation } from "@/hooks/useLocation";
 import { useLanguage } from "@/context/LanguageContext";
 import { colors } from "@/constants/colors";
@@ -137,6 +139,60 @@ export default function MapScreen() {
     }).start();
   };
 
+  const handleNavigation = () => {
+    if (!selectedClient?.latitude || !selectedClient?.longitude) {
+      Alert.alert(translations.map.noLocation);
+      return;
+    }
+
+    const clientLat = parseFloat(selectedClient.latitude);
+    const clientLng = parseFloat(selectedClient.longitude);
+
+    Alert.alert(
+      translations.map.navigationOptions.title,
+      translations.map.navigationOptions.message,
+      [
+        {
+          text: "Waze",
+          onPress: () => {
+            const wazeUrl = `waze://?ll=${clientLat},${clientLng}&navigate=yes`;
+            const wazeWebUrl = `https://www.waze.com/ul?ll=${clientLat}%2C${clientLng}&navigate=yes`;
+
+            Linking.canOpenURL(wazeUrl).then((supported) => {
+              if (supported) {
+                Linking.openURL(wazeUrl);
+              } else {
+                Linking.openURL(wazeWebUrl);
+              }
+            });
+          },
+        },
+        {
+          text: translations.map.navigationOptions.maps,
+          onPress: () => {
+            const scheme = Platform.select({
+              ios: "maps:",
+              android: "geo:",
+            });
+            const url = Platform.select({
+              ios: `${scheme}${clientLat},${clientLng}`,
+              android: `${scheme}${clientLat},${clientLng}`,
+              web: `https://www.google.com/maps/dir/?api=1&destination=${clientLat},${clientLng}`,
+            });
+
+            if (url) {
+              Linking.openURL(url);
+            }
+          },
+        },
+        {
+          text: translations.map.navigationOptions.cancel,
+          style: "cancel",
+        },
+      ]
+    );
+  };
+
   const renderMap = () => {
     const delta = getDeltaFromRadius(customRadius) * 3;
 
@@ -158,15 +214,6 @@ export default function MapScreen() {
           longitudeDelta: delta,
         }}
       >
-        {/* Current location marker */}
-        {/* <Marker
-          coordinate={{
-            latitude,
-            longitude,
-          }}
-          pinColor={colors.primary.main}
-        /> */}
-
         {/* Coverage circle */}
         <Circle
           center={{
@@ -350,7 +397,10 @@ export default function MapScreen() {
                   <Text style={styles.clientAddress}>
                     {selectedClient.address}
                   </Text>
-                  <Button text={translations.map.goTo} onPress={() => {}} />
+                  <Button
+                    text={translations.map.goTo}
+                    onPress={handleNavigation}
+                  />
                 </View>
               )}
             </Animated.View>

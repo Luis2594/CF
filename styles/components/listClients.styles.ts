@@ -2,9 +2,6 @@ import { StyleSheet } from 'react-native';
 import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
-  clientList: {
-    paddingHorizontal: 20,
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

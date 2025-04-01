@@ -136,7 +136,6 @@ export default function ListClients({
       )}
       renderSectionHeader={renderSectionHeader}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.clientList}
       showsVerticalScrollIndicator={false}
       stickySectionHeadersEnabled
     />

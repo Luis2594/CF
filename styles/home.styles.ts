@@ -8,8 +8,12 @@ export const styles = StyleSheet.create({
     marginTop: StatusBar.currentHeight,
     backgroundColor: colors.common.white,
   },
-  header: {
+  containerPadding: {
+    flex: 1,
     margin: 22,
+  },
+  header: {
+    marginBottom: 22,
   },
   wrappGreeting: {
     flexDirection: "row",
@@ -36,11 +40,10 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary.main,
     textAlign: 'center',
-    marginVertical: 22
+    marginBottom: 22
   },
   searchContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
     marginBottom: 20,
     gap: 4,
   },
@@ -51,7 +54,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primary.main,
     borderWidth: 0
   },
-  buttonClose: {
+  buttonMenu: {
     borderWidth: 0,
     padding: 0,
     width: 24,

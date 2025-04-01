@@ -98,7 +98,7 @@ export default function HomeScreen() {
           ref={menuRef}
           Icon={<SVG.MENU width={24} height={24} />}
           onPress={() => setShowMenuModal(true)}
-          style={styles.buttonClose}
+          style={styles.buttonMenu}
         />
         <View style={styles.wrappGreeting}>
           <SVG.JET width={24} height={24} />
@@ -146,13 +146,13 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AlertErrorMessage error={error} onClose={() => setError(null)} />
+
       <TouchableWithoutFeedback
-        style={{ flex: 1, zIndex: 1000, backgroundColor: "red" }}
+        style={{ flex: 1, zIndex: 1000 }}
         onPress={Keyboard.dismiss}
       >
-        <>
-          <AlertErrorMessage error={error} onClose={() => setError(null)} />
-
+        <View style={styles.containerPadding}>
           {selectedFilter === "all" ? (
             renderHeader(user.name)
           ) : (
@@ -192,7 +192,7 @@ export default function HomeScreen() {
               anchorRef={anchorRef}
             />
           )}
-        </>
+        </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );

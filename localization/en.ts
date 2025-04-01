@@ -113,7 +113,13 @@ export const en = {
     noLocation: "Unable to determine your current location. Please ensure that GPS is enabled and location permissions are granted in your device settings.",
     selectedClient: 'Selected client',
     kilometers: 'Kilometers',
-    goTo: 'Manage'
+    goTo: 'Manage',
+    navigationOptions: {
+      title: 'Navigation Options',
+      message: 'Choose your preferred navigation app',
+      maps: 'Maps',
+      cancel: 'Cancel'
+    }
   },
 
   // Terms
