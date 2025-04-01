@@ -95,49 +95,75 @@ export const styles = StyleSheet.create({
     borderColor: colors.gray[300],
     marginTop: 16,
   },
+  customMarker: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: colors.common.white,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  customMarkerView: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: colors.primary.main
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(18, 17, 17, 0.46)'
+  },
   bottomSheet: {
+    flex: 1,
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 200,
     backgroundColor: colors.common.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: colors.common.black,
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
   },
   bottomSheetContent: {
-    padding: 20,
+    padding: 22,
+  },
+  bottomSheetTitle: {
+    fontSize: 22,
+    fontFamily: "Quicksand",
+    fontWeight: '700',
+    color: colors.primary.main,
+    marginBottom: 22,
+    textAlign: 'center'
   },
   clientName: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "Quicksand",
     fontWeight: '700',
     color: colors.gray[500],
-    marginBottom: 8,
+    marginBottom: 14,
+  },
+  containerDistance: {
+    flexDirection: "row",
+    backgroundColor: colors.gray[10],
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    marginBottom: 14
   },
   clientDistance: {
     fontSize: 14,
     fontFamily: "Quicksand",
-    fontWeight: '400',
-    color: colors.primary.main,
-    marginBottom: 8,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginLeft: 6
   },
   clientAddress: {
     fontSize: 14,
     fontFamily: "Quicksand",
-    fontWeight: '400',
-    color: colors.gray[500],
-    marginBottom: 16,
-  },
-  navigateButton: {
-    marginTop: 0,
-    marginBottom: 0,
+    fontWeight: '600',
+    color: colors.text.primary,
+    marginBottom: 14,
   },
 });

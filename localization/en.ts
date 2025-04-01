@@ -108,7 +108,12 @@ export const en = {
       title: 'Custom Local Radius',
       description: 'Show me locations within a specific distance'
     },
-    apply: 'Apply'
+    apply: 'Apply',
+    noClients: "No nearby customers found",
+    noLocation: "Unable to determine your current location. Please ensure that GPS is enabled and location permissions are granted in your device settings.",
+    selectedClient: 'Selected client',
+    kilometers: 'Kilometers',
+    goTo: 'Manage'
   },
 
   // Terms

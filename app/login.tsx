@@ -223,6 +223,7 @@ export default function Login() {
         token: claims.token,
         deviceId: encryptText(deviceId),
         useBiometric,
+        claims,
       });
       await signInWithCustomToken(auth, token);
     } catch (error: any) {

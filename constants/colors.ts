@@ -31,6 +31,7 @@ export const colors = {
 
   // Gray scale
   gray: {
+    10: '#F3F4F6',
     50: '#F5F5F6',
     100: '#E6E6E7',
     200: '#D9D9D9',

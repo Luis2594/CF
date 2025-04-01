@@ -5,7 +5,6 @@ import { useOfflineSync } from './useOfflineSync';
 import { DropdownItem } from '@/components/organism/Dropdown';
 import { encryptText } from '@/utils/encryption';
 import { useUser } from './useUser';
-import { router } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { Alert } from 'react-native';
@@ -234,14 +233,14 @@ export const useGestion = () => {
   }
 
   return {
-    getDataToUseInGestion,
     actionItems,
     actionSelected,
     resultsItems,
     reasonItems,
-    updateActionSelected,
     actionsResults,
     errorGestion,
+    getDataToUseInGestion,
+    updateActionSelected,
     setError,
     createGestion,
     clearDataGestion

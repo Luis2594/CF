@@ -18,19 +18,19 @@ interface Option {
   onPress: () => void;
 }
 
-interface SignOutModalProps {
+interface MenuModalProps {
   visible: boolean;
   options: Option[];
   menuRef: React.RefObject<View>;
   onClose: () => void;
 }
 
-export default function SignOutModal({
+export default function MenuModal({
   visible,
   options,
   menuRef,
   onClose,
-}: SignOutModalProps) {
+}: MenuModalProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const windowHeight = Dimensions.get("window").height;
   const [dropdownPosition, setDropdownPosition] = useState({

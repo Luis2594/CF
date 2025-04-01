@@ -1,4 +1,11 @@
-import { View, Text, SafeAreaView, Alert } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Alert,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { router } from "expo-router";
 import { useLanguage } from "../../context/LanguageContext";
@@ -139,47 +146,54 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AlertErrorMessage error={error} onClose={() => setError(null)} />
+      <TouchableWithoutFeedback
+        style={{ flex: 1, zIndex: 1000, backgroundColor: "red" }}
+        onPress={Keyboard.dismiss}
+      >
+        <>
+          <AlertErrorMessage error={error} onClose={() => setError(null)} />
 
-      {selectedFilter === "all" ? (
-        renderHeader(user.name)
-      ) : (
-        <Text style={styles.textShowFilter}>
-          {translations.home.titleFilter}
-        </Text>
-      )}
+          {selectedFilter === "all" ? (
+            renderHeader(user.name)
+          ) : (
+            <Text style={styles.textShowFilter}>
+              {translations.home.titleFilter}
+            </Text>
+          )}
 
-      {SearchBar()}
+          {SearchBar()}
 
-      <ListClients
-        user={user}
-        searchQuery={searchQuery}
-        filterId={selectedFilter}
-      />
+          <ListClients
+            user={user}
+            searchQuery={searchQuery}
+            filterId={selectedFilter}
+          />
 
-      <MenuModal
-        visible={showMenuModal}
-        onClose={() => setShowMenuModal(false)}
-        options={[
-          {
-            id: "1",
-            label: translations.settingsItems.logout,
-            onPress: handleLogout,
-          },
-        ]}
-        menuRef={menuRef}
-      />
+          <MenuModal
+            visible={showMenuModal}
+            onClose={() => setShowMenuModal(false)}
+            options={[
+              {
+                id: "1",
+                label: translations.settingsItems.logout,
+                onPress: handleLogout,
+              },
+            ]}
+            menuRef={menuRef}
+          />
 
-      {filterOptions.length > 0 && (
-        <FilterModal
-          visible={showFilterModal}
-          onClose={() => setShowFilterModal(false)}
-          onSelect={setSelectedFilter}
-          selectedOption={selectedFilter}
-          options={filterOptions}
-          anchorRef={anchorRef}
-        />
-      )}
+          {filterOptions.length > 0 && (
+            <FilterModal
+              visible={showFilterModal}
+              onClose={() => setShowFilterModal(false)}
+              onSelect={setSelectedFilter}
+              selectedOption={selectedFilter}
+              options={filterOptions}
+              anchorRef={anchorRef}
+            />
+          )}
+        </>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }

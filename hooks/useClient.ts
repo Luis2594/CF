@@ -8,7 +8,6 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { decryptText } from '@/utils/encryption';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/config/firebase';
-import { router } from 'expo-router';
 import { Alert } from 'react-native';
 import { ERROR_EXP_SESION } from '@/constants/loginErrors';
 
@@ -73,8 +72,9 @@ export const useClient = () => {
           const clientsData = decryptClientsData(result.data.data.clients);
           setClients(clientsData);
           await saveDataInCache(STORAGE_KEYS.CLIENTS, clientsData);
+          setLoading(false);
         } else {
-          getDataFromCache({
+          await getDataFromCache({
             key: STORAGE_KEYS.CLIENTS,
             onSuccess: (data) => {
               setClients(data as Array<Client>);
@@ -85,9 +85,10 @@ export const useClient = () => {
               setError(errorMsj);
             }
           });
+          setLoading(false);
         }
       } else {
-        getDataFromCache({
+        await getDataFromCache({
           key: STORAGE_KEYS.CLIENTS,
           onSuccess: (data) => {
             setClients(data as Array<Client>);
@@ -99,9 +100,11 @@ export const useClient = () => {
             }
           }
         });
+        setLoading(false);
       }
     } catch (error: any) {
       if (error.message.includes(ERROR_EXP_SESION)) {
+        setLoading(false);
         signOut(auth)
           .then(() => {
             Alert.alert(

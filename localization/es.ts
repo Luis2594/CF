@@ -108,7 +108,12 @@ export const es = {
       title: 'Radio Local Personalizado',
       description: 'Mostrarme ubicaciones dentro de una distancia específica'
     },
-    apply: 'Aplicar'
+    apply: 'Aplicar',
+    noClients: "No se encontraron clientes cercanos",
+    noLocation: "No se puede determinar su ubicación actual. Asegúrese de que el GPS esté activado y de que los permisos de ubicación estén disponibles en la configuración de su dispositivo.",
+    kilometers: 'Kilómetros',
+    selectedClient: 'Cliente seleccionado',
+    goTo: 'Gestionar'
   },
 
   // Terms

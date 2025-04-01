@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import * as SplashScreen from "expo-splash-screen";
 import { useFrameworkReady } from "@/hooks/useFrameworkReady";
 import { auth } from "../config/firebase";
 import { router } from "expo-router";
@@ -71,7 +70,6 @@ export default function RootLayout() {
     // Escuchar evento
     EventBus.on("finishAnimation", finishAnimationListener);
     // Keep splash screen visible while we check auth state
-    SplashScreen.preventAutoHideAsync();
     // Cleanup al desmontar
     return () => {
       EventBus.off("finishAnimation", finishAnimationListener);
@@ -86,7 +84,6 @@ export default function RootLayout() {
       );
 
       if (userAuth && savedCredentials) {
-        SplashScreen.hideAsync();
         // userAuth is signed in, get their claims
         const idTokenResult = await userAuth.getIdTokenResult();
         console.log("idTokenResult: ", idTokenResult);
@@ -99,16 +96,18 @@ export default function RootLayout() {
           router.replace("/terms-acceptance");
         }
       } else {
-        if (savedCredentials) {
-          console.log("GO TO login");
-          router.replace("/login");
-        } else {
-          console.log("GO TO language");
-          router.replace("/language");
+        if (finishLottie) {
+          if (savedCredentials) {
+            console.log("GO TO login");
+            router.replace("/login");
+          } else {
+            console.log("GO TO language");
+            router.replace("/language");
+          }
         }
       }
     } catch (error) {
-      console.error("Error checking auth state:", error);
+      console.log("Error checking auth state:", error);
       router.replace("/login");
     }
   };

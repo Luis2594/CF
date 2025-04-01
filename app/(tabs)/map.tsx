@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Animated,
   Dimensions,
+  TouchableWithoutFeedback,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocation } from "@/hooks/useLocation";
@@ -19,9 +21,11 @@ import Button from "@/components/molecules/buttons/Button";
 import Slider from "@react-native-community/slider";
 import CustomInput from "@/components/organism/CustomInput";
 import { useClient } from "@/hooks/useClient";
-import { IMAGES } from "@/constants/assets";
+import { IMAGES, SVG } from "@/constants/assets";
 import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import { Client } from "@/hooks/useClient";
+import { useUser } from "@/hooks/useUser";
+import { calculateDistance } from "@/utils/utils";
 
 // Only import MapView components when not on web
 let MapView: any;
@@ -36,16 +40,17 @@ if (Platform.OS !== "web") {
 
 type RadioType = "suggested" | "custom";
 
-const BOTTOM_SHEET_HEIGHT = 200;
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const BOTTOM_SHEET_HEIGHT = 280;
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function MapScreen() {
   const { location, loading } = useLocation();
   const { translations } = useLanguage();
-  const { pendingClients } = useClient();
+  const { user } = useUser();
+  const { loadingClient, pendingClients, getClients } = useClient();
   const [selectedRadio, setSelectedRadio] = useState<RadioType>("suggested");
+  const [slider, setSlider] = useState(1);
   const [customRadius, setCustomRadius] = useState(1);
-  const [filteredClients, setFilteredClients] = useState(pendingClients);
   const [error, setError] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
@@ -53,38 +58,12 @@ export default function MapScreen() {
   const [longitude, setLongitude] = useState(parseFloat(location.longitude));
 
   // Bottom sheet animation
-  const bottomSheetAnimation = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const bottomSheetAnimation = useRef(
+    new Animated.Value(SCREEN_HEIGHT)
+  ).current;
 
-  useEffect(() => {
-    setLatitude(parseFloat(location.latitude));
-    setLongitude(parseFloat(location.longitude));
-  }, [location]);
-
-  // Calculate distance between two points using Haversine formula
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ) => {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in kilometers
-  };
-
-  // Filter clients based on radius
-  const filterClientsByRadius = () => {
-    const radius = selectedRadio === "suggested" ? 1 : customRadius;
-
-    const filtered = pendingClients.filter((client) => {
+  const filteredClients = useMemo(() => {
+    return pendingClients.filter((client) => {
       if (!client.latitude || !client.longitude) return false;
 
       const distance = calculateDistance(
@@ -94,23 +73,47 @@ export default function MapScreen() {
         parseFloat(client.longitude)
       );
 
-      return distance <= radius;
+      return distance <= customRadius;
     });
-
-    setFilteredClients(filtered);
-  };
+  }, [loadingClient, pendingClients, customRadius, location]);
 
   useEffect(() => {
-    filterClientsByRadius();
-  }, [pendingClients, selectedRadio, customRadius, latitude, longitude]);
+    setLatitude(parseFloat(location.latitude));
+    setLongitude(parseFloat(location.longitude));
+  }, [location]);
 
   useEffect(() => {
-    if (filteredClients.length === 0 && !loading) {
-      setError(translations.clients.noClients);
+    if (user.token && user.claims) {
+      getRadioDefaultByUser(user.claims.parameters.RadioProximity);
+      getClients(user.token);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!loading && !loadingClient) {
+      if (filteredClients.length === 0) {
+        setError(translations.map.noClients);
+      }
+
+      console.log("location flat: ", location);
+
+      if (location.latitude === "0" || location.longitude === "0") {
+        setError(translations.map.noLocation);
+      }
     } else {
       setError(null);
     }
-  }, [filteredClients, translations]);
+  }, [filteredClients, translations, location]);
+
+  const getRadioDefaultByUser = (text: string) => {
+    let clearText = text.replace(/km/gi, "");
+
+    const value = parseInt(clearText);
+    if (!isNaN(value) && value >= 1 && value <= 100) {
+      setSlider(value);
+      setCustomRadius(value);
+    }
+  };
 
   const getDeltaFromRadius = (radiusInKm: number) => {
     const radiusInMeters = radiusInKm * 1000;
@@ -127,15 +130,23 @@ export default function MapScreen() {
   };
 
   const hideBottomSheet = () => {
+    setSelectedClient(null);
     Animated.spring(bottomSheetAnimation, {
       toValue: SCREEN_HEIGHT,
       useNativeDriver: true,
-    }).start(() => setSelectedClient(null));
+    }).start();
   };
 
   const renderMap = () => {
-    const radius = selectedRadio === "suggested" ? 1 : customRadius;
-    const delta = getDeltaFromRadius(radius) * 3;
+    const delta = getDeltaFromRadius(customRadius) * 3;
+
+    if (loading || loadingClient) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary.main} />
+        </View>
+      );
+    }
 
     return (
       <MapView
@@ -148,13 +159,13 @@ export default function MapScreen() {
         }}
       >
         {/* Current location marker */}
-        <Marker
+        {/* <Marker
           coordinate={{
             latitude,
             longitude,
           }}
           pinColor={colors.primary.main}
-        />
+        /> */}
 
         {/* Coverage circle */}
         <Circle
@@ -162,41 +173,38 @@ export default function MapScreen() {
             latitude,
             longitude,
           }}
-          radius={radius * 1000}
+          radius={customRadius * 1000}
           fillColor="rgba(240, 78, 35, 0.1)"
           strokeColor={colors.primary.main}
           strokeWidth={1}
         />
 
-        {/* Client markers */}
         {filteredClients.map((client) => {
-          if (client.latitude && client.longitude) {
-            return (
-              <Marker
-                key={client.clientId}
-                coordinate={{
-                  latitude: parseFloat(client.latitude),
-                  longitude: parseFloat(client.longitude),
-                }}
-                pinColor={colors.error.main}
-                onPress={() => showBottomSheet(client)}
-              />
-            );
-          }
-          return null;
+          return (
+            <Marker
+              key={client.clientId}
+              coordinate={{
+                latitude: client.latitude,
+                longitude: client.longitude,
+              }}
+              onPress={() => showBottomSheet(client)}
+            >
+              <View style={styles.customMarker}>
+                <View style={styles.customMarkerView} />
+              </View>
+            </Marker>
+          );
         })}
       </MapView>
     );
   };
 
-  const handleRadiusChange = (value: number) => {
-    setCustomRadius(value);
+  const handleSliderChange = (value: number) => {
+    setSlider(value);
   };
 
-  const handleNavigateToClient = () => {
-    if (selectedClient) {
-      router.push(`/info-client/${selectedClient.clientId}`);
-    }
+  const handleRadiusChange = () => {
+    setCustomRadius(slider);
   };
 
   return (
@@ -282,8 +290,8 @@ export default function MapScreen() {
                 minimumValue={1}
                 maximumValue={100}
                 step={1}
-                value={customRadius}
-                onValueChange={handleRadiusChange}
+                value={slider}
+                onValueChange={handleSliderChange}
                 minimumTrackTintColor={colors.primary.main}
                 maximumTrackTintColor={colors.gray[100]}
                 thumbImage={IMAGES.THUMB}
@@ -294,7 +302,7 @@ export default function MapScreen() {
               </View>
               <CustomInput
                 label={translations.map.kilometers}
-                value={`${customRadius}Km`}
+                value={`${slider}Km`}
                 placeholder="0Km"
                 keyboardType="number-pad"
                 isDisabled
@@ -303,49 +311,52 @@ export default function MapScreen() {
           )}
 
           {/* BUTTON  */}
-          <Button
-            text={translations.map.apply}
-            onPress={filterClientsByRadius}
-          />
+          <Button text={translations.map.apply} onPress={handleRadiusChange} />
         </View>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary.main} />
-          </View>
-        ) : (
-          renderMap()
-        )}
+        {renderMap()}
       </View>
 
       {/* Bottom Sheet */}
-      <Animated.View
-        style={[
-          styles.bottomSheet,
-          {
-            transform: [{ translateY: bottomSheetAnimation }],
-          },
-        ]}
-      >
-        {selectedClient && (
-          <View style={styles.bottomSheetContent}>
-            <Text style={styles.clientName}>{selectedClient.name}</Text>
-            <Text style={styles.clientDistance}>
-              {calculateDistance(
-                latitude,
-                longitude,
-                parseFloat(selectedClient.latitude || "0"),
-                parseFloat(selectedClient.longitude || "0")
-              ).toFixed(1)} km
-            </Text>
-            <Text style={styles.clientAddress}>{selectedClient.address}</Text>
-            <Button
-              text={translations.map.goTo}
-              onPress={handleNavigateToClient}
-              customStyleContainer={styles.navigateButton}
-            />
+      <Modal visible={!!selectedClient} transparent animationType="none">
+        <TouchableWithoutFeedback onPress={hideBottomSheet}>
+          <View style={styles.overlay}>
+            <Animated.View
+              style={[
+                styles.bottomSheet,
+                {
+                  transform: [{ translateY: bottomSheetAnimation }],
+                },
+              ]}
+            >
+              {selectedClient && (
+                <View style={styles.bottomSheetContent}>
+                  <Text style={styles.bottomSheetTitle}>
+                    {translations.map.selectedClient}
+                  </Text>
+                  <Text style={styles.clientName}>{selectedClient.name}</Text>
+                  <View style={styles.containerDistance}>
+                    <SVG.MOTO width={16} height={16} />
+                    <Text style={styles.clientDistance}>
+                      {calculateDistance(
+                        latitude,
+                        longitude,
+                        parseFloat(selectedClient.latitude || "0"),
+                        parseFloat(selectedClient.longitude || "0")
+                      ).toFixed(1)}{" "}
+                      km
+                    </Text>
+                  </View>
+
+                  <Text style={styles.clientAddress}>
+                    {selectedClient.address}
+                  </Text>
+                  <Button text={translations.map.goTo} onPress={() => {}} />
+                </View>
+              )}
+            </Animated.View>
           </View>
-        )}
-      </Animated.View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
   );
 }
