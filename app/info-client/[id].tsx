@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react-native";
@@ -18,6 +12,7 @@ import CardHistory from "./CardHistory";
 import { getInitials } from "@/utils/utils";
 import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import { useClient } from "@/hooks/useClient";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function InfoClientScreen() {
   const { id } = useLocalSearchParams();
@@ -40,7 +35,7 @@ export default function InfoClientScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <AlertErrorMessage error={errorClient} onClose={() => setError(null)} />
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ChevronLeft size={20} color="#666" />
@@ -60,7 +55,11 @@ export default function InfoClientScreen() {
 
         <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <ScrollView style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        >
           {activeTab === "information" && <ItemInfoClient client={client} />}
           {activeTab === "operations" && <CardOperations client={client} />}
           {activeTab === "history" && <CardHistory client={client} />}

@@ -191,7 +191,7 @@ export const en = {
     result: 'Result',
     reasonNoPayment: 'Reason for No Payment',
     comment: 'Comment',
-    commentPlaceholder: 'Enter your comment',
+    commentPlaceholder: 'Comment',
     operation: 'Operation',
     localAmount: 'Local Amount',
     extAmount: 'External Amount',

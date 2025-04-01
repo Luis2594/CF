@@ -4,7 +4,6 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F6',
-    paddingTop: StatusBar.currentHeight, // FIX status bar in android
   },
   backButton: {
     width: 28,
@@ -22,7 +21,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
-    paddingHorizontal: 22
+    paddingHorizontal: 22,
   },
   avatar: {
     marginBottom: 12,
@@ -47,18 +46,21 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
   shadowWrapper: {
+    width: '100%',
+    marginVertical: 37,
+    borderRadius: 60,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 4,
-    width: '100%',
-    marginVertical: 22,
   },
   containerInfoTabs: {
+    width: '100%',
     backgroundColor: "white",
     borderRadius: 60,
     overflow: "hidden",
+    marginTop: -15
   },
   tabs: {
     flexDirection: "row",

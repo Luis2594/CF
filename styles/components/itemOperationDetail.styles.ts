@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: "bold",
-    color: "#1F2937",
+    color: "#717275",
   },
   operationDetails: {
     marginVertical: 10,

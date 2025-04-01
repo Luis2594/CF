@@ -56,7 +56,11 @@ export default function ItemOperationDetail({
       <View>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleContainer}>
-            <SVG.CARD width={25} height={25} />
+            {operation.operationType === "Préstamo" ? (
+              <SVG.BAG width={25} height={25} />
+            ) : (
+              <SVG.CARD width={25} height={25} />
+            )}
             <View>
               <Text style={styles.cardTitle}>{operation.description}</Text>
               <Text style={styles.cardNumber}>{operation.operationId}</Text>

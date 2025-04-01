@@ -4,7 +4,6 @@ import { styles } from "@/styles/components/itemInfoClient.styles";
 import { useLanguage } from "@/context/LanguageContext";
 import { Client } from "@/hooks/useClient";
 
-
 export default function ItemInfoClient({ client }: { client: Client | null }) {
   const { translations } = useLanguage();
 
@@ -37,13 +36,15 @@ export default function ItemInfoClient({ client }: { client: Client | null }) {
   ].filter(Boolean);
 
   return (
-    <View style={styles.infoContainer}>
-      {clientInfo.map(({ label, value }, index) => (
-        <View key={index} style={styles.infoRow}>
-          <Text style={styles.infoLabel}>{label}</Text>
-          <Text style={styles.infoValue}>{value}</Text>
-        </View>
-      ))}
+    <View style={styles.shadowWrapper}>
+      <View style={styles.infoContainer}>
+        {clientInfo.map(({ label, value }, index) => (
+          <View key={index} style={styles.infoRow}>
+            <Text style={styles.infoLabel}>{label}</Text>
+            <Text style={styles.infoValue}>{value}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

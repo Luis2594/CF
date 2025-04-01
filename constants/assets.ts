@@ -24,6 +24,7 @@ import Finance from '../assets/images/icons/finance.svg';
 import SuccessModal from '../assets/images/icons/successModal.svg';
 import ErrorModal from '../assets/images/icons/errorModal.svg';
 import Expand from '../assets/images/icons/expand.svg';
+import Bag from '../assets/images/icons/bag.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -46,6 +47,7 @@ export const SVG = {
   SUCCESS_MODAL: SuccessModal,
   ERROR_MODAL: ErrorModal,
   EXPAND: Expand,
+  BAG: Bag,
 } as const;
 
 export const IMAGES = {

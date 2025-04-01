@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontFamily: 'Quicksand_600SemiBold',
-    color: '#333',
+    color: '#717275',
     marginLeft: 12,
   },
   dividerH: {
