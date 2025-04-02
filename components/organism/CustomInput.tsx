@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   PanResponder,
   TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Eye, EyeOff, Info } from "lucide-react-native"; // Icons
 import { styles } from "@/styles/components/customInput.styles";
 import TextError from "../atoms/TextError";
 import { SVG } from "@/constants/assets";
 import numeral from "numeral";
+
+import DateTimePicker from "@react-native-community/datetimepicker"; // Android/iOS
+import DateTimePickerModal from "react-native-modal-datetime-picker"; // Only iOS
 
 type CustomInputProps = {
   label: string;
@@ -218,14 +221,30 @@ export default function CustomInput({
           {/* Calendar button */}
           {isDate && <SVG.CALENDAR width={20} height={20} />}
         </View>
-
         {/* DateTimePicker to select date */}
-        <DateTimePickerModal
-          isVisible={isDate && showDatePicker}
-          mode="date"
-          onConfirm={onChangeDate}
-          onCancel={() => setShowDatePicker(false)}
-        />
+
+        {Platform.OS === "android" && isDate && showDatePicker && (
+          <DateTimePicker
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              console.log("event: ", event.type);
+              if (event.type === "dismissed") {
+                return;
+              }
+              onChangeDate(selectedDate);
+            }}
+            value={new Date()}
+          />
+        )}
+
+        {Platform.OS === "ios" && isDate && showDatePicker && (
+          <DateTimePickerModal
+            isVisible={isDate && showDatePicker}
+            mode="date"
+            onConfirm={onChangeDate}
+            onCancel={() => setShowDatePicker(false)}
+          />
+        )}
 
         {/* Error message */}
         {errorMessage && <TextError error={errorMessage} />}
