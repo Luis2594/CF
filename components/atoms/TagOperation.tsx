@@ -10,13 +10,20 @@ interface TagOperationProps {
 }
 
 export default function TagOperation(props: TagOperationProps) {
-  const { text, visible = true, color = "#F04E23", customContainerStyle } = props;
+  const {
+    text,
+    visible = true,
+    color = "#F04E23",
+    customContainerStyle,
+  } = props;
   return (
     <>
       {visible && (
-        <View style={[styles.container, customContainerStyle]}>
-          <View style={[styles.indicator, { backgroundColor: color }]} />
-          <Text style={styles.text}>{text}</Text>
+        <View style={styles.shadowWrapper}>
+          <View style={[styles.container, customContainerStyle]}>
+            <View style={[styles.indicator, { backgroundColor: color }]} />
+            <Text style={styles.text}>{text}</Text>
+          </View>
         </View>
       )}
     </>

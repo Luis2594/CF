@@ -23,13 +23,13 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
             isActive={activeTab === "information"}
             onPress={() => setActiveTab("information")}
           />
-          <Divider orientation="vertical" />
+          <Divider orientation="vertical" thickness={1} />
           <TabItem
             label={translations.client.tabs.operations}
             isActive={activeTab === "operations"}
             onPress={() => setActiveTab("operations")}
           />
-          <Divider orientation="vertical" />
+          <Divider orientation="vertical" thickness={1} />
           <TabItem
             label={translations.client.tabs.history}
             isActive={activeTab === "history"}

@@ -254,7 +254,7 @@ export default function GestionScreen() {
 
   const renderOperations = () => {
     return (
-      <View>
+      <View style={styles.containerOperations}>
         {operations.map((operation, index) => (
           <Fragment key={`${operation.operationId} - ${index}`}>
             <OperationItem
@@ -283,7 +283,12 @@ export default function GestionScreen() {
           setErrorSomePromise(null);
         }}
       />
-      <ScrollView style={styles.scrollView} scrollEnabled={scrollEnabled}>
+      <ScrollView
+        style={styles.scrollView}
+        scrollEnabled={scrollEnabled}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+      >
         <BackButton />
 
         <Text style={styles.title}>{translations.gestion.title}</Text>

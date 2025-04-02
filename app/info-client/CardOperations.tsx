@@ -43,7 +43,13 @@ export default function CardOperations({ client }: { client: Client | null }) {
           <Fragment key={`${operation.operationId} - ${index}`}>
             <ItemOperationSection
               title={operation.operationType}
-              icon={<SVG.CARD width={25} height={25} />}
+              icon={
+                operation.operationType === "Préstamo" ? (
+                  <SVG.BAG width={25} height={25} />
+                ) : (
+                  <SVG.CARD width={25} height={25} />
+                )
+              }
             >
               {operation.operations.map((operationDetail, index) => (
                 <Fragment key={`${operationDetail.operationId} - ${index}`}>

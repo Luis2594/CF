@@ -218,7 +218,7 @@ export const es = {
     result: 'Resultado',
     reasonNoPayment: 'Razón no pago',
     comment: 'Comentario',
-    commentPlaceholder: 'Ingrese su comentario',
+    commentPlaceholder: 'Comentario',
     operation: 'Operación',
     localAmount: 'Monto Local',
     extAmount: 'Monto Ext',

@@ -2,16 +2,21 @@ import { StyleSheet } from 'react-native';
 import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
+  shadowWrapper: {
+    width: '100%',
+    borderBottomRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
   container: {
+    marginTop: -10,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.common.white,
     borderBottomRightRadius: 20,
-    shadowColor: colors.common.black,
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 4,
-    elevation: 4,
   },
   indicator: {
     width: 5,

@@ -4,8 +4,7 @@ import { colors } from '@/constants/colors';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.gray[50],
-    paddingTop: StatusBar.currentHeight,
+    backgroundColor: colors.background.paper,
   },
   backButton: {
     width: 28,
@@ -23,7 +22,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.common.white,
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
-    paddingHorizontal: 22
+    paddingHorizontal: 22,
   },
   avatar: {
     marginBottom: 12,
@@ -49,18 +48,21 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
   shadowWrapper: {
-    shadowColor: colors.common.black,
-    shadowOffset: { width: 0, height: 3 },
+    width: '100%',
+    marginVertical: 37,
+    borderRadius: 60,
+    shadowColor:  colors.common.black,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 4,
-    width: '100%',
-    marginVertical: 22,
   },
   containerInfoTabs: {
+    width: '100%',
     backgroundColor: colors.common.white,
     borderRadius: 60,
     overflow: "hidden",
+    marginTop: -15
   },
   tabs: {
     flexDirection: "row",

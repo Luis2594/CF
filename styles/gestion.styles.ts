@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12
   },
   containerInputs: {
-    marginTop: 10,
+    marginTop: 22,
     marginBottom: 20
   },
   label: {
@@ -32,7 +32,8 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.gray[500],
   },
-  keyboardAvoid: {
+  containerOperations: {
+    marginTop: 22
   },
   photoButton: {
     flexDirection: 'row',

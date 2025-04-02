@@ -2,15 +2,24 @@ import { StyleSheet } from 'react-native';
 import { colors } from '@/constants/colors';
 
 export const styles = StyleSheet.create({
+  shadowWrapper: {
+    width: '100%',
+    marginVertical: 15,
+    borderRadius: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 3,
+  },
   infoContainer: {
+    marginTop: -15,
     padding: 15,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.gray[100],
-    shadowColor: colors.common.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
+    borderColor: colors.border.main,
+    overflow: "hidden",
+    backgroundColor: colors.common.white
   },
   infoRow: {
     flexDirection: 'row',
