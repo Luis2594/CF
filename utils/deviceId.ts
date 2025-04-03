@@ -7,15 +7,15 @@ import 'react-native-get-random-values';;
 export const getDeviceId = async () => {
   try {
     if (Platform.OS === 'ios') {
-      return await Application.getIosIdForVendorAsync() || generateWebDeviceId();
+      return await Application.getIosIdForVendorAsync() || initDeviceId();
     } else if (Platform.OS === 'android') {
-      return Application.androidId || generateWebDeviceId();
+      return Application.androidId || initDeviceId();
     } else {
-      return generateWebDeviceId();
+      return initDeviceId();
     }
   } catch (error) {
     console.log("Error: ", error);
-    return generateWebDeviceId();
+    return initDeviceId();
   }
 
 };
@@ -32,7 +32,7 @@ export const initDeviceId = async () => {
   try {
     const existingDeviceId = await AsyncStorage.getItem('deviceId');
     if (!existingDeviceId) {
-      const newDeviceId = await getDeviceId();
+      const newDeviceId = await generateWebDeviceId();
       await AsyncStorage.setItem('deviceId', newDeviceId);
       return newDeviceId;
     }
