@@ -165,6 +165,7 @@ export const es = {
       history: 'Historial'
     },
     info: {
+      isVisited: 'Cliente visitado con éxito.',
       identification: 'Identificación',
       code: 'Código',
       civilStatus: 'Estado civil',

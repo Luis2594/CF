@@ -4,7 +4,7 @@ import { Client } from "@/hooks/useClient";
 
 export default function CardHistory({ client }: { client: Client | null }) {
   return (
-    <View>
+    <View style={{ paddingHorizontal: 22 }}>
       {client?.managements.map((management, index) => (
         <ItemOperationHistory
           key={management.id}

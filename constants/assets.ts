@@ -35,6 +35,7 @@ import CalendarGray from '../assets/images/icons/calendar_gray.svg';
 import Moto from '../assets/images/icons/moto.svg';
 import Copy from '../assets/images/icons/copy.svg';
 import Bag from '../assets/images/icons/bag.svg';
+import CheckCircle from '../assets/images/icons/checkCircle.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -68,6 +69,7 @@ export const SVG = {
   MOTO: Moto,
   COPY: Copy,
   BAG: Bag,
+  CHECK_CIRCLE: CheckCircle,
 } as const;
 
 export const IMAGES = {

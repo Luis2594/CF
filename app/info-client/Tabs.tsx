@@ -15,26 +15,28 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
   const { translations } = useLanguage();
 
   return (
-    <View style={styles.shadowWrapper}>
-      <View style={styles.containerInfoTabs}>
-        <View style={styles.tabs}>
-          <TabItem
-            label={translations.client.tabs.information}
-            isActive={activeTab === "information"}
-            onPress={() => setActiveTab("information")}
-          />
-          <Divider orientation="vertical" thickness={1} />
-          <TabItem
-            label={translations.client.tabs.operations}
-            isActive={activeTab === "operations"}
-            onPress={() => setActiveTab("operations")}
-          />
-          <Divider orientation="vertical" thickness={1} />
-          <TabItem
-            label={translations.client.tabs.history}
-            isActive={activeTab === "history"}
-            onPress={() => setActiveTab("history")}
-          />
+    <View style={{ width: "100%", paddingHorizontal: 22 }}>
+      <View style={styles.shadowWrapper}>
+        <View style={styles.containerInfoTabs}>
+          <View style={styles.tabs}>
+            <TabItem
+              label={translations.client.tabs.information}
+              isActive={activeTab === "information"}
+              onPress={() => setActiveTab("information")}
+            />
+            <Divider orientation="vertical" thickness={1} />
+            <TabItem
+              label={translations.client.tabs.operations}
+              isActive={activeTab === "operations"}
+              onPress={() => setActiveTab("operations")}
+            />
+            <Divider orientation="vertical" thickness={1} />
+            <TabItem
+              label={translations.client.tabs.history}
+              isActive={activeTab === "history"}
+              onPress={() => setActiveTab("history")}
+            />
+          </View>
         </View>
       </View>
     </View>

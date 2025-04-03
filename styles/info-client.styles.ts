@@ -22,7 +22,6 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.common.white,
     borderTopLeftRadius: 60,
     borderTopRightRadius: 60,
-    paddingHorizontal: 22,
   },
   avatar: {
     marginBottom: 12,
@@ -35,6 +34,7 @@ export const styles = StyleSheet.create({
     color: colors.gray[500],
     marginBottom: 8,
     textAlign: 'center',
+    paddingHorizontal: 22,
   },
   portfolioType: {
     fontSize: 16,
@@ -49,7 +49,8 @@ export const styles = StyleSheet.create({
   },
   shadowWrapper: {
     width: '100%',
-    marginVertical: 37,
+    marginTop: 37,
+    marginBottom: 22,
     borderRadius: 60,
     shadowColor:  colors.common.black,
     shadowOffset: { width: 0, height: 4 },
@@ -62,7 +63,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.common.white,
     borderRadius: 60,
     overflow: "hidden",
-    marginTop: -15
+    marginTop: -15,
   },
   tabs: {
     flexDirection: "row",
@@ -76,6 +77,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.gray[100],
     borderRadius: 20,
+    marginHorizontal: 22
   },
   loadingText: {
     fontSize: 16,
@@ -87,5 +89,6 @@ export const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
+    marginHorizontal: 22
   },
 });
