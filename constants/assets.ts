@@ -25,6 +25,7 @@ import SuccessModal from '../assets/images/icons/successModal.svg';
 import ErrorModal from '../assets/images/icons/errorModal.svg';
 import Expand from '../assets/images/icons/expand.svg';
 import Bag from '../assets/images/icons/bag.svg';
+import CheckCircle from '../assets/images/icons/checkCircle.svg';
 
 export const SVG = {
   LOGO: LogoSvg,
@@ -48,6 +49,7 @@ export const SVG = {
   ERROR_MODAL: ErrorModal,
   EXPAND: Expand,
   BAG: Bag,
+  CHECK_CIRCLE: CheckCircle,
 } as const;
 
 export const IMAGES = {

@@ -1,6 +1,21 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+  tagIsVisited: {
+    backgroundColor: "#B7FFDC",
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+    marginBottom: 22,
+    paddingHorizontal: 22,
+    paddingVertical: 16,
+  },
+  textIsVisited: {
+    fontFamily: "Quicksand",
+    fontWeight: "700",
+    fontSize: 14,
+    color: "#18784A",
+  },
   shadowWrapper: {
     width: '100%',
     marginVertical: 15,
