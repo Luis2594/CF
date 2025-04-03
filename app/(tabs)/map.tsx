@@ -43,7 +43,7 @@ if (Platform.OS !== "web") {
 
 type RadioType = "suggested" | "custom";
 
-const BOTTOM_SHEET_HEIGHT = 280;
+const BOTTOM_SHEET_HEIGHT = 246;
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function MapScreen() {
@@ -204,49 +204,47 @@ export default function MapScreen() {
     }
 
     return (
-      <MapView
-        style={styles.map}
-        region={{
-          latitude,
-          longitude,
-          latitudeDelta: delta,
-          longitudeDelta: delta,
-        }}
-      >
-        {/* Coverage circle */}
-        <Circle
-          center={{
+      <View style={styles.containerMap}>
+        <MapView
+          style={styles.map}
+          region={{
             latitude,
             longitude,
+            latitudeDelta: delta,
+            longitudeDelta: delta,
           }}
-          radius={customRadius * 1000}
-          fillColor="rgba(240, 78, 35, 0.1)"
-          strokeColor={colors.primary.main}
-          strokeWidth={1}
-        />
+        >
+          {/* Coverage circle */}
+          <Circle
+            center={{
+              latitude,
+              longitude,
+            }}
+            radius={customRadius * 1000}
+            fillColor="rgba(251, 199, 173, 0.5)"
+            strokeColor={colors.primary.main}
+            strokeWidth={1}
+          />
 
-        {filteredClients.map((client) => {
-          return (
-            <Marker
-              key={client.clientId}
-              coordinate={{
-                latitude: client.latitude,
-                longitude: client.longitude,
-              }}
-              onPress={() => showBottomSheet(client)}
-            >
-              <View style={styles.customMarker}>
-                <View style={styles.customMarkerView} />
-              </View>
-            </Marker>
-          );
-        })}
-      </MapView>
+          {filteredClients.map((client) => {
+            return (
+              <Marker
+                key={client.clientId}
+                coordinate={{
+                  latitude: client.latitude,
+                  longitude: client.longitude,
+                }}
+                onPress={() => showBottomSheet(client)}
+              >
+                <View style={styles.customMarker}>
+                  <View style={styles.customMarkerView} />
+                </View>
+              </Marker>
+            );
+          })}
+        </MapView>
+      </View>
     );
-  };
-
-  const handleSliderChange = (value: number) => {
-    setSlider(value);
   };
 
   const handleRadiusChange = () => {
@@ -343,10 +341,11 @@ export default function MapScreen() {
                 maximumValue={100}
                 step={1}
                 value={slider}
-                onValueChange={handleSliderChange}
+                onSlidingComplete={(val) => setSlider(val)}
                 minimumTrackTintColor={colors.primary.main}
                 maximumTrackTintColor={colors.gray[100]}
                 thumbImage={IMAGES.THUMB}
+                style={styles.slider}
               />
               <View style={styles.containerTextSlider}>
                 <Text style={styles.radioTitle}>1</Text>
@@ -401,7 +400,7 @@ export default function MapScreen() {
                   <TouchableOpacity onPress={copyToClipboard}>
                     <View style={styles.wrapAddress}>
                       <Text style={styles.clientAddress}>
-                        {selectedClient.address}
+                        {`${selectedClient?.addressLevel1}, ${selectedClient?.addressLevel2}`}
                       </Text>
                       <SVG.COPY width={18} height={18} />
                     </View>

@@ -20,31 +20,30 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 12,
     marginBottom: 8,
+    gap: 8
   },
   greeting: {
-    fontSize: 22,
     fontFamily: 'Quicksand',
     fontWeight: '600',
+    fontSize: 22,
     color: colors.primary.main,
-    marginLeft: 8,
   },
   subtitle: {
-    fontSize: 16,
     fontFamily: 'Quicksand',
     fontWeight: '600',
+    fontSize: 14,
     color: colors.gray[500],
   },
   textShowFilter: {
-    fontSize: 22,
     fontFamily: 'Quicksand',
     fontWeight: '700',
+    fontSize: 22,
     color: colors.primary.main,
     textAlign: 'center',
     marginBottom: 22
   },
   searchContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
     gap: 4,
   },
   searchInputContainer: {
@@ -57,8 +56,8 @@ export const styles = StyleSheet.create({
   buttonMenu: {
     borderWidth: 0,
     padding: 0,
+    borderRadius: 0,
     width: 24,
     height: 24,
-    borderRadius: 0,
   }
 });

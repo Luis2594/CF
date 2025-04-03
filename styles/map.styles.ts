@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { colors } from '@/constants/colors';
 import { StatusBar } from 'react-native';
 
@@ -25,10 +25,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    flex: 1,
-    fontSize: 22,
     fontFamily: "Quicksand",
     fontWeight: '700',
+    fontSize: 22,
+    flex: 1,
     color: colors.primary.main,
     textAlign: 'center',
     marginRight: 28
@@ -63,37 +63,52 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background.default,
   },
   radioTitle: {
-    fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: '700',
+    fontSize: 14,
     color: colors.text.primary,
   },
   radioSubtitle: {
-    fontSize: 12,
     fontFamily: "Quicksand",
     fontWeight: '400',
+    fontSize: 12,
     color: colors.text.primary,
   },
   customRadioContent: {
     flex: 1,
   },
+  slider: {
+    width: "100%",
+    borderRadius: 10,
+    ...Platform.select({
+      android: {
+        width: "109%",
+        marginLeft: -15,
+      },
+      ios: {
+        marginBottom: -10
+      }
+    }),
+  },
   containerTextSlider: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
-    marginTop: -10
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  map: {
+  containerMap: {
     flex: 1,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.gray[300],
-    marginTop: 16,
+    overflow: "hidden",
+  },
+  map: {
+    flex: 1,
   },
   customMarker: {
     width: 14,
@@ -126,17 +141,17 @@ export const styles = StyleSheet.create({
     padding: 22,
   },
   bottomSheetTitle: {
-    fontSize: 22,
     fontFamily: "Quicksand",
     fontWeight: '700',
+    fontSize: 22,
     color: colors.primary.main,
     marginBottom: 22,
     textAlign: 'center'
   },
   clientName: {
-    fontSize: 16,
     fontFamily: "Quicksand",
     fontWeight: '700',
+    fontSize: 16,
     color: colors.gray[500],
     marginBottom: 14,
   },
@@ -153,9 +168,9 @@ export const styles = StyleSheet.create({
     marginBottom: 14
   },
   clientDistance: {
-    fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: '700',
+    fontSize: 14,
     color: colors.text.primary,
     marginLeft: 6
   },
@@ -165,9 +180,9 @@ export const styles = StyleSheet.create({
     alignContent: 'center'
   },
   clientAddress: {
-    fontSize: 14,
     fontFamily: "Quicksand",
     fontWeight: '600',
+    fontSize: 14,
     color: colors.text.primary,
     marginBottom: 14,
   },

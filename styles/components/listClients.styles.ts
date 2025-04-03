@@ -7,12 +7,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.common.white,
-    paddingBottom: 22
+    paddingBottom: 22,
+    paddingTop: 7
   },
   sectionTitle: {
-    fontSize: 16,
     fontFamily: 'Quicksand',
     fontWeight: '700',
+    fontSize: 16,
     color: colors.primary.main,
   },
   centerContainer: {
