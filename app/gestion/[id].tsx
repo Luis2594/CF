@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Dropdown from "@/components/organism/Dropdown";
@@ -20,12 +21,12 @@ import { Operation } from "@/components/molecules/items/ItemOperationDetail";
 import OperationItem from "./OperationItem";
 import { useCamera } from "@/hooks/useCamera";
 import CameraModal from "@/components/organism/CameraModal";
-import { CameraCapturedPicture } from "expo-camera";
 import { encryptText } from "@/utils/encryption";
 import { useUser } from "@/hooks/useUser";
 import FeedbackModal from "@/components/molecules/modals/FeedbackModal";
 import { useLocation } from "@/hooks/useLocation";
 import CustomInput from "@/components/organism/CustomInput";
+import { CameraCapturedPicture } from "expo-camera";
 
 interface ErrorsInput {
   action?: string;
@@ -56,13 +57,14 @@ export default function GestionScreen() {
     setError,
     createGestion,
   } = useGestion();
-  const { type, photo, takePicture, toggleCameraType } = useCamera();
+  const { type, toggleCameraType } = useCamera();
   const { location } = useLocation();
 
   const [action, setAction] = useState("");
   const [result, setResult] = useState<ResultCodes>();
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
+  const [photo, setPhoto] = useState<CameraCapturedPicture | undefined>();
   const [showCamera, setShowCamera] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackType, setFeedbackType] = useState<"success" | "error">(
@@ -84,8 +86,13 @@ export default function GestionScreen() {
     getClient(id.toString());
   }, []);
 
-  const handleCapture = (capturedPhoto: CameraCapturedPicture | null) => {
-    takePicture(capturedPhoto);
+  const handleCapture = (capturedPhoto?: CameraCapturedPicture) => {
+    setError(null);
+    if (capturedPhoto) {
+      setPhoto(capturedPhoto);
+    } else {
+      setError(translations.camera.error.taking);
+    }
     setShowCamera(false);
   };
 

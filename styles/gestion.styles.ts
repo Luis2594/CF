@@ -26,9 +26,9 @@ export const styles = StyleSheet.create({
     marginBottom: 20
   },
   label: {
-    fontSize: 14,
     fontFamily: 'Quicksand',
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize: 14,
     color: '#717275',
   },
   containerOperations: {
