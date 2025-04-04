@@ -45,7 +45,7 @@ export default function ItemOperationDetail({
       <Text style={styles.operationLabel}>{label}</Text>
       <Text style={styles.operationValue}>
         {isMoney
-          ? `${operation.currencySymbol} ${operation.totalBalance}`
+          ? `${operation.currencySymbol} ${value}`
           : value}
       </Text>
     </View>
@@ -86,6 +86,7 @@ export default function ItemOperationDetail({
             operation.totalBalance,
             true
           )}
+
           {renderDetail(
             translations.operations.overdueBalance,
             operation.overdueBalance,
