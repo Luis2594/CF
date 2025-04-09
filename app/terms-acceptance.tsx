@@ -96,7 +96,7 @@ export default function TermsAcceptanceScreen() {
         // Save terms acceptance status locally
         await setTermsAccepted(true);
         // Navigate to home screen
-        router.replace("/(tabs)");
+        router.replace("/home");
       } else {
         let errorCode =
           response?.data?.data?.code || response?.data?.data?.details?.code;

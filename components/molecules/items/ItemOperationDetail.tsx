@@ -26,6 +26,11 @@ export interface Operation {
   currencyISO: number;
   currencySymbol: string;
   cycle: number;
+
+  foreignCurrency?: string;
+  foreignCurrencyCode?: string;
+  foreignCurrencyISO?: number;
+  foreignCurrencySymbol?: string;
 }
 
 export default function ItemOperationDetail({
@@ -44,9 +49,7 @@ export default function ItemOperationDetail({
     <View style={styles.operationRow}>
       <Text style={styles.operationLabel}>{label}</Text>
       <Text style={styles.operationValue}>
-        {isMoney
-          ? `${operation.currencySymbol} ${operation.totalBalance}`
-          : value}
+        {isMoney ? `${operation.currencySymbol} ${value}` : value}
       </Text>
     </View>
   );
@@ -86,6 +89,7 @@ export default function ItemOperationDetail({
             operation.totalBalance,
             true
           )}
+
           {renderDetail(
             translations.operations.overdueBalance,
             operation.overdueBalance,

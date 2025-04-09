@@ -1,57 +1,51 @@
 import React, { useRef } from "react";
-import { View, Text, TouchableOpacity, Modal, Platform } from "react-native";
-import { Camera, CameraView } from "expo-camera";
+import { View, TouchableOpacity, Modal } from "react-native";
+import { CameraCapturedPicture, CameraType, CameraView } from "expo-camera";
 import { Camera as CameraIcon, X, RotateCcw } from "lucide-react-native";
-import { useLanguage } from "@/context/LanguageContext";
 import { styles } from "@/styles/components/cameraModal.styles";
 
 interface CameraModalProps {
   visible: boolean;
+  type: CameraType;
   onClose: () => void;
-  onCapture: (photo: any) => void;
-  type: "front" | "back";
+  onCapture: (photo?: CameraCapturedPicture) => void;
   toggleType: () => void;
 }
 
 export default function CameraModal({
   visible,
+  type,
   onClose,
   onCapture,
-  type,
   toggleType,
 }: CameraModalProps) {
-  const cameraRef = useRef<Camera>(null);
-  const { translations } = useLanguage();
+  const cameraRef = useRef<CameraView>(null);
 
   const handleCapture = async () => {
     if (cameraRef.current) {
-      onCapture(cameraRef.current);
+      try {
+        if (typeof cameraRef.current.takePictureAsync !== "function") {
+          console.warn("Camera is not ready");
+          onCapture();
+          return;
+        }
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.5,
+          base64: true,
+          skipProcessing: true,
+        });
+        onCapture(photo);
+      } catch (error) {
+        console.error("Error capturing photo:", error);
+        onCapture();
+      }
     }
   };
-
-  if (Platform.OS === "web") {
-    return (
-      <Modal visible={visible} transparent animationType="slide">
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <Text style={styles.webMessage}>
-              {translations.camera.notAvailable}
-            </Text>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>
-                {translations.camera.close}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    );
-  }
 
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.container}>
-        <CameraView ref={cameraRef} style={styles.camera} type={type}>
+        <CameraView ref={cameraRef} style={styles.camera} facing={type}>
           <View style={styles.controls}>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <X color="white" size={24} />

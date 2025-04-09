@@ -10,7 +10,6 @@ import { auth } from '@/config/firebase';
 import { Alert } from 'react-native';
 import { useLanguage } from '@/context/LanguageContext';
 import { ERROR_EXP_SESION } from '@/constants/loginErrors';
-
 export interface ResultCodes {
   id: string;
   codeResult: string;
@@ -55,7 +54,7 @@ export const useGestion = () => {
     storageKey: STORAGE_KEYS.GESTIONS_CACHE,
     onSync: async (id, data) => {
       await createGestion({
-        gestion: { ...data, token: user.token },
+        gestion: { ...data, token: user.token, isRealTime: encryptText("0") },
         fromSync: true,
         onSuccess: () => {
           // Alert.alert("Sincronización", `Se ha sincronizado las gestion: ${id}`);
@@ -63,7 +62,7 @@ export const useGestion = () => {
         onError: (error) => {
           // Alert.alert("Error en sincronización", `${error}: ${id}`);
         },
-      })
+      });
     },
   });
 
@@ -72,38 +71,44 @@ export const useGestion = () => {
       key: STORAGE_KEYS.ACTIONS_RESULT,
       onSuccess: (data) => {
         const actions = data as Array<ActionResult>;
-        setActionsResults(actions)
+        setActionsResults(actions);
       },
-    })
+    });
     getDataFromCache({
       key: STORAGE_KEYS.REASON_NO_PAYMENT,
       onSuccess: (data) => {
         const reasons = data as Array<ReasonNoPayment>;
         setReasonsNoPayment(reasons);
       },
-    })
+    });
   }, []);
 
   useEffect(() => {
     if (actionsResults) {
-      setActionItems(actionsResults.map((item) => ({
-        value: item.id,
-        label: `${item.actionCode} - ${item.description}`,
-      })));
+      setActionItems(
+        actionsResults.map((item) => ({
+          value: item.id,
+          label: `${item.actionCode} - ${item.description}`,
+        }))
+      );
     }
 
     if (actionSelected) {
-      setResultsItems(actionSelected?.resultCodes?.map((item: ResultCodes) => ({
-        value: item.id,
-        label: `${item.codeResult} - ${item.description}`,
-      })) ?? [])
+      setResultsItems(
+        actionSelected?.resultCodes?.map((item: ResultCodes) => ({
+          value: item.id,
+          label: `${item.codeResult} - ${item.description}`,
+        })) ?? []
+      );
     }
 
     if (reasonsNoPayment) {
-      setReasonItems(reasonsNoPayment.map((item) => ({
-        value: item.id,
-        label: `${item.reason}`,
-      })))
+      setReasonItems(
+        reasonsNoPayment.map((item) => ({
+          value: item.id,
+          label: `${item.reason}`,
+        }))
+      );
     }
   }, [actionsResults, actionSelected, reasonsNoPayment]);
 
@@ -150,17 +155,20 @@ export const useGestion = () => {
             onError: (error: Error) => {
               const errorMsj = result?.data?.message || error.message;
               setError(errorMsj);
-            }
+            },
           });
         }
       } catch (error) {
-        console.log('token: ', token);
+        console.log("token: ", token);
         console.error(`Error fetching ${functionName}:`, error);
 
         getDataFromCache({
           key: storageKey,
           onSuccess: (data) => setState(data as T[]),
-          onError: () => setError(error instanceof Error ? error.message : "An error occurred"),
+          onError: () =>
+            setError(
+              error instanceof Error ? error.message : "An error occurred"
+            ),
         });
       }
     } else {
@@ -173,24 +181,23 @@ export const useGestion = () => {
   };
 
   const updateActionSelected = (action: string) => {
-    setActionSelected(actionsResults.find(
-      (item) => item.id === action
-    ) as ActionResult);
-  }
+    setActionSelected(
+      actionsResults.find((item) => item.id === action) as ActionResult
+    );
+  };
 
-  const createGestion = async ({ gestion, fromSync = false, onSuccess, onError }: {
-    gestion: any,
-    fromSync?: boolean,
-    onSuccess: () => void,
-    onError: (error: string) => void
+  const createGestion = async ({
+    gestion,
+    fromSync = false,
+    onSuccess,
+    onError,
+  }: {
+    gestion: any;
+    fromSync?: boolean;
+    onSuccess: () => void;
+    onError: (error: string) => void;
   }) => {
-
     try {
-      gestion = {
-        ...gestion,
-        isRealTime: encryptText(isOnline ? "1" : "0"),
-      }
-
       if (isOnline || fromSync) {
         const functions = getFunctions();
         const postGestorFn = httpsCallable(functions, "postGestor");
@@ -203,7 +210,10 @@ export const useGestion = () => {
       } else {
         if (!fromSync) {
           // Store for offline sync
-          addPendingChange(`${gestion?.clientId} - ${gestion?.portfolioId}`, gestion);
+          addPendingChange(
+            `${gestion?.clientId} - ${gestion?.portfolioId}`,
+            gestion
+          );
           onSuccess();
         }
       }
@@ -225,12 +235,12 @@ export const useGestion = () => {
         onError(error.message);
       }
     }
-  }
+  };
 
   const clearDataGestion = () => {
     clearDataInCache(STORAGE_KEYS.ACTIONS_RESULT);
     clearDataInCache(STORAGE_KEYS.REASON_NO_PAYMENT);
-  }
+  };
 
   return {
     actionItems,
@@ -243,6 +253,6 @@ export const useGestion = () => {
     updateActionSelected,
     setError,
     createGestion,
-    clearDataGestion
+    clearDataGestion,
   };
 };

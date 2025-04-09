@@ -90,7 +90,7 @@ export default function RootLayout() {
         // Navigate based on terms acceptance
         if (idTokenResult.claims.acceptedTerms) {
           console.log("GO TO tabs");
-          router.replace("/(tabs)");
+          router.replace("/home");
         } else {
           console.log("GO TO terms-acceptance");
           router.replace("/terms-acceptance");

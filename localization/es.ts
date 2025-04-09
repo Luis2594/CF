@@ -200,7 +200,7 @@ export const es = {
 
   // History
   history: {
-    management: 'Gestion',
+    management: 'Gestión',
     managementDate: "Fecha gestión",
     action: "Acción",
     result: "Resultado",
@@ -234,6 +234,7 @@ export const es = {
       result: 'Resultado es requerido',
       reason: 'Razón es requerido',
       localAmount: 'Monto local es requerido',
+      minAmount: 'El monto mínimo requerido es de: ',
       extAmount: 'Monto Ext es requerido',
       paymentDate: 'Fecha de pago es requerido',
       saveFailed: "Error al guardar el registro de gestión",

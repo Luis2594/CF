@@ -11,10 +11,10 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   label: {
-    fontSize: 14,
     fontFamily: "Quicksand",
     color: colors.gray[500],
     fontWeight: "700",
+    fontSize: 14,
   },
   asterisk: {
     color: colors.error.main,

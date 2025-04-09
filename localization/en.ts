@@ -233,6 +233,7 @@ export const en = {
       result: "Result is required",
       reason: "Reason is required",
       localAmount: "Local amount is required",
+      minAmount: "The minimum amount required is: ",
       extAmount: "External amount is required",
       paymentDate: "Payment date is required",
       saveFailed: "Failed to save management record",
