@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react-native";
 import { router } from "expo-router";
-import { useLanguage } from "../../context/LanguageContext";
+import { useLanguage } from "../context/LanguageContext";
 import { useUser } from "@/hooks/useUser";
 import { useGestion } from "@/hooks/useGestion";
 import { useLocationPermissions } from "@/hooks/useLocationPermissions";

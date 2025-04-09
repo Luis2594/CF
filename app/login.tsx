@@ -45,7 +45,7 @@ export interface LoginCredentials {
 }
 
 export default function Login() {
-  const { translations } = useLanguage();
+  const { translations, language } = useLanguage();
   const [institution, setInstitution] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -204,6 +204,7 @@ export default function Login() {
       } = await createCustomTokenFn({
         ...encryptedCredentials,
         biometric: useBiometric,
+        language,
       });
 
       // Si no es login biométrico y se debe mostrar el prompt
@@ -223,6 +224,7 @@ export default function Login() {
         token: claims.token,
         deviceId: encryptText(deviceId),
         useBiometric,
+        claims,
       });
       await signInWithCustomToken(auth, token);
     } catch (error: any) {

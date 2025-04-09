@@ -24,10 +24,14 @@ const OperationItem = React.forwardRef(
       operation,
       resultCodes,
       resultsItems,
+      minPromiseAmountLocal,
+      minPromiseAmountForeing,
     }: {
       operation: Operation;
       resultCodes: Array<ResultCodes>;
       resultsItems: Array<DropdownItem>;
+      minPromiseAmountLocal?: number;
+      minPromiseAmountForeing?: number;
     },
     ref
   ) => {
@@ -38,6 +42,12 @@ const OperationItem = React.forwardRef(
     const [montoExt, setMontoExt] = useState("");
     const [date, setDate] = useState("");
     const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
+
+    const hasForeign =
+      operation.foreignCurrency ||
+      operation.foreignCurrencyCode ||
+      operation.foreignCurrencyISO ||
+      operation.foreignCurrencySymbol;
 
     const clearInputError = (key: keyof ErrorsInput) => {
       setErrorsInput((prevErrors) => ({
@@ -51,7 +61,7 @@ const OperationItem = React.forwardRef(
     };
 
     const currentErrorsInput = (): boolean => {
-      if (!result?.promise) {
+      if (!isPromise()) {
         return false;
       }
       setErrorsInput({});
@@ -59,8 +69,19 @@ const OperationItem = React.forwardRef(
         result: !result ? translations.gestion.errors.result : undefined,
         montoLocal: !montoLocal
           ? translations.gestion.errors.localAmount
+          : minPromiseAmountLocal
+          ? parseInt(montoLocal) < minPromiseAmountLocal
+            ? `${translations.gestion.errors.minAmount}${operation.currencySymbol}${minPromiseAmountLocal}`
+            : undefined
           : undefined,
-        montoExt: !montoExt ? translations.gestion.errors.extAmount : undefined,
+        montoExt:
+          !montoExt && hasForeign
+            ? translations.gestion.errors.extAmount
+            : minPromiseAmountForeing
+            ? parseInt(montoExt) < minPromiseAmountForeing
+              ? `${translations.gestion.errors.minAmount}${operation.foreignCurrencySymbol}${minPromiseAmountForeing}`
+              : undefined
+            : undefined,
         date: !date ? translations.gestion.errors.paymentDate : undefined,
       };
       setErrorsInput(currentErrorsInput);
@@ -71,42 +92,65 @@ const OperationItem = React.forwardRef(
     };
 
     const getDataToSend = (): RequestOperationData => {
-      const formattedMontoLocal = formatToTwoDecimals(montoLocal);
-      const formattedMontoExt = formatToTwoDecimals(montoExt);
-
-      const encryptedLocalCurrency = encryptText(formattedMontoLocal);
-      const encryptedForeignCurrency = encryptText(formattedMontoExt);
-
-      return {
-        operationId: encryptText(operation.operationId),
-        existPromise: result?.promise ? encryptText("1") : encryptText("0"),
-        foreignCurrency: encryptedForeignCurrency,
-        localCurrency: encryptedLocalCurrency,
-        promiseDate: result?.promise
-          ? encryptText(formatDate(date))
-          : undefined,
+      let data: RequestOperationData = {
+        operationId: encryptText(operation.operationId) as string,
+        existPromise: encryptText(isPromise() ? "1" : "0"),
       };
-    };
 
+      if (isPromise()) {
+        const formattedMontoLocal = formatToTwoDecimals(montoLocal);
+        const encryptedLocalCurrency = encryptText(
+          formattedMontoLocal
+        ) as string;
+
+        data = {
+          ...data,
+          localCurrency: encryptedLocalCurrency,
+          promiseDate: encryptText(formatDate(date)) as string,
+        };
+
+        if (hasForeign) {
+          const formattedMontoExt = formatToTwoDecimals(montoExt);
+          const encryptedForeignCurrency = encryptText(
+            formattedMontoExt
+          ) as string;
+
+          data = {
+            ...data,
+            foreignCurrency: encryptedForeignCurrency,
+          };
+        }
+      }
+
+      return data;
+    };
 
     // TODO DELETE It's to show data decrypt
     const getDataToSendSin = (): RequestOperationData => {
-      const formattedMontoLocal = formatToTwoDecimals(montoLocal);
-      const formattedMontoExt = formatToTwoDecimals(montoExt);
-      console.log("data detail: ", {
+      let data: RequestOperationData = {
         operationId: operation.operationId,
-        existPromise: result?.promise ? "1" : "0",
-        foreignCurrency: formattedMontoExt,
-        localCurrency: formattedMontoLocal,
-        promiseDate: result?.promise ? formatDate(date) : undefined,
-      });
-      return {
-        operationId: operation.operationId,
-        existPromise: (result?.promise || false).toString(),
-        foreignCurrency: formattedMontoExt,
-        localCurrency: formattedMontoLocal,
-        promiseDate: formatDate(date),
+        existPromise: isPromise() ? "1" : "0",
       };
+
+      if (isPromise()) {
+        const formattedMontoLocal = formatToTwoDecimals(montoLocal);
+
+        data = {
+          ...data,
+          localCurrency: formattedMontoLocal,
+          promiseDate: formatDate(date),
+        };
+
+        if (hasForeign) {
+          const formattedMontoExt = formatToTwoDecimals(montoExt);
+
+          data = {
+            ...data,
+            foreignCurrency: formattedMontoExt,
+          };
+        }
+      }
+      return data;
     };
 
     React.useImperativeHandle(ref, () => ({
@@ -152,18 +196,20 @@ const OperationItem = React.forwardRef(
                 errorMessage={errorsInput?.montoLocal}
               />
 
-              <CustomInput
-                label={translations.gestion.extAmount}
-                value={montoExt}
-                onChangeText={(text) => {
-                  setMontoExt(text);
-                  clearInputError("montoExt");
-                }}
-                placeholder="0.00"
-                isRequired
-                currency={operation.currencySymbol}
-                errorMessage={errorsInput?.montoExt}
-              />
+              {hasForeign && (
+                <CustomInput
+                  label={translations.gestion.extAmount}
+                  value={montoExt}
+                  onChangeText={(text) => {
+                    setMontoExt(text);
+                    clearInputError("montoExt");
+                  }}
+                  placeholder="0.00"
+                  isRequired
+                  currency={operation.foreignCurrencySymbol}
+                  errorMessage={errorsInput?.montoExt}
+                />
+              )}
 
               <CustomInput
                 label={translations.gestion.paymentDate}

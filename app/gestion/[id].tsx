@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Dropdown from "@/components/organism/Dropdown";
@@ -36,8 +35,8 @@ interface ErrorsInput {
 
 export interface RequestOperationData {
   operationId: string;
-  localCurrency: string;
-  foreignCurrency: string;
+  localCurrency?: string;
+  foreignCurrency?: string;
   promiseDate?: string;
   existPromise?: string;
 }
@@ -80,7 +79,26 @@ export default function GestionScreen() {
 
   const operationsRefs = useRef<{ [key: string]: any }>({});
 
-  const operations = client?.operations || ([] as Array<Operation>);
+  let operations = client?.operations || ([] as Operation[]);
+  const operationMap = new Map<string, Operation>();
+
+  operations.forEach((op) => {
+    const existing = operationMap.get(op.operationId);
+
+    if (!existing) {
+      operationMap.set(op.operationId, op);
+    } else {
+      if (user.claims.parameters.ForeingCurrency) {
+        operationMap.set(existing.operationId, {
+          ...existing,
+          foreignCurrency: user.claims.parameters.ForeingCurrency,
+          foreignCurrencySymbol: user.claims.parameters.ForeingCurrencySymbol,
+        });
+      }
+    }
+  });
+
+  operations = Array.from(operationMap.values());
 
   useEffect(() => {
     getClient(id.toString());
@@ -166,7 +184,7 @@ export default function GestionScreen() {
 
   const handleModalContinue = () => {
     if (feedbackType === "success") {
-      router.replace("/(tabs)");
+      router.replace("/home");
     }
 
     setShowFeedbackModal(false);
@@ -199,16 +217,17 @@ export default function GestionScreen() {
         comments: comment,
         latitude: location.latitude,
         longitude: location.longitude,
-        files: photo ? [photo?.base64] : undefined,
+        isRealTime: encryptText("1"),
+        files: photo ? [photo?.base64] : null,
         detail: result?.promise
-          ? client?.operations?.map((op: Operation, index) =>
+          ? operations?.map((op: Operation, index) =>
               getDataByOperationSin(`${op.operationId} - ${index}`)
             ) || []
           : undefined,
         token: user?.token,
       };
 
-      console.log("gestionDataSin: ", photo?.base64);
+      console.log("gestionDataSin: ", gestionDataSin);
 
       const gestionData = {
         userId: user.uid,
@@ -220,9 +239,10 @@ export default function GestionScreen() {
         comments: encryptText(comment),
         latitude: encryptText(location.latitude),
         longitude: encryptText(location.longitude),
-        files: photo ? [photo?.base64] : undefined,
+        isRealTime: encryptText("1"),
+        files: photo ? [photo?.base64] : [],
         detail: result?.promise
-          ? client?.operations?.map((op: Operation, index) =>
+          ? operations?.map((op: Operation, index) =>
               getDataByOperation(`${op.operationId} - ${index}`)
             ) || []
           : [],
@@ -274,6 +294,12 @@ export default function GestionScreen() {
                 actionsResults.find((a) => a.id === action)?.resultCodes || []
               }
               resultsItems={resultsItems}
+              minPromiseAmountLocal={parseInt(
+                user.claims.parameters.MinPromiseAmountLocal
+              )}
+              minPromiseAmountForeing={parseInt(
+                user.claims.parameters.MinPromiseAmountForeing
+              )}
             />
           </Fragment>
         ))}

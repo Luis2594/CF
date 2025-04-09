@@ -46,12 +46,18 @@ exports.createCustomToken = functions.https.onCall(async (data, context) => {
 
     const url = 'https://api-mobile-proxy-test.credit-force.com/api/v1/auth/login';
 
-    const body = predefinedCredentials[data.username] || {
+    const predefinedUser = {
+      ...predefinedCredentials[data.username],
+      language: data.language
+    }
+
+    const body = predefinedCredentials[data.username] ? predefinedUser : {
       username: data.username,
       password: data.password,
       deviceId: data.deviceId,
       companyName: data.companyName,
       biometric: data.biometric || false,
+      language: data.language
     };
 
     log('Body: ', body);

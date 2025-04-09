@@ -41,6 +41,7 @@ export const useUser = () => {
           idTokenResult,
           name: idTokenResult.claims.name || "",
           token: credentials.token,
+          claims: idTokenResult.claims
         });
       } catch (error) {
         setError(error?.message);
