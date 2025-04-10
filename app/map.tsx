@@ -399,7 +399,11 @@ export default function MapScreen() {
                   </View>
                   <TouchableOpacity onPress={copyToClipboard}>
                     <View style={styles.wrapAddress}>
-                      <Text style={styles.clientAddress}>
+                      <Text
+                        style={styles.clientAddress}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {`${selectedClient?.addressLevel1}, ${selectedClient?.addressLevel2}`}
                       </Text>
                       <SVG.COPY width={18} height={18} />

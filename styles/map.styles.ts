@@ -1,6 +1,6 @@
-import { Platform, StyleSheet } from 'react-native';
-import { colors } from '@/constants/colors';
-import { StatusBar } from 'react-native';
+import { Platform, StyleSheet } from "react-native";
+import { colors } from "@/constants/colors";
+import { StatusBar } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
@@ -21,20 +21,20 @@ export const styles = StyleSheet.create({
     height: 28,
     borderRadius: 10,
     backgroundColor: colors.gray[100],
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontFamily: "Quicksand",
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 22,
     flex: 1,
     color: colors.primary.main,
-    textAlign: 'center',
-    marginRight: 28
+    textAlign: "center",
+    marginRight: 28,
   },
   radioContainer: {
-    marginTop: 22
+    marginTop: 22,
   },
   radioOption: {
     flexDirection: "row",
@@ -64,13 +64,13 @@ export const styles = StyleSheet.create({
   },
   radioTitle: {
     fontFamily: "Quicksand",
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 14,
     color: colors.text.primary,
   },
   radioSubtitle: {
     fontFamily: "Quicksand",
-    fontWeight: '400',
+    fontWeight: "400",
     fontSize: 12,
     color: colors.text.primary,
   },
@@ -80,25 +80,26 @@ export const styles = StyleSheet.create({
   slider: {
     width: "100%",
     borderRadius: 10,
+    marginTop: -10,
     ...Platform.select({
       android: {
         width: "109%",
         marginLeft: -15,
       },
       ios: {
-        marginBottom: -10
-      }
+        marginBottom: -10,
+      },
     }),
   },
   containerTextSlider: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   containerMap: {
     flex: 1,
@@ -115,22 +116,22 @@ export const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     backgroundColor: colors.common.white,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center",
   },
   customMarkerView: {
     width: 11,
     height: 11,
     borderRadius: 6,
-    backgroundColor: colors.primary.main
+    backgroundColor: colors.primary.main,
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(18, 17, 17, 0.46)'
+    backgroundColor: "rgba(18, 17, 17, 0.46)",
   },
   bottomSheet: {
     flex: 1,
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     backgroundColor: colors.common.white,
@@ -142,15 +143,15 @@ export const styles = StyleSheet.create({
   },
   bottomSheetTitle: {
     fontFamily: "Quicksand",
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 22,
     color: colors.primary.main,
     marginBottom: 22,
-    textAlign: 'center'
+    textAlign: "center",
   },
   clientName: {
     fontFamily: "Quicksand",
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 16,
     color: colors.gray[500],
     marginBottom: 14,
@@ -158,30 +159,30 @@ export const styles = StyleSheet.create({
   containerDistance: {
     flexDirection: "row",
     backgroundColor: colors.gray[10],
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center",
+    alignSelf: "flex-start",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
-    marginBottom: 14
+    marginBottom: 14,
   },
   clientDistance: {
     fontFamily: "Quicksand",
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 14,
     color: colors.text.primary,
-    marginLeft: 6
+    marginLeft: 6,
   },
   wrapAddress: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'center'
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignContent: "center",
   },
   clientAddress: {
     fontFamily: "Quicksand",
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 14,
     color: colors.text.primary,
     marginBottom: 14,

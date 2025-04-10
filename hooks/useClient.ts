@@ -211,8 +211,8 @@ export const useClient = () => {
       civilStatus: decryptText(client.civilStatus),
       portfolio: decryptText(client.portfolio),
       portfolioId: decryptText(client.portfolioId),
-      latitude: decryptText(client.latitude || ''),
-      longitude: decryptText(client.longitude || ''),
+      latitude: client.latitude ,
+      longitude:client.longitude,
       operations: client.operations.map((operation: Operation) => ({
         ...operation,
         operationId: decryptText(operation.operationId),
