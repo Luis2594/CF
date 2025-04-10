@@ -218,7 +218,7 @@ export default function GestionScreen() {
         latitude: location.latitude,
         longitude: location.longitude,
         isRealTime: encryptText("1"),
-        files: photo ? [photo?.base64] : null,
+        files: photo ? [photo?.base64] : undefined,
         detail: result?.promise
           ? operations?.map((op: Operation, index) =>
               getDataByOperationSin(`${op.operationId} - ${index}`)
@@ -240,7 +240,7 @@ export default function GestionScreen() {
         latitude: encryptText(location.latitude),
         longitude: encryptText(location.longitude),
         isRealTime: encryptText("1"),
-        files: photo ? [photo?.base64] : [],
+        files: photo ? [photo?.base64] : undefined,
         detail: result?.promise
           ? operations?.map((op: Operation, index) =>
               getDataByOperation(`${op.operationId} - ${index}`)

@@ -17,6 +17,8 @@ export const styles = StyleSheet.create({
     marginHorizontal: 13,
   },
   logoContainer: {
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 20,
   },
   radarWavesContainer: {

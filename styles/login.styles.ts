@@ -1,4 +1,4 @@
-import { StatusBar, StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
@@ -20,6 +20,7 @@ export const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
+    justifyContent: "center",
     marginVertical: 10,
   },
   welcomeText: {
