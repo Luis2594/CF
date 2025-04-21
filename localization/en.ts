@@ -105,7 +105,12 @@ export const en = {
     title: 'Location Permissions',
     message: 'This app needs location access to work properly',
     allow: 'Allow',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    errors: {
+      denied: 'Permissions permanently denied. Enable them in settings.',
+      checking: 'Error checking location permissions.',
+      requesting: 'Error requesting location permissions',
+    }
   },
 
   // Error Messages

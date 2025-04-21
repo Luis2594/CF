@@ -105,7 +105,12 @@ export const es = {
     title: 'Permisos de ubicación',
     message: 'Esta aplicación necesita acceso a la ubicación para funcionar correctamente',
     allow: 'Permitir',
-    cancel: 'Cancelar'
+    cancel: 'Cancelar',
+    errors: {
+      denied: 'Permisos denegados permanentemente. Habilítelos en la configuración.',
+      checking: 'Error al comprobar los permisos de ubicación.',
+      requesting: 'Error al solicitar permisos de ubicación.',
+    }
   },
 
   // Error Messages

@@ -44,7 +44,7 @@ export default function HomeScreen() {
   }, [errorUser, errorGestion, errorMsg]);
 
   useEffect(() => {
-    if (status === "denied" || status === "undetermined") {
+    if (status === "undetermined") {
       Alert.alert(
         translations.locationPermissions.title,
         translations.locationPermissions.message,
@@ -103,13 +103,7 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
-
+      
       {loadingUser || loadingClient ? (
         <View style={styles.centerContainer}>
           <Text style={styles.loadingText}>{translations.clients.loading}</Text>
