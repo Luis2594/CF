@@ -61,10 +61,7 @@ export default function HomeScreen() {
   }, [errorUser, errorGestion, errorMsg]);
 
   useEffect(() => {
-    if (
-      (isLanguageLoaded && status === "denied") ||
-      status === "undetermined"
-    ) {
+    if (isLanguageLoaded && status === "undetermined") {
       Alert.alert(
         translations.locationPermissions.title,
         translations.locationPermissions.message,

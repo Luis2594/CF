@@ -70,7 +70,7 @@ const OperationItem = React.forwardRef(
         montoLocal: !montoLocal
           ? translations.gestion.errors.localAmount
           : minPromiseAmountLocal
-          ? parseInt(montoLocal) < minPromiseAmountLocal
+          ? parseFloat(montoLocal.replace(/,/g, "")) < minPromiseAmountLocal
             ? `${translations.gestion.errors.minAmount}${operation.currencySymbol}${minPromiseAmountLocal}`
             : undefined
           : undefined,
@@ -78,7 +78,7 @@ const OperationItem = React.forwardRef(
           !montoExt && hasForeign
             ? translations.gestion.errors.extAmount
             : minPromiseAmountForeing
-            ? parseInt(montoExt) < minPromiseAmountForeing
+            ? parseFloat(montoExt.replace(/,/g, "")) < minPromiseAmountForeing
               ? `${translations.gestion.errors.minAmount}${operation.foreignCurrencySymbol}${minPromiseAmountForeing}`
               : undefined
             : undefined,

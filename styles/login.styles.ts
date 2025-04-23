@@ -21,6 +21,7 @@ export const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
+    justifyContent: "center",
     marginVertical: 10,
   },
   welcomeText: {

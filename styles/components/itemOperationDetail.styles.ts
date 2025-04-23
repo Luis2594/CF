@@ -13,12 +13,15 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14
+    marginBottom: 14,
   },
   cardTitleContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  containerText: {
+    flex: 1,
   },
   cardTitle: {
     fontSize: 14,
@@ -58,7 +61,7 @@ export const styles = StyleSheet.create({
     color: colors.gray[500],
     fontFamily: "Quicksand",
     fontWeight: "400",
-    marginRight: 20
+    marginRight: 20,
   },
   operationValue: {
     flexShrink: 1,
@@ -66,10 +69,10 @@ export const styles = StyleSheet.create({
     color: colors.gray[500],
     fontFamily: "Quicksand",
     fontWeight: "700",
-    textAlign: "right"
+    textAlign: "right",
   },
   expandButton: {
     alignItems: "center",
-    padding: 5
+    padding: 5,
   },
 });

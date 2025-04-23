@@ -64,13 +64,15 @@ export default function ItemOperationDetail({
             ) : (
               <SVG.CARD width={25} height={25} />
             )}
-            <View>
-              <Text style={styles.cardTitle}>{operation.description}</Text>
-              <Text style={styles.cardNumber}>{operation.operationId}</Text>
+            <View style={styles.containerText}>
+              <Text style={styles.cardTitle} numberOfLines={5}>
+                {operation.description} - 
+                <Text style={styles.cardNumber}> {operation.operationId}</Text>
+              </Text>
             </View>
-          </View>
-          <View style={styles.currencyBadge}>
-            <Text style={styles.currencyText}>{operation.currency}</Text>
+            <View style={styles.currencyBadge}>
+              <Text style={styles.currencyText}>{operation.currency}</Text>
+            </View>
           </View>
         </View>
         <Divider orientation="horizontal" color="#E6E6E7" />
