@@ -326,10 +326,7 @@ export default function Login() {
         >
           <SVG.RADAR_WAVES width="100%" height="100%" fill="#F34A2D" />
         </View>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.scrollContent}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={{ flex: 1 }}>
               <View style={styles.logoContainer}>
@@ -464,7 +461,7 @@ export default function Login() {
               </View>
             </View>
           </TouchableWithoutFeedback>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
 
       <BiometricPrompt
