@@ -85,6 +85,7 @@ export const styles = StyleSheet.create({
       android: {
         width: "109%",
         marginLeft: -15,
+        marginTop: -1,
       },
       ios: {
         marginBottom: -10,

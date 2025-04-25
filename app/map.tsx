@@ -43,7 +43,8 @@ if (Platform.OS !== "web") {
 
 type RadioType = "suggested" | "custom";
 
-const BOTTOM_SHEET_HEIGHT = 246;
+const screenHeight = Dimensions.get("window").height;
+const BOTTOM_SHEET_HEIGHT = screenHeight * 0.3;
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function MapScreen() {
@@ -59,25 +60,46 @@ export default function MapScreen() {
 
   const [latitude, setLatitude] = useState(parseFloat(location.latitude));
   const [longitude, setLongitude] = useState(parseFloat(location.longitude));
+  const [distance, setDistance] = useState();
+
+  const [filteredClients, setFilteredClients] = useState<Array<Client | null>>(
+    []
+  );
 
   // Bottom sheet animation
   const bottomSheetAnimation = useRef(
     new Animated.Value(SCREEN_HEIGHT)
   ).current;
 
-  const filteredClients = useMemo(() => {
-    return pendingClients.filter((client) => {
-      if (!client.latitude || !client.longitude) return false;
+  useEffect(() => {
+    const filterClientsByDistance = async () => {
+      const filtered = await Promise.all(
+        pendingClients.map(async (client) => {
+          if (!client.latitude || !client.longitude) return null;
 
-      const distance = calculateDistance(
-        latitude,
-        longitude,
-        parseFloat(client.latitude),
-        parseFloat(client.longitude)
+          const distance = await calculateDistance(
+            latitude,
+            longitude,
+            parseFloat(client.latitude),
+            parseFloat(client.longitude)
+          );
+
+          console.log({
+            distance: distance.distanceValue,
+            customRadius,
+            flat: distance.distanceValue <= customRadius,
+          });
+
+          return distance.distanceValue <= customRadius ? client : null;
+        })
       );
 
-      return distance <= customRadius;
-    });
+      setFilteredClients(filtered.filter(Boolean)); // remueve los null
+    };
+
+    if (!loadingClient && latitude && longitude) {
+      filterClientsByDistance();
+    }
   }, [loadingClient, pendingClients, customRadius, location]);
 
   useEffect(() => {
@@ -96,6 +118,8 @@ export default function MapScreen() {
     if (!loading && !loadingClient) {
       if (filteredClients.length === 0) {
         setError(translations.map.noClients);
+      } else {
+        setError(null);
       }
 
       if (location.latitude === "0" || location.longitude === "0") {
@@ -122,12 +146,22 @@ export default function MapScreen() {
     return radiusInMeters / oneDegree;
   };
 
-  const showBottomSheet = (client: Client) => {
+  const showBottomSheet = async (client: Client) => {
     setSelectedClient(client);
     Animated.spring(bottomSheetAnimation, {
       toValue: SCREEN_HEIGHT - BOTTOM_SHEET_HEIGHT,
       useNativeDriver: true,
     }).start();
+    setDistance(
+      (
+        await calculateDistance(
+          latitude,
+          longitude,
+          parseFloat(client.latitude || "0"),
+          parseFloat(client.longitude || "0")
+        )
+      ).distanceText
+    );
   };
 
   const hideBottomSheet = () => {
@@ -154,33 +188,64 @@ export default function MapScreen() {
         {
           text: "Waze",
           onPress: () => {
-            const wazeUrl = `waze://?ll=${clientLat},${clientLng}&navigate=yes`;
-            const wazeWebUrl = `https://www.waze.com/ul?ll=${clientLat}%2C${clientLng}&navigate=yes`;
+            const latLng = `${clientLat},${clientLng}`;
+            const wazeAppUrl = `waze://?ll=${latLng}&navigate=yes`;
+            const wazeWebUrl = `https://www.waze.com/ul?ll=${encodeURIComponent(
+              latLng
+            )}&navigate=yes`;
 
-            Linking.canOpenURL(wazeUrl).then((supported) => {
-              if (supported) {
-                Linking.openURL(wazeUrl);
-              } else {
+            let didOpen = false;
+
+            // Intentamos abrir Waze nativo
+            Linking.openURL(wazeAppUrl)
+              .then(() => {
+                didOpen = true;
+              })
+              .catch(() => {
+                Linking.openURL(wazeWebUrl); // fallback inmediato si falla
+              });
+
+            // fallback de seguridad en caso de que falle en silencio
+            setTimeout(() => {
+              if (!didOpen) {
                 Linking.openURL(wazeWebUrl);
               }
-            });
+            }, 1500);
           },
         },
         {
           text: translations.map.navigationOptions.maps,
-          onPress: () => {
-            const scheme = Platform.select({
-              ios: "maps:",
-              android: "geo:",
-            });
-            const url = Platform.select({
-              ios: `${scheme}${clientLat},${clientLng}`,
-              android: `${scheme}${clientLat},${clientLng}`,
-              web: `https://www.google.com/maps/dir/?api=1&destination=${clientLat},${clientLng}`,
-            });
+          onPress: async () => {
+            const latLng = `${clientLat},${clientLng}`;
 
-            if (url) {
-              Linking.openURL(url);
+            if (Platform.OS === "ios") {
+              // Intentamos abrir Google Maps app, pero damos fallback manual con delay
+              const googleMapsURL = `comgooglemaps://?daddr=${latLng}&directionsmode=driving`;
+              const fallbackURL = `https://www.google.com/maps/dir/?api=1&destination=${latLng}&travelmode=driving`;
+
+              let didOpen = false;
+
+              // Intenta abrir Google Maps
+              Linking.openURL(googleMapsURL)
+                .then(() => {
+                  didOpen = true;
+                })
+                .catch(() => {
+                  // fallback inmediato si falla (iOS 18.3 por ejemplo)
+                  Linking.openURL(fallbackURL);
+                });
+
+              // Espera 1.5 segundos y abre fallback si no respondió
+              setTimeout(() => {
+                if (!didOpen) {
+                  Linking.openURL(fallbackURL);
+                }
+              }, 1500);
+            } else {
+              const url = `https://www.google.com/maps/dir/?api=1&destination=${latLng}&travelmode=driving`;
+              Linking.openURL(url).catch((err) =>
+                console.error("Error abriendo la ruta:", err)
+              );
             }
           },
         },
@@ -231,8 +296,8 @@ export default function MapScreen() {
               <Marker
                 key={client.clientId}
                 coordinate={{
-                  latitude: client.latitude,
-                  longitude: client.longitude,
+                  latitude: parseFloat(client.latitude?.toString()),
+                  longitude: parseFloat(client.longitude?.toString()),
                 }}
                 onPress={() => showBottomSheet(client)}
               >
@@ -380,41 +445,39 @@ export default function MapScreen() {
               ]}
             >
               {selectedClient && (
-                <View style={styles.bottomSheetContent}>
-                  <Text style={styles.bottomSheetTitle}>
-                    {translations.map.selectedClient}
-                  </Text>
-                  <Text style={styles.clientName}>{selectedClient.name}</Text>
-                  <View style={styles.containerDistance}>
-                    <SVG.MOTO width={16} height={16} />
-                    <Text style={styles.clientDistance}>
-                      {calculateDistance(
-                        latitude,
-                        longitude,
-                        parseFloat(selectedClient.latitude || "0"),
-                        parseFloat(selectedClient.longitude || "0")
-                      ).toFixed(1)}{" "}
-                      km
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    /* No hace nada, pero intercepta */
+                  }}
+                >
+                  <View style={styles.bottomSheetContent}>
+                    <Text style={styles.bottomSheetTitle}>
+                      {translations.map.selectedClient}
                     </Text>
-                  </View>
-                  <TouchableOpacity onPress={copyToClipboard}>
-                    <View style={styles.wrapAddress}>
-                      <Text
-                        style={styles.clientAddress}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {`${selectedClient?.addressLevel1}, ${selectedClient?.addressLevel2}`}
-                      </Text>
-                      <SVG.COPY width={18} height={18} />
+                    <Text style={styles.clientName}>{selectedClient.name}</Text>
+                    <View style={styles.containerDistance}>
+                      <SVG.MOTO width={16} height={16} />
+                      <Text style={styles.clientDistance}>{distance}</Text>
                     </View>
-                  </TouchableOpacity>
+                    <TouchableOpacity onPress={copyToClipboard}>
+                      <View style={styles.wrapAddress}>
+                        <Text
+                          style={styles.clientAddress}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {`${selectedClient?.addressLevel1}, ${selectedClient?.addressLevel2}`}
+                        </Text>
+                        <SVG.COPY width={18} height={18} />
+                      </View>
+                    </TouchableOpacity>
 
-                  <Button
-                    text={translations.map.goTo}
-                    onPress={handleNavigation}
-                  />
-                </View>
+                    <Button
+                      text={translations.map.goTo}
+                      onPress={handleNavigation}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
               )}
             </Animated.View>
           </View>
