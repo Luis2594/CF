@@ -51,7 +51,7 @@ export default function MapScreen() {
   const { location, loading } = useLocation();
   const { translations } = useLanguage();
   const { user } = useUser();
-  const { loadingClient, pendingClients, getClients } = useClient();
+  const { loadingClient, pendingClients, getClients, saveClient } = useClient();
   const [selectedRadio, setSelectedRadio] = useState<RadioType>("suggested");
   const [slider, setSlider] = useState(1);
   const [customRadius, setCustomRadius] = useState(1);
@@ -172,7 +172,7 @@ export default function MapScreen() {
     }).start();
   };
 
-  const handleNavigation = () => {
+  const handleNavigation = async () => {
     if (!selectedClient?.latitude || !selectedClient?.longitude) {
       Alert.alert(translations.map.noLocation);
       return;
@@ -180,7 +180,7 @@ export default function MapScreen() {
 
     const clientLat = parseFloat(selectedClient.latitude);
     const clientLng = parseFloat(selectedClient.longitude);
-
+    await saveClient(selectedClient);
     Alert.alert(
       translations.map.navigationOptions.title,
       translations.map.navigationOptions.message,
@@ -210,6 +210,8 @@ export default function MapScreen() {
               if (!didOpen) {
                 Linking.openURL(wazeWebUrl);
               }
+              hideBottomSheet();
+              router.push(`/info-client/${selectedClient.clientId}`);
             }, 1500);
           },
         },
@@ -240,12 +242,16 @@ export default function MapScreen() {
                 if (!didOpen) {
                   Linking.openURL(fallbackURL);
                 }
+                hideBottomSheet();
+                router.push(`/info-client/${selectedClient.clientId}`);
               }, 1500);
             } else {
               const url = `https://www.google.com/maps/dir/?api=1&destination=${latLng}&travelmode=driving`;
               Linking.openURL(url).catch((err) =>
                 console.error("Error abriendo la ruta:", err)
               );
+              hideBottomSheet();
+              router.push(`/info-client/${selectedClient.clientId}`);
             }
           },
         },

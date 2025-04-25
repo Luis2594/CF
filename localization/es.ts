@@ -101,11 +101,11 @@ export const es = {
   map: {
     title: 'Clientes no visitados',
     suggestedRadius: {
-      title: 'Radio Local Sugerido',
+      title: 'Radio local sugerido',
       description: 'Mostrarme los de esta zona'
     },
     customRadius: {
-      title: 'Radio Local Personalizado',
+      title: 'Radio local personalizado',
       description: 'Mostrarme ubicaciones dentro de una distancia específica'
     },
     apply: 'Aplicar',
@@ -113,9 +113,9 @@ export const es = {
     noLocation: "No se puede determinar su ubicación actual. Asegúrese de que el GPS esté activado y de que los permisos de ubicación estén disponibles en la configuración de su dispositivo.",
     kilometers: 'Kilómetros',
     selectedClient: 'Cliente seleccionado',
-    goTo: 'Gestionar',
+    goTo: 'Ir a',
     navigationOptions: {
-      title: 'Opciones de Navegación',
+      title: 'Opciones de navegación',
       message: 'Elija su aplicación de navegación preferida',
       maps: 'Mapas',
       cancel: 'Cancelar'
@@ -251,7 +251,7 @@ export const es = {
   camera: {
     notAvailable: "Cámara no disponible en plataforma web",
     close: "Cerrar",
-    permissionTitle: "Permiso de Cámara",
+    permissionTitle: "Permiso de cámara",
     permissionMessage: "Necesitamos su permiso para usar la cámara",
     grantPermission: "Conceder Permiso",
     error: {
@@ -270,7 +270,7 @@ export const es = {
     language: 'Idioma',
     privacy: 'Privacidad y Seguridad',
     help: 'Ayuda y Soporte',
-    logout: 'Cerrar Sesión',
+    logout: 'Cerrar sesión',
   },
   appVersion: 'Versión 1.0.0',
   copyright: '© 2025 FindForce. Todos los derechos reservados.',
@@ -309,7 +309,7 @@ export const es = {
         pending: "Pendiente",
         visited: "Visitado"
       },
-      noRegion: "Sin Región",
+      noRegion: "Sin región",
       client: "cliente",
       clients: "clientes",
       card: {

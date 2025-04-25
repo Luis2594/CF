@@ -101,11 +101,11 @@ export const en = {
   map: {
     title: 'Unvisited customers',
     suggestedRadius: {
-      title: 'Suggested Local Radius',
+      title: 'Suggested local radius',
       description: 'Show me in this area'
     },
     customRadius: {
-      title: 'Custom Local Radius',
+      title: 'Custom local radius',
       description: 'Show me locations within a specific distance'
     },
     apply: 'Apply',
@@ -113,9 +113,9 @@ export const en = {
     noLocation: "Unable to determine your current location. Please ensure that GPS is enabled and location permissions are granted in your device settings.",
     selectedClient: 'Selected client',
     kilometers: 'Kilometers',
-    goTo: 'Manage',
+    goTo: 'Go to',
     navigationOptions: {
-      title: 'Navigation Options',
+      title: 'Navigation options',
       message: 'Choose your preferred navigation app',
       maps: 'Maps',
       cancel: 'Cancel'
@@ -127,7 +127,7 @@ export const en = {
 
   // Location Permissions
   locationPermissions: {
-    title: 'Location Permissions',
+    title: 'Location permissions',
     message: 'This app needs location access to work properly',
     allow: 'Allow',
     cancel: 'Cancel',
@@ -250,7 +250,7 @@ export const en = {
   camera: {
     notAvailable: "Camera not available on web platform",
     close: "Close",
-    permissionTitle: "Camera Permission",
+    permissionTitle: "Camera permission",
     permissionMessage: "We need your permission to use the camera",
     grantPermission: "Grant Permission",
     error: {
@@ -269,7 +269,7 @@ export const en = {
     language: 'Language',
     privacy: 'Privacy & Security',
     help: 'Help & Support',
-    logout: 'Log Out',
+    logout: 'Log out',
   },
   appVersion: 'Version 1.0.0',
   copyright: '© 2025 FindForce. All rights reserved.',
@@ -296,7 +296,7 @@ export const en = {
       placeholder: "Search",
     },
     filters: {
-      all: "All Clients",
+      all: "All clients",
       pending: "Pending",
       visited: "Visited"
     },
@@ -308,7 +308,7 @@ export const en = {
         pending: "Pending",
         visited: "Visited"
       },
-      noRegion: "No Region",
+      noRegion: "No region",
       client: "client",
       clients: "clients",
       card: {
