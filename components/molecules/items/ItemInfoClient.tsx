@@ -30,10 +30,6 @@ export default function ItemInfoClient({ client }: { client: Client | null }) {
       label: translations.client.info.workPhone,
       value: client.workPhoneNumber,
     },
-    client?.workPhoneNumber2 && {
-      label: translations.client.info.workPhone,
-      value: client.workPhoneNumber2,
-    },
   ].filter(Boolean);
 
   return (

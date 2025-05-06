@@ -212,7 +212,7 @@ export const en = {
     contact: "Contact",
     manager: "Manager",
     actionDate: "Action Date",
-    gcPortfolio: "GC Portfolio",
+    gcPortfolio: "GC",
     delinquencyReason: "Delinquency Reason"
   },
 
@@ -225,13 +225,13 @@ export const en = {
     comment: 'Comment',
     commentPlaceholder: 'Comment',
     operation: 'Operation',
-    localAmount: 'Local Amount',
-    extAmount: 'External Amount',
-    paymentDate: 'Payment Date',
-    takePhoto: 'Take Photo',
+    localAmount: 'Local amount',
+    extAmount: 'Foreign amount',
+    paymentDate: 'Payment date',
+    takePhoto: 'Take photo',
     save: 'Save',
     success: 'The management has been saved',
-    successTitle: 'Successful Management',
+    successTitle: 'Successful management',
     errorTitle: 'Error',
     errors: {
       action: "Action is required",
@@ -239,7 +239,7 @@ export const en = {
       reason: "Reason is required",
       localAmount: "Local amount is required",
       minAmount: "The minimum amount required is: ",
-      extAmount: "External amount is required",
+      extAmount: "Foreign amount is required",
       paymentDate: "Payment date is required",
       saveFailed: "Failed to save management record",
       unauthorized: "Unauthorized access",
@@ -277,10 +277,6 @@ export const en = {
   currencyNames: {
     "320": "Colón",
     "840": "Dollars",
-    "978": "Euros",
-    "826": "Pounds Sterling",
-    "484": "Mexican Pesos",
-    "392": "Yen",
   },
 
   // SIGN_OUT 

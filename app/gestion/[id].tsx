@@ -114,16 +114,9 @@ export default function GestionScreen() {
     setShowCamera(false);
   };
 
-  const validateOperation = (
-    operationId: string,
-    type: "errors" | "promise"
-  ) => {
+  const validateOperation = (operationId: string) => {
     const ref = operationsRefs.current[operationId];
-    return ref
-      ? type === "errors"
-        ? ref.currentErrorsInput()
-        : ref.isPromise()
-      : false;
+    return ref ? ref.currentErrorsInput() : false;
   };
 
   const currentErrorsInput = (): boolean => {
@@ -132,22 +125,9 @@ export default function GestionScreen() {
     let reviewOperationsFlat = false;
 
     if (result?.promise) {
-      const hasSomePromise = operations.some((op, index) =>
-        validateOperation(`${op.operationId} - ${index}`, "promise")
-      );
-
-      if (!hasSomePromise) {
-        setFeedbackType("error");
-        setFeedbackMessage(
-          "Result code requires promise of payment in the detail array"
-        );
-        setShowFeedbackModal(true);
-        return true;
-      }
-
       reviewOperationsFlat = operations
         .map((op, index) =>
-          validateOperation(`${op.operationId} - ${index}`, "errors")
+          validateOperation(`${op.operationId} - ${index}`)
         )
         .some((isInvalid) => isInvalid);
     }

@@ -90,7 +90,7 @@ export const es = {
     }
 
     if (text === 'description') {
-      return `Inicia sesión de forma rápida y segura usando tu ${biometricText}`;
+      return `Iniciar sesión de forma rápida y segura usando tu ${biometricText}`;
     }
     return '';
   },
@@ -213,7 +213,7 @@ export const es = {
     contact: "Contacto",
     manager: "Gestor",
     actionDate: "Fecha acción",
-    gcPortfolio: "GC Cartera",
+    gcPortfolio: "GC",
     delinquencyReason: "Razón mora"
   },
 
@@ -226,8 +226,8 @@ export const es = {
     comment: 'Comentario',
     commentPlaceholder: 'Comentario',
     operation: 'Operación',
-    localAmount: 'Monto Local',
-    extAmount: 'Monto Ext',
+    localAmount: 'Monto local',
+    extAmount: 'Monto ext',
     paymentDate: 'Fecha de pago',
     takePhoto: 'Tomar foto',
     save: 'Guardar',
@@ -240,7 +240,7 @@ export const es = {
       reason: 'Razón es requerido',
       localAmount: 'Monto local es requerido',
       minAmount: 'El monto mínimo requerido es de: ',
-      extAmount: 'Monto Ext es requerido',
+      extAmount: 'Monto ext es requerido',
       paymentDate: 'Fecha de pago es requerido',
       saveFailed: "Error al guardar el registro de gestión",
       unauthorized: "Acceso no autorizado",
@@ -253,7 +253,7 @@ export const es = {
     close: "Cerrar",
     permissionTitle: "Permiso de cámara",
     permissionMessage: "Necesitamos su permiso para usar la cámara",
-    grantPermission: "Conceder Permiso",
+    grantPermission: "Conceder permiso",
     error: {
       checking: "Error al verificar los permisos de la cámara",
       taking: "Error al tomar la foto",
@@ -278,10 +278,6 @@ export const es = {
   currencyNames: {
     "320": "Colones",
     "840": "Dólares",
-    "978": "Euros",
-    "826": "Libras Esterlinas",
-    "484": "Pesos Mexicanos",
-    "392": "Yenes",
   },
 
   // SIGN_OUT 

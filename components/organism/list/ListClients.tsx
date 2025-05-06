@@ -51,7 +51,7 @@ export default function ListClients({
     const grouped = filteredClients.reduce(
       (acc: { [key: string]: Client[] }, client) => {
         const region =
-          client.addressLevel2 || translations.home.client.noRegion;
+          client.addressLevel1 || translations.home.client.noRegion;
         if (!acc[region]) {
           acc[region] = [];
         }

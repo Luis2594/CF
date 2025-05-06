@@ -120,9 +120,9 @@ export default function HomeScreen() {
             isSearch
           />
         </View>
-        {selectedFilter !== "all" && (
+        {/* {selectedFilter !== "all" && (
           <ButtonIcon Icon={<SVG.CALENDAR_GRAY width={24} height={24} />} />
-        )}
+        )} */}
 
         <ButtonIcon
           ref={anchorRef}
