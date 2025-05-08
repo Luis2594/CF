@@ -56,7 +56,8 @@ export default function GestionScreen() {
     setError,
     createGestion,
   } = useGestion();
-  const { type, toggleCameraType } = useCamera();
+  const { type, toggleCameraType, permission, handleRequestPermission } =
+    useCamera();
   const { location } = useLocation();
 
   const [action, setAction] = useState("");
@@ -74,6 +75,8 @@ export default function GestionScreen() {
   const [errorSomePromise, setErrorSomePromise] = useState<string | null>(null);
   const [errorsInput, setErrorsInput] = useState<ErrorsInput>();
 
+  const [isRequestPermissionCamera, setIsRequestPermissionCamera] =
+    useState(false);
   const [loading, setLoading] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -104,6 +107,12 @@ export default function GestionScreen() {
     getClient(id.toString());
   }, []);
 
+  useEffect(() => {
+    if (permission?.granted && isRequestPermissionCamera) {
+      setShowCamera(true);
+    }
+  }, [permission]);
+
   const handleCapture = (capturedPhoto?: CameraCapturedPicture) => {
     setError(null);
     if (capturedPhoto) {
@@ -126,9 +135,7 @@ export default function GestionScreen() {
 
     if (result?.promise) {
       reviewOperationsFlat = operations
-        .map((op, index) =>
-          validateOperation(`${op.operationId} - ${index}`)
-        )
+        .map((op, index) => validateOperation(`${op.operationId} - ${index}`))
         .some((isInvalid) => isInvalid);
     }
 
@@ -366,7 +373,10 @@ export default function GestionScreen() {
 
           <TouchableOpacity
             style={styles.photoButton}
-            onPress={() => setShowCamera(true)}
+            onPress={async () => {
+              await handleRequestPermission();
+              setIsRequestPermissionCamera(true);
+            }}
           >
             <Text style={styles.photoButtonText}>
               {translations.gestion.takePhoto}

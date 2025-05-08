@@ -39,11 +39,7 @@ export default function ListClients({
 
   useEffect(() => {
     handleSearch(searchQuery);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    handleFilterSelect(filterId);
-  }, [filterId]);
+  }, [searchQuery, filterId]);
 
   const sections = useMemo(() => {
     if (!isLanguageLoaded || !translations.home?.client) return [];
@@ -66,15 +62,6 @@ export default function ListClients({
       .sort((a, b) => a.title.localeCompare(b.title));
   }, [filteredClients, translations, isLanguageLoaded]);
 
-  const handleFilterSelect = (filterId: string) => {
-    const filtered = clients.filter((client) => {
-      if (filterId === "all") return true;
-      if (filterId === "pending") return client.status === 1;
-      if (filterId === "visited") return client.status === 2;
-      return true;
-    });
-    setFilteredClients(filtered);
-  };
 
   const handleSearch = (text: string) => {
     const filterByStatus =

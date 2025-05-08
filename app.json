@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "cf-06-mayo",
+    "name": "cf-08-mayo",
     "slug": "cf",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,6 +8,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+     "jsEngine": "jsc",
     "ios": {
       "supportsTablet": true,
       "infoPlist": {

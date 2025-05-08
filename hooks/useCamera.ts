@@ -1,33 +1,40 @@
-import { useState, useEffect } from 'react';
-import { Platform } from 'react-native';
-import { CameraType, useCameraPermissions } from 'expo-camera';
-import { useLanguage } from '@/context/LanguageContext';
+import { useState } from "react";
+import { Platform, Linking } from "react-native";
+import { CameraType, useCameraPermissions } from "expo-camera";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const useCamera = () => {
-  const [type, setType] = useState<CameraType>('back');
+  const [type, setType] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [error, setError] = useState<string | null>(null);
   const { translations } = useLanguage();
 
-  useEffect(() => {
-    if (Platform.OS !== 'web') {
-      checkPermissions();
-    }
-  }, []);
+  const toggleCameraType = () => {
+    setType((current) => (current === "back" ? "front" : "back"));
+  };
 
-  const checkPermissions = async () => {
+  const handleRequestPermission = async () => {
+    if (Platform.OS === "web") return; // No aplica para web
+
     try {
-      if (!permission?.granted) {
-        await requestPermission();
+      const result = await requestPermission();
+
+      if (!result.granted) {
+        // El usuario negó el permiso
+        if (result.canAskAgain) {
+          setError(translations.camera.error.deniedTemporarily);
+        } else {
+          // El usuario bloqueó el permiso permanentemente
+          setError(translations.camera.error.deniedPermanently);
+          Linking.openSettings();
+        }
+      } else {
+        setError(null); // Limpia cualquier error anterior
       }
     } catch (err) {
       setError(translations.camera.error.checking);
-      console.error('Error checking permissions:', err);
+      console.error("Error requesting permission:", err);
     }
-  };
-
-  const toggleCameraType = () => {
-    setType(current => (current === 'back' ? 'front' : 'back'));
   };
 
   return {
@@ -35,6 +42,6 @@ export const useCamera = () => {
     permission,
     error,
     toggleCameraType,
-    requestPermission
+    handleRequestPermission, // Usar este en el botón
   };
 };
