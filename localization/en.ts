@@ -155,6 +155,7 @@ export const en = {
   errors: {
     title: "Error",
     logout: "Error logging out. Please try again.",
+    noInternet: 'Internet connection required. Please try again.'
   },
 
   // Client Management

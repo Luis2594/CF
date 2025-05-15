@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Dropdown from "@/components/organism/Dropdown";
@@ -26,6 +27,7 @@ import FeedbackModal from "@/components/molecules/modals/FeedbackModal";
 import { useLocation } from "@/hooks/useLocation";
 import CustomInput from "@/components/organism/CustomInput";
 import { CameraCapturedPicture } from "expo-camera";
+import { X } from "lucide-react-native";
 
 interface ErrorsInput {
   action?: string;
@@ -370,6 +372,18 @@ export default function GestionScreen() {
           />
 
           {result?.promise && renderOperations()}
+
+          {photo && (
+            <View style={styles.photoPreview}>
+              <Image source={{ uri: photo.uri }} style={styles.photoImage} />
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setPhoto(undefined)}
+              >
+                <X color="black" size={24} />
+              </TouchableOpacity>
+            </View>
+          )}
 
           <TouchableOpacity
             style={styles.photoButton}

@@ -231,7 +231,11 @@ export default function Login() {
       console.log("Login error code:", error.details?.code);
       console.log("Login error:", error.message);
 
-      setError(error.message);
+      if (error.message === "internal") {
+        setError(translations.errors.noInternet);
+      } else {
+        setError(error.message);
+      }
     } finally {
       setIsLoading(false);
     }

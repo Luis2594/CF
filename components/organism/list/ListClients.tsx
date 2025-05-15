@@ -72,9 +72,11 @@ export default function ListClients({
       const matchesText = lowerText
         ? client.name.toLowerCase().includes(lowerText) ||
           client.id.toLowerCase().includes(lowerText) ||
-          client.portfolio.toLowerCase().includes(lowerText)
+          client.portfolio.toLowerCase().includes(lowerText) ||
+          client.addressLevel1.toLowerCase().includes(lowerText) ||
+          client.addressLevel2.toLowerCase().includes(lowerText)
         : true;
-
+    
       return filterByStatus
         ? matchesText && client.status === filterByStatus
         : matchesText;

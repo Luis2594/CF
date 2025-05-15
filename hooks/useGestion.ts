@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { STORAGE_KEYS } from '../constants/storage';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { useOfflineSync } from './useOfflineSync';
-import { DropdownItem } from '@/components/organism/Dropdown';
-import { encryptText } from '@/utils/encryption';
-import { useUser } from './useUser';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/config/firebase';
-import { Alert } from 'react-native';
-import { useLanguage } from '@/context/LanguageContext';
-import { ERROR_EXP_SESION } from '@/constants/loginErrors';
+import { useState, useEffect } from "react";
+import { STORAGE_KEYS } from "../constants/storage";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { useOfflineSync } from "./useOfflineSync";
+import { DropdownItem } from "@/components/organism/Dropdown";
+import { encryptText } from "@/utils/encryption";
+import { useUser } from "./useUser";
+import { signOut } from "firebase/auth";
+import { auth } from "@/config/firebase";
+import { Alert } from "react-native";
+import { useLanguage } from "@/context/LanguageContext";
+import { ERROR_EXP_SESION } from "@/constants/loginErrors";
 export interface ResultCodes {
   id: string;
   codeResult: string;
@@ -175,7 +175,9 @@ export const useGestion = () => {
       getDataFromCache({
         key: storageKey,
         onSuccess: (data) => setState(data as T[]),
-        onError: (error) => setError(error.message),
+        onError: () => {
+          setError(translations.errors.noInternet);
+        },
       });
     }
   };
@@ -222,13 +224,9 @@ export const useGestion = () => {
       if (error.message.includes(ERROR_EXP_SESION)) {
         signOut(auth)
           .then(() => {
-            Alert.alert(
-              translations.exp_title,
-              translations.exp_description,
-              [
-                { text: translations.ok }
-              ]
-            );
+            Alert.alert(translations.exp_title, translations.exp_description, [
+              { text: translations.ok },
+            ]);
           })
           .catch(console.error);
       } else {

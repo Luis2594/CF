@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/constants/colors';
+import { StyleSheet } from "react-native";
+import { colors } from "@/constants/colors";
 
 export const styles = StyleSheet.create({
   cardContainer: {
@@ -7,13 +7,13 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.gray[300],
     padding: 15,
-    marginBottom: 22
+    marginBottom: 22,
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14
+    marginBottom: 14,
   },
   cardTitleContainer: {
     flexDirection: "row",
@@ -58,7 +58,7 @@ export const styles = StyleSheet.create({
     color: colors.gray[500],
     fontFamily: "Quicksand",
     fontWeight: "400",
-    marginRight: 20
+    marginRight: 20,
   },
   operationValue: {
     flexShrink: 1,
@@ -66,10 +66,10 @@ export const styles = StyleSheet.create({
     color: colors.gray[500],
     fontFamily: "Quicksand",
     fontWeight: "700",
-    textAlign: "right"
+    textAlign: "justify",
   },
   expandButton: {
     alignItems: "center",
-    padding: 5
+    padding: 5,
   },
 });

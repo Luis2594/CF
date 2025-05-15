@@ -65,7 +65,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   skipButtonText: {
-    color: colors.secondary.light,
+    color: colors.text.primary,
     fontSize: 16,
     fontFamily: "Quicksand",
     fontWeight: '600',

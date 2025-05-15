@@ -1,5 +1,5 @@
-import { StatusBar, StyleSheet } from 'react-native';
-import { colors } from '@/constants/colors';
+import { StatusBar, StyleSheet } from "react-native";
+import { colors } from "@/constants/colors";
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,32 +13,32 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontFamily: 'Quicksand',
-    fontWeight: '700',
+    fontFamily: "Quicksand",
+    fontWeight: "700",
     color: colors.primary.main,
-    textAlign: 'center',
+    textAlign: "center",
     marginVertical: 22,
   },
   spacing: {
-    marginBottom: 12
+    marginBottom: 12,
   },
   containerInputs: {
     marginTop: 22,
-    marginBottom: 20
+    marginBottom: 20,
   },
   label: {
-    fontFamily: 'Quicksand',
-    fontWeight: '700',
+    fontFamily: "Quicksand",
+    fontWeight: "700",
     fontSize: 14,
     color: colors.gray[500],
   },
   containerOperations: {
-    marginTop: 22
+    marginTop: 22,
   },
   photoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.common.white,
     borderRadius: 30,
     borderWidth: 1,
@@ -50,33 +50,53 @@ export const styles = StyleSheet.create({
   photoButtonText: {
     color: colors.primary.main,
     fontSize: 16,
-    fontFamily: 'Quicksand',
-    fontWeight: '600',
+    fontFamily: "Quicksand",
+    fontWeight: "600",
     marginRight: 8,
   },
   saveButton: {
     backgroundColor: colors.primary.main,
     borderRadius: 30,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
     marginBottom: 20,
   },
   saveButtonText: {
     color: colors.common.white,
     fontSize: 16,
-    fontFamily: 'Quicksand',
-    fontWeight: '600',
+    fontFamily: "Quicksand",
+    fontWeight: "600",
   },
   photoPreview: {
     marginVertical: 20,
     borderRadius: 10,
-    overflow: 'hidden',
-    resizeMode: 'contain'
+    overflow: "hidden",
+    position: "relative",
   },
   photoImage: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'cover',
+    width: "100%",
+    height: 146,
+    resizeMode: "cover",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: colors.border.main,
+    borderRadius: 20,
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: "#333",
   },
 });

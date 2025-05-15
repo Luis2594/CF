@@ -159,6 +159,8 @@ export const es = {
   errors: {
     title: "Error",
     logout: "Error al cerrar sesión. Por favor intente de nuevo.",
+    noInternet:
+      "Se requiere conexión a internet. Intente nuevamente.",
   },
 
   // Client Management
