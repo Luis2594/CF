@@ -125,45 +125,7 @@ export default function TermsAcceptanceScreen() {
           <Text style={styles.title}>{translations.termsTitle}</Text>
 
           <ScrollView style={styles.termsContainer}>
-            <Text style={styles.termsText}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vitae,
-              sed imperdiet vel commodo a, vel volutpat porttitor commodo.
-              Platea lectus ultricies nibh eu feugiat. Sagittis convallis neque,
-              molestie pellentesque ipsum, sit. Nullam dis neque etiam
-              phasellus.
-            </Text>
-
-            <Text style={styles.termsText}>
-              Tincidunt sapien, eu nulla habitant duis. Quam eu, elementum
-              eleifend gravida orci, integer molestie maecenas.
-            </Text>
-
-            <Text style={styles.termsText}>
-              Erat elementum lobortis sapien vel vestibulum elit cursus mi. In
-              pretium morbi integer adipiscing iaculis commodo pellentesque
-              cursus. Quisque cursus nulla aenean est nec rhoncus lorem vitae,
-              laoreet.
-            </Text>
-
-            <Text style={styles.termsText}>
-              Nullam tristique sagittis vulputate dolor, ipsum ultrices lectus
-              ut. Scelerisque libero at sed dolor. Ut arcu ipsum vel vitae magna
-              vel enim faucibus mattis. Nam urna mauris, vitae egestas tortor
-              volutpat tristique. Lobortis lacus dictumst eget egestas amet
-              vivamus orci phasellus nunc.
-            </Text>
-
-            <Text style={styles.termsText}>
-              Sed enim id lectus risus phasellus volutpat. Aliquam nisi sagittis
-              sit ligula. Turpis leo, maecenas sed nisi. Malesuada euismod dolor
-              posuere tincidunt laoreet lorem quam nulla porta. Etiam dui quam
-              purus enim lectus.
-            </Text>
-
-            <Text style={styles.termsText}>
-              Sed odio sollicitudin volutpat nibh. Viverra cras morbi blandit
-              phasellus a quis vel id.
-            </Text>
+            <Text style={styles.termsText}>{translations.terms}</Text>
           </ScrollView>
         </View>
 
