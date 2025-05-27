@@ -1,5 +1,5 @@
-import { StatusBar, StyleSheet } from 'react-native';
-import { colors } from '@/constants/colors';
+import { StatusBar, StyleSheet } from "react-native";
+import { colors } from "@/constants/colors";
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   wrappMargin: {
     flex: 1,
     marginHorizontal: 22,
-    marginTop: 10
+    marginTop: 10,
   },
   backButton: {
     flexDirection: "row",
@@ -24,8 +24,8 @@ export const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 12,
-    fontFamily: 'Quicksand',
-    fontWeight: '700',
+    fontFamily: "Quicksand",
+    fontWeight: "700",
     color: colors.gray[500],
     marginLeft: 4,
   },
@@ -44,8 +44,8 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: 'Quicksand',
-    fontWeight: '700',
+    fontFamily: "Quicksand",
+    fontWeight: "700",
     color: colors.gray[500],
     marginVertical: 20,
     textAlign: "center",
@@ -56,8 +56,8 @@ export const styles = StyleSheet.create({
   },
   termsText: {
     fontSize: 14,
-    fontFamily: 'Quicksand',
-    fontWeight: '400',
+    fontFamily: "Quicksand",
+    fontWeight: "400",
     color: colors.gray[500],
     marginBottom: 16,
     lineHeight: 24,
@@ -75,13 +75,13 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     color: colors.error.main,
     fontSize: 12,
-    fontFamily: 'Quicksand',
-    fontWeight: '400'
+    fontFamily: "Quicksand",
+    fontWeight: "400",
   },
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 22
+    marginTop: 22,
   },
   checkedBox: {
     borderRadius: 4,
@@ -100,8 +100,8 @@ export const styles = StyleSheet.create({
   },
   checkboxText: {
     fontSize: 14,
-    fontFamily: 'Quicksand',
-    fontWeight: '700',
+    fontFamily: "Quicksand",
+    fontWeight: "700",
     color: colors.gray[500],
   },
   continueButton: {
@@ -117,7 +117,7 @@ export const styles = StyleSheet.create({
   continueButtonText: {
     color: colors.common.white,
     fontSize: 18,
-    fontFamily: 'Quicksand',
-    fontWeight: '600',
+    fontFamily: "Quicksand",
+    fontWeight: "600",
   },
 });

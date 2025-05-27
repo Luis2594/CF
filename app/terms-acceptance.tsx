@@ -22,6 +22,7 @@ import AlertErrorMessage from "@/components/molecules/alerts/AlertErrorMessage";
 import BackButton from "@/components/molecules/buttons/BackButton";
 import { getLoginErrorMessage } from "@/constants/loginErrors";
 import TextError from "@/components/atoms/TextError";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TermsAcceptanceScreen() {
   const { translations, language } = useLanguage();
@@ -30,6 +31,8 @@ export default function TermsAcceptanceScreen() {
   const [errorAcceptTerms, setErrorAcceptTerms] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const insets = useSafeAreaInsets();
 
   const handleBack = () => {
     signOut(auth)
@@ -154,7 +157,10 @@ export default function TermsAcceptanceScreen() {
           disabled={!isChecked}
           variant={"default"}
           isLoading={isLoading}
-          customStyleContainer={{ marginBottom: 0, marginTop: 22 }}
+          customStyleContainer={{
+            marginTop: 22,
+            marginBottom: insets.bottom + 12,
+          }}
           onPressDisable={() => {
             if (!isChecked) {
               setErrorAcceptTerms(translations.acceptTermsError);
